@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { DashboardCopy } from "@/lib/dashboard-translations";
 import type { CourtView } from "@/lib/mock-data";
 
@@ -17,7 +18,7 @@ export function CourtCard({ court, copy }: { court: CourtView; copy: DashboardCo
           <span>{court.awaitingScore ? copy.awaitingScore : copy.nowPlaying}</span>
           {court.playing ? <strong>{court.playing.home} <b className="match-versus">VS</b> {court.playing.away}</strong> : court.awaitingScore ? <strong>{court.awaitingScore.home} <b className="match-versus">VS</b> {court.awaitingScore.away}</strong> : <strong className="muted-match">{copy.noMatch}</strong>}
         </div>
-        <div className="court-footer"><span><b>{court.queue.length}</b> {copy.teamsInQueue}</span><button type="button">{copy.viewDetails}<b>→</b></button></div>
+        <div className="court-footer"><span><b>{court.queue.length}</b> {copy.teamsInQueue}</span><Link href={`/courts/${court.id}`}>{copy.viewDetails}<b>→</b></Link></div>
       </div>
     </article>
   );

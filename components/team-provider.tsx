@@ -16,6 +16,7 @@ type TeamContextValue = {
   transferCaptain(teamId: string, userId: string): TeamMutationResult;
   leaveTeam(teamId: string): TeamMutationResult;
   dissolveTeam(teamId: string): TeamMutationResult;
+  syncRosterLocks(activeTeamIds: Set<string>): void;
   resetMockData(): void;
 };
 
@@ -130,6 +131,7 @@ export function TeamProvider({ children, repository }: { children: React.ReactNo
     const team = state.teams.find((item) => item.id === teamId);
     if (!team) return { ok: false, error: "TEAM_NOT_FOUND" };
     if (team.captainUserId !== currentUser.id) return { ok: false, error: "CAPTAIN_ONLY" };
+    if (team.rosterLocked) return { ok: false, error: "ROSTER_LOCKED" };
     const memberIds = new Set(team.members.map((member) => member.userId));
     commit({
       ...state,
@@ -143,8 +145,25 @@ export function TeamProvider({ children, repository }: { children: React.ReactNo
     setState(teamRepository.reset());
   }
 
+  const syncRosterLocks = useCallback((activeTeamIds: Set<string>) => {
+    setState((currentState) => {
+      if (!currentState) return currentState;
+      let changed = false;
+      const teams = currentState.teams.map((team) => {
+        const rosterLocked = activeTeamIds.has(team.id);
+        if (team.rosterLocked === rosterLocked) return team;
+        changed = true;
+        return { ...team, rosterLocked };
+      });
+      if (!changed) return currentState;
+      const nextState = { ...currentState, teams };
+      teamRepository.save(nextState);
+      return nextState;
+    });
+  }, [teamRepository]);
+
   return (
-    <TeamContext.Provider value={{ ready: state !== null, state, currentUser, currentTeam, createTeam, addMember, removeMember, transferCaptain, leaveTeam, dissolveTeam, resetMockData }}>
+    <TeamContext.Provider value={{ ready: state !== null, state, currentUser, currentTeam, createTeam, addMember, removeMember, transferCaptain, leaveTeam, dissolveTeam, syncRosterLocks, resetMockData }}>
       {children}
     </TeamContext.Provider>
   );

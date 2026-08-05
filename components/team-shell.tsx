@@ -21,7 +21,7 @@ export function TeamShell({ children }: { children: React.ReactNode }) {
           </Link>
           <nav className="desktop-nav" aria-label={dashboardCopy.mainNavigation}>
             <Link href="/">{dashboardCopy.home}</Link>
-            <Link href="/#courts">{dashboardCopy.courts}</Link>
+            <Link href="/courts">{dashboardCopy.courts}</Link>
             <Link className="nav-current" href="/teams">{dashboardCopy.teams}</Link>
             <Link href="/#maintenance">{dashboardCopy.maintenance}</Link>
           </nav>
@@ -48,7 +48,7 @@ export function TeamShell({ children }: { children: React.ReactNode }) {
 
       <nav className="bottom-nav" aria-label={dashboardCopy.mainNavigation}>
         <Link href="/"><span aria-hidden="true">⌂</span>{dashboardCopy.home}</Link>
-        <Link href="/#courts"><span aria-hidden="true">▱</span>{dashboardCopy.courts}</Link>
+        <Link href="/courts"><span aria-hidden="true">▱</span>{dashboardCopy.courts}</Link>
         <Link className="is-active" href="/teams"><span aria-hidden="true">◫</span>{dashboardCopy.teams}</Link>
         <Link href="/#maintenance"><span aria-hidden="true">!</span>{dashboardCopy.maintenance}</Link>
         <Link href="/"><span aria-hidden="true">●</span>{dashboardCopy.profile}</Link>

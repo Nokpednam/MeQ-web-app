@@ -6,6 +6,10 @@ import { useState } from "react";
 import { useTeamData } from "@/components/team-provider";
 import { useMeqLanguage } from "@/components/use-meq-language";
 import { teamTranslations } from "@/lib/dashboard-translations";
+import { queueTranslations } from "@/lib/dashboard-translations";
+import { useQueueData } from "@/components/queue-provider";
+import { getActiveQueueEntryForTeam } from "@/lib/queue-rules";
+import { getCourtById } from "@/lib/court-data";
 import { getTeamErrorMessage } from "@/lib/team-error-copy";
 import { canAddMember, getTeamCapacity, getTeamStatus } from "@/lib/team-rules";
 import type { TeamRuleError } from "@/lib/team-types";
@@ -15,6 +19,8 @@ export function TeamDetailClient({ teamId }: { teamId: string }) {
   const searchParams = useSearchParams();
   const { language } = useMeqLanguage();
   const copy = teamTranslations[language];
+  const queueCopy = queueTranslations[language];
+  const { state: queueState } = useQueueData();
   const { ready, state, currentUser, addMember, removeMember, transferCaptain, leaveTeam, dissolveTeam } = useTeamData();
   const [showAddMembers, setShowAddMembers] = useState(false);
   const [query, setQuery] = useState("");
@@ -25,6 +31,8 @@ export function TeamDetailClient({ teamId }: { teamId: string }) {
   const capacity = team ? getTeamCapacity(team.type) : 0;
   const isFull = Boolean(team && team.members.length >= capacity);
   const teamStatus = team ? getTeamStatus(team) : null;
+  const activeQueueEntry = team && queueState ? getActiveQueueEntryForTeam(queueState.entries, team.id) : null;
+  const activeCourt = activeQueueEntry ? getCourtById(activeQueueEntry.courtId) : null;
 
   const searchableUsers = (() => {
     if (!state || !team) return [];
@@ -73,6 +81,7 @@ export function TeamDetailClient({ teamId }: { teamId: string }) {
     <div className="team-page team-detail-page">
       <header className="team-page-heading"><div><p className="section-label">{copy.pageLabel}</p><h1>{team.name}</h1><p>{copy.fixedType}</p></div><Link className="back-link" href="/teams">← {copy.myTeam}</Link></header>
       {searchParams.get("notice") === "already-member" ? <div className="team-notice" role="status">{copy.alreadyHasTeamNotice}</div> : null}
+      {activeQueueEntry && activeCourt ? <div className="team-queue-notice" role="status"><div><strong>{queueCopy.rosterLocked}</strong><span>{activeCourt.name} · {queueCopy.position} {activeQueueEntry.position}</span></div><Link href={`/courts/${activeCourt.id}`}>{queueCopy.leaveBeforeEdit} →</Link></div> : null}
       {error ? <div className="team-error" role="alert">{getTeamErrorMessage(error, copy)}</div> : null}
 
       <section className="team-detail-hero">
@@ -94,7 +103,7 @@ export function TeamDetailClient({ teamId }: { teamId: string }) {
                   <span className="member-avatar">{user.initials}</span>
                   <div className="member-identity"><strong>{user.displayName}{user.id === currentUser?.id ? <small> · {copy.currentUser}</small> : null}</strong><span>{memberIsCaptain ? copy.captain : copy.member}</span></div>
                   {memberIsCaptain ? <span className="captain-badge">★ {copy.captain}</span> : null}
-                  {isCaptain && !memberIsCaptain ? <div className="member-actions"><button type="button" onClick={() => handleTransfer(user.id)}>{copy.transferCaptain}</button><button className="danger-text" type="button" onClick={() => handleRemove(user.id)}>{copy.remove}</button></div> : null}
+                  {isCaptain && !memberIsCaptain ? <div className="member-actions"><button type="button" disabled={team.rosterLocked} onClick={() => handleTransfer(user.id)}>{copy.transferCaptain}</button><button className="danger-text" type="button" disabled={team.rosterLocked} onClick={() => handleRemove(user.id)}>{copy.remove}</button></div> : null}
                 </li>
               );
             })}
@@ -106,7 +115,7 @@ export function TeamDetailClient({ teamId }: { teamId: string }) {
           <h2>{copy.teamDetails}</h2>
           <dl><div><dt>{copy.teamType}</dt><dd>{team.type === "THREE_X_THREE" ? "3x3" : "5x5"}</dd></div><div><dt>{copy.status}</dt><dd><span className={`team-status status-${teamStatus?.toLowerCase()}`}>{teamStatus === "READY" ? copy.ready : copy.incomplete}</span></dd></div><div><dt>{copy.members}</dt><dd>{team.members.length}/{capacity}</dd></div></dl>
           <p className="editable-note">✓ {team.rosterLocked ? copy.rosterLocked : copy.rosterEditable}</p>
-          {isCaptain ? <><p className="captain-leave-note">{copy.transferBeforeLeave}</p><button className="danger-button" type="button" onClick={handleDissolve}>{copy.dissolveTeam}</button></> : isCurrentMember ? <button className="team-secondary-button" type="button" onClick={handleLeave}>{copy.leaveTeam}</button> : null}
+          {isCaptain ? <><p className="captain-leave-note">{copy.transferBeforeLeave}</p><button className="danger-button" type="button" disabled={team.rosterLocked} onClick={handleDissolve}>{copy.dissolveTeam}</button></> : isCurrentMember ? <button className="team-secondary-button" type="button" disabled={team.rosterLocked} onClick={handleLeave}>{copy.leaveTeam}</button> : null}
         </aside>
       </div>
 

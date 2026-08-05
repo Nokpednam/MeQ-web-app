@@ -9,7 +9,7 @@ import { courts, games, playerStats } from "@/lib/mock-data";
 
 const navigation = [
   ["home", "#top"],
-  ["courts", "#courts"],
+  ["courts", "/courts"],
   ["teams", "/teams"],
   ["maintenance", "#maintenance"],
   ["profile", "#profile"],
