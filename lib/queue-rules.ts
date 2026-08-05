@@ -2,15 +2,19 @@ import { getTeamStatus } from "./team-rules";
 import type { Team } from "./team-types";
 import type { Court, CourtId, QueueDataState, QueueEntry, QueueMutationResult, QueueRuleError } from "./queue-types";
 
-const ACTIVE_STATUSES = new Set(["WAITING", "CALLED", "READY_TO_PLAY", "PLAYING", "AWAITING_SCORE", "RESTING"] as const);
-const NON_LEAVABLE_STATUSES = new Set(["PLAYING", "AWAITING_SCORE", "RESTING"] as const);
+const ACTIVE_STATUSES = new Set(["WAITING", "CALLED", "CHECKING_IN", "READY_TO_PLAY", "PLAYING", "AWAITING_SCORE", "RESTING"] as const);
+const NON_LEAVABLE_STATUSES = new Set(["CALLED", "CHECKING_IN", "READY_TO_PLAY", "PLAYING", "AWAITING_SCORE", "RESTING"] as const);
+
+export function isActiveQueueEntry(entry: QueueEntry): boolean {
+  return ACTIVE_STATUSES.has(entry.status as (typeof ACTIVE_STATUSES extends Set<infer T> ? T : never));
+}
 
 export function isTeamCompatibleWithCourt(team: Team, court: Court): boolean {
   return team.type === court.type;
 }
 
 export function getActiveQueueEntryForTeam(entries: QueueEntry[], teamId: string): QueueEntry | null {
-  return entries.find((entry) => entry.teamId === teamId && ACTIVE_STATUSES.has(entry.status)) ?? null;
+  return entries.find((entry) => entry.teamId === teamId && isActiveQueueEntry(entry)) ?? null;
 }
 
 export function getQueuePosition(entries: QueueEntry[], teamId: string): number | null {
@@ -44,7 +48,7 @@ export function canTeamJoinCourt(options: {
 
 export function reorderQueuePositions(entries: QueueEntry[], courtId: CourtId): QueueEntry[] {
   const courtEntries = entries
-    .filter((entry) => entry.courtId === courtId && entry.status !== "PLAYING" && entry.status !== "AWAITING_SCORE")
+    .filter((entry) => entry.courtId === courtId && entry.status === "WAITING")
     .sort((a, b) => a.joinedAt.localeCompare(b.joinedAt));
   const positions = new Map(courtEntries.map((entry, index) => [entry.id, index + 1]));
   return entries.map((entry) => entry.courtId === courtId && positions.has(entry.id) ? { ...entry, position: positions.get(entry.id) ?? entry.position } : entry);
@@ -57,7 +61,7 @@ export function joinQueue(state: QueueDataState, team: Team, court: Court, actor
     id: `queue-${crypto.randomUUID()}`,
     courtId: court.id,
     teamId: team.id,
-    position: state.entries.filter((item) => item.courtId === court.id && item.status !== "PLAYING" && item.status !== "AWAITING_SCORE").length + 1,
+    position: state.entries.filter((item) => item.courtId === court.id && item.status === "WAITING").length + 1,
     status: "WAITING",
     joinedAt,
   };
@@ -69,7 +73,7 @@ export function leaveQueue(state: QueueDataState, teamId: string, actorUserId: s
   if (actorUserId !== captainUserId) return { state, result: { ok: false, error: "CAPTAIN_ONLY" } };
   const activeEntry = getActiveQueueEntryForTeam(state.entries, teamId);
   if (!activeEntry) return { state, result: { ok: false, error: "QUEUE_ENTRY_NOT_FOUND" } };
-  if (NON_LEAVABLE_STATUSES.has(activeEntry.status as "PLAYING" | "AWAITING_SCORE" | "RESTING")) {
+  if (NON_LEAVABLE_STATUSES.has(activeEntry.status as "CALLED" | "CHECKING_IN" | "READY_TO_PLAY" | "PLAYING" | "AWAITING_SCORE" | "RESTING")) {
     return { state, result: { ok: false, error: "CANNOT_LEAVE_ACTIVE_STATE" } };
   }
   const entries = reorderQueuePositions(state.entries.filter((entry) => entry.id !== activeEntry.id), activeEntry.courtId);

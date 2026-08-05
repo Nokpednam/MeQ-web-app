@@ -1,7 +1,7 @@
 import type { TeamType } from "./team-types";
 
 export type CourtId = "3x3-a" | "3x3-b" | "5x5";
-export type QueueEntryStatus = "WAITING" | "CALLED" | "READY_TO_PLAY" | "PLAYING" | "AWAITING_SCORE" | "RESTING";
+export type QueueEntryStatus = "WAITING" | "CALLED" | "CHECKING_IN" | "READY_TO_PLAY" | "PLAYING" | "MISSED_QUEUE" | "CANCELLED" | "AWAITING_SCORE" | "RESTING";
 
 export type Court = {
   id: CourtId;
@@ -28,13 +28,20 @@ export type QueueEntry = {
   position: number;
   status: QueueEntryStatus;
   joinedAt: string;
+  calledAt?: string;
+  checkInDeadline?: string;
+  missedAt?: string;
+  missedReason?: "CHECK_IN_TIMEOUT";
 };
+
+export type QueueMemberSnapshot = { id: string; displayName: string; initials: string };
 
 export type QueueTeamSnapshot = {
   id: string;
   name: string;
   type: TeamType;
   memberCount: number;
+  members: QueueMemberSnapshot[];
 };
 
 export type QueueDataState = {

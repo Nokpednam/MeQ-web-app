@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { courts, getCourtById } from "@/lib/court-data";
 import { MockLocationChecker } from "@/lib/location-checker";
-import { getActiveQueueEntryForTeam, joinQueue as joinQueueRule, leaveQueue as leaveQueueRule } from "@/lib/queue-rules";
+import { getActiveQueueEntryForTeam, isActiveQueueEntry, joinQueue as joinQueueRule, leaveQueue as leaveQueueRule } from "@/lib/queue-rules";
 import { LocalStorageQueueRepository, type QueueRepository } from "@/lib/queue-repository";
 import type { CourtId, QueueDataState, QueueMutationResult } from "@/lib/queue-types";
 import { useTeamData } from "@/components/team-provider";
@@ -15,6 +15,7 @@ type QueueContextValue = {
   leaveQueue(): QueueMutationResult;
   setMockLocation(inRange: boolean): void;
   resetQueueData(): void;
+  replaceQueueState(state: QueueDataState): void;
 };
 
 const QueueContext = createContext<QueueContextValue | null>(null);
@@ -31,7 +32,7 @@ export function QueueProvider({ children, repository }: { children: React.ReactN
 
   useEffect(() => {
     if (!state) return;
-    syncRosterLocks(new Set(state.entries.map((entry) => entry.teamId)));
+    syncRosterLocks(new Set(state.entries.filter(isActiveQueueEntry).map((entry) => entry.teamId)));
   }, [state, syncRosterLocks]);
 
   function commit(nextState: QueueDataState) {
@@ -67,7 +68,7 @@ export function QueueProvider({ children, repository }: { children: React.ReactN
     setState(resetState);
   }
 
-  return <QueueContext.Provider value={{ ready: state !== null, state, joinQueue, leaveQueue, setMockLocation, resetQueueData }}>{children}</QueueContext.Provider>;
+  return <QueueContext.Provider value={{ ready: state !== null, state, joinQueue, leaveQueue, setMockLocation, resetQueueData, replaceQueueState: commit }}>{children}</QueueContext.Provider>;
 }
 
 export function useQueueData(): QueueContextValue {

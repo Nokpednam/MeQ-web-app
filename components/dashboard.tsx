@@ -6,6 +6,9 @@ import { CalendarPreview } from "@/components/calendar-preview";
 import { CourtCard } from "@/components/court-card";
 import { dashboardTranslations, type DashboardLanguage } from "@/lib/dashboard-translations";
 import { courts, games, playerStats } from "@/lib/mock-data";
+import { useCheckIn } from "@/components/check-in-provider";
+import { useTeamData } from "@/components/team-provider";
+import { checkInTranslations } from "@/lib/check-in-translations";
 
 const navigation = [
   ["home", "#top"],
@@ -18,8 +21,12 @@ const navigation = [
 export function Dashboard() {
   const [language, setLanguage] = useState<DashboardLanguage>("th");
   const copy = dashboardTranslations[language];
+  const checkInCopy = checkInTranslations[language];
+  const { state: checkInState } = useCheckIn();
+  const { currentUser } = useTeamData();
   const currentGames = games.filter((game) => game.status !== "COMPLETED");
   const completedGames = games.filter((game) => game.status === "COMPLETED");
+  const calledSession = checkInState?.sessions.find((session) => (session.status === "CALLED" || session.status === "CHECKING_IN") && session.members.some((member) => member.id === currentUser?.id));
 
   useEffect(() => {
     const savedLanguage = window.localStorage.getItem("meq-language");
@@ -72,6 +79,7 @@ export function Dashboard() {
             <div><dt>5x5 · {copy.todayScore}</dt><dd>15 <small>{copy.points}</small></dd></div>
           </dl>
         </section>
+        {calledSession ? <Link className="dashboard-checkin-alert" href={`/courts/${calledSession.courtId}#check-in`}><span>!</span><div><strong>{checkInCopy.TEAM_CALLED}</strong><small>{calledSession.teamName} · {checkInCopy.imReady}</small></div><b>→</b></Link> : null}
 
         <section id="courts" className="dashboard-section">
           <div className="section-heading"><div><p className="section-label">COURTS / 03</p><h2>{copy.courtOverview}</h2></div><p>{copy.courtOverviewHint}</p></div>
@@ -82,6 +90,7 @@ export function Dashboard() {
           <section className="dashboard-section live-section" aria-labelledby="live-heading">
             <div className="section-heading compact"><div><p className="section-label">GAMES / {String(currentGames.length).padStart(2, "0")}</p><h2 id="live-heading">{copy.liveMatches}</h2></div><p>{copy.liveMatchesHint}</p></div>
             <div className="live-list">
+              {checkInState?.games.map((game) => <article className="live-scoreboard game-playing" key={game.id}><div className="scoreboard-meta"><span className="live-badge"><i />{checkInCopy.gamePlaying}</span><strong>{game.courtId.toUpperCase()}</strong><span>{checkInCopy.target} {game.targetScore} {checkInCopy.points}</span></div><div className="matchup-row"><strong>{game.teamAName}</strong><b>VS</b><strong>{game.teamBName}</strong></div></article>)}
               {currentGames.map((game) => (
                 <article className={`live-scoreboard game-${game.status.toLowerCase()}`} key={game.id}>
                   <div className="scoreboard-meta"><span className="live-badge"><i />{game.status === "PLAYING" ? copy.live : copy.awaitingScore}</span><strong>{game.court}</strong><span>{copy.target} {game.targetScore} {copy.points}</span></div>
