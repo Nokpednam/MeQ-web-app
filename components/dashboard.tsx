@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { CalendarPreview } from "@/components/calendar-preview";
 import { CourtCard } from "@/components/court-card";
 import { dashboardTranslations, type DashboardLanguage } from "@/lib/dashboard-translations";
@@ -9,7 +10,7 @@ import { courts, games, playerStats } from "@/lib/mock-data";
 const navigation = [
   ["home", "#top"],
   ["courts", "#courts"],
-  ["teams", "#actions"],
+  ["teams", "/teams"],
   ["maintenance", "#maintenance"],
   ["profile", "#profile"],
 ] as const;
@@ -95,9 +96,9 @@ export function Dashboard() {
           <section className="dashboard-section actions-section" id="actions" aria-labelledby="actions-heading">
             <div className="section-heading compact"><div><p className="section-label">SERVICES</p><h2 id="actions-heading">{copy.quickActions}</h2></div><p>{copy.quickActionsHint}</p></div>
             <div className="quick-actions">
-              <button type="button"><span className="action-icon">＋</span><span><strong>{copy.createTeam}</strong><small>{copy.createTeamHint}</small></span><b>→</b></button>
-              <button type="button"><span className="action-icon">01</span><span><strong>{copy.myTeam}</strong><small>{copy.myTeamHint}</small></span><b>→</b></button>
-              <button type="button" id="maintenance"><span className="action-icon">!</span><span><strong>{copy.reportIssue}</strong><small>{copy.reportIssueHint}</small></span><b>→</b></button>
+              <Link className="quick-action action-create" href="/teams/create"><span className="action-icon">＋</span><span><strong>{copy.createTeam}</strong><small>{copy.createTeamHint}</small></span><b className="action-arrow">→</b></Link>
+              <Link className="quick-action action-team" href="/teams"><span className="action-icon">03</span><span><strong>{copy.myTeam}</strong><small>{copy.myTeamHint}</small></span><b className="action-arrow">→</b></Link>
+              <button className="quick-action action-repair" type="button" id="maintenance"><span className="action-icon">!</span><span><strong>{copy.reportIssue}</strong><small>{copy.reportIssueHint}</small></span><b className="action-arrow">→</b></button>
             </div>
           </section>
         </div>
