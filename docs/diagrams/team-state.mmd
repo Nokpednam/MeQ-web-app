@@ -1,0 +1,20 @@
+stateDiagram-v2
+  [*] --> INCOMPLETE: สร้างทีม
+  INCOMPLETE --> READY: สมาชิกครบ
+  READY --> INCOMPLETE: ลบสมาชิก
+  READY --> WAITING: เข้าคิวสำเร็จ
+  WAITING --> CHECK_IN_REQUIRED: ถึงคิว
+  CHECK_IN_REQUIRED --> READY_TO_PLAY: เช็กอินครบ
+  CHECK_IN_REQUIRED --> MISSED_QUEUE: หมดเวลา
+  READY_TO_PLAY --> PLAYING: เริ่มเกม
+  PLAYING --> SUBMITTING_SCORE: จบเกม
+  SUBMITTING_SCORE --> PLAYING: คะแนนไม่ผ่านและเปิดแก้ไข
+  SUBMITTING_SCORE --> WAITING: แพ้และเลือกต่อท้ายคิว
+  SUBMITTING_SCORE --> LEFT_QUEUE: แพ้และออก/หมดเวลา
+  SUBMITTING_SCORE --> PLAYING: ชนะครั้งแรกและเล่นต่อ
+  SUBMITTING_SCORE --> RESTING: ชนะครบ 2 เกม
+  RESTING --> RETURNING_CHAMPION: สนามเดิมเล่นครบ 1 เกม
+  RETURNING_CHAMPION --> PLAYING: กลับมาเล่นทันที
+  MISSED_QUEUE --> LEFT_QUEUE
+  WAITING --> LEFT_QUEUE: ออกจากคิว
+  LEFT_QUEUE --> READY: สมาชิกยังครบ

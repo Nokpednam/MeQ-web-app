@@ -1,0 +1,39 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="transparent", pad=0.3, nodesep=0.45, ranksep=0.75, splines=ortho];
+  node [shape=record, style=filled, fontname="Arial", fontsize=9, color="#215c3d", fillcolor="#f7faf7"];
+  edge [color="#607568", arrowsize=0.65];
+  users [label="{USERS|id PK\lline_user_id UK\ldisplay_name\lrole\l}", fillcolor="#d9ecdf"];
+  teams [label="{TEAMS|id PK\lcaptain_user_id FK\lname\lteam_type\lstatus\l}"];
+  members [label="{TEAM_MEMBERS|id PK\lteam_id FK\luser_id FK UK\lmember_role\l}"];
+  groups [label="{COURT_GROUPS|id PK\lname\lgame_type\l}"];
+  courts [label="{COURTS|id PK\lcourt_group_id FK\lname\limage_path\llocation\l}"];
+  queues [label="{QUEUE_ENTRIES|id PK\lcourt_id FK\lteam_id FK\lposition\lstatus\ljoined_at\l}"];
+  games [label="{GAMES|id PK\lcourt_id FK\ltarget_score\lstatus\lsequence_number\l}"];
+  gameteams [label="{GAME_TEAMS|game_id FK\lteam_id FK\lside\lconsecutive_wins_before\l}"];
+  gameplayers [label="{GAME_PLAYERS|id PK\lgame_id FK\luser_id FK\lteam_id FK\l}"];
+  scores [label="{PLAYER_SCORES|game_player_id PK/FK\lpoints\l}"];
+  daily [label="{DAILY_SCORE_SETTINGS|id PK\lcourt_group_id FK\lbusiness_date\ltarget_score\l}"];
+  changes [label="{SCORE_CHANGE_REQUESTS|id PK\lgame_id FK\lproposed_score\lstatus\l}"];
+  events [label="{COURT_EVENTS|id PK\ltitle\lstart_at\lend_at\lclosure_type\l}"];
+  reports [label="{MAINTENANCE_REPORTS|id PK\lreporter_user_id FK\lcourt_id FK\lstatus\ldescription\l}"];
+  notices [label="{NOTIFICATIONS|id PK\luser_id FK\ltype\ldelivery_status\l}"];
+
+  users -> teams [label="captains"];
+  users -> members;
+  teams -> members;
+  groups -> courts;
+  courts -> queues;
+  teams -> queues;
+  courts -> games;
+  games -> gameteams;
+  teams -> gameteams;
+  games -> gameplayers;
+  users -> gameplayers;
+  gameplayers -> scores;
+  groups -> daily;
+  games -> changes;
+  courts -> events [dir=both];
+  users -> reports;
+  courts -> reports;
+  users -> notices;
+}

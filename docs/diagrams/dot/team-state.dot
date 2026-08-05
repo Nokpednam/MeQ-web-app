@@ -1,0 +1,35 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="transparent", pad=0.35, nodesep=0.4, ranksep=0.65];
+  node [shape=ellipse, style=filled, fontname="Arial", fontsize=9.5, color="#215c3d", fillcolor="#f4f8f4"];
+  edge [color="#607568", fontname="Arial", fontsize=8.5, arrowsize=0.65];
+  start [shape=point];
+  incomplete [label="INCOMPLETE"];
+  ready [label="READY", fillcolor="#d9ecdf"];
+  waiting [label="WAITING"];
+  check [label="CHECK_IN_REQUIRED", fillcolor="#fff1d3"];
+  readyplay [label="READY_TO_PLAY"];
+  playing [label="PLAYING", fillcolor="#d5f26f"];
+  submit [label="SUBMITTING_SCORE"];
+  resting [label="RESTING"];
+  returning [label="RETURNING_CHAMPION"];
+  missed [label="MISSED_QUEUE", fillcolor="#fde4df", color="#ad3c2c"];
+  left [label="LEFT_QUEUE", fillcolor="#eef0ee"];
+  start -> incomplete [label="สร้างทีม"];
+  incomplete -> ready [label="สมาชิกครบ"];
+  ready -> incomplete [label="ลบสมาชิก"];
+  ready -> waiting [label="เข้าคิว"];
+  waiting -> check [label="ถึงคิว"];
+  check -> readyplay [label="เช็กอินครบ"];
+  check -> missed [label="หมดเวลา"];
+  readyplay -> playing [label="เริ่มเกม"];
+  playing -> submit [label="จบเกม"];
+  submit -> playing [label="ชนะครั้งแรก / แก้คะแนน"];
+  submit -> resting [label="ชนะครบ 2"];
+  resting -> returning [label="พักครบ 1 เกม"];
+  returning -> playing [label="กลับมาเล่น"];
+  submit -> waiting [label="แพ้ + ต่อท้าย"];
+  submit -> left [label="แพ้ + ออก/หมดเวลา"];
+  waiting -> left [label="ออกจากคิว"];
+  missed -> left;
+  left -> ready [label="สมาชิกยังครบ"];
+}

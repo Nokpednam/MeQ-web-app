@@ -1,0 +1,115 @@
+erDiagram
+  USERS ||--o| TEAM_MEMBERS : joins
+  TEAMS ||--o{ TEAM_MEMBERS : contains
+  USERS ||--o{ TEAMS : captains
+  COURT_GROUPS ||--o{ COURTS : contains
+  COURTS ||--o{ QUEUE_ENTRIES : has
+  TEAMS ||--o{ QUEUE_ENTRIES : enters
+  COURTS ||--o{ GAMES : hosts
+  GAMES ||--|{ GAME_TEAMS : includes
+  TEAMS ||--o{ GAME_TEAMS : participates
+  GAMES ||--o{ GAME_PLAYERS : records
+  USERS ||--o{ GAME_PLAYERS : plays
+  GAME_PLAYERS ||--o| PLAYER_SCORES : receives
+  COURT_GROUPS ||--o{ DAILY_SCORE_SETTINGS : configures
+  USERS ||--o{ SCORE_CHANGE_REQUESTS : proposes
+  GAMES ||--o{ SCORE_CHANGE_REQUESTS : applies_before
+  COURTS }o--o{ COURT_EVENTS : affected_by
+  USERS ||--o{ MAINTENANCE_REPORTS : reports
+  COURTS ||--o{ MAINTENANCE_REPORTS : concerns
+  USERS ||--o{ NOTIFICATIONS : receives
+
+  USERS {
+    uuid id PK
+    string line_user_id UK
+    string display_name
+    string role
+  }
+  TEAMS {
+    uuid id PK
+    uuid captain_user_id FK
+    string name
+    string team_type
+    string status
+  }
+  TEAM_MEMBERS {
+    uuid id PK
+    uuid team_id FK
+    uuid user_id FK UK
+    string member_role
+  }
+  COURT_GROUPS {
+    uuid id PK
+    string name
+    string game_type
+  }
+  COURTS {
+    uuid id PK
+    uuid court_group_id FK
+    string name
+    string image_path
+    point location
+  }
+  QUEUE_ENTRIES {
+    uuid id PK
+    uuid court_id FK
+    uuid team_id FK
+    int position
+    string status
+    datetime joined_at
+  }
+  GAMES {
+    uuid id PK
+    uuid court_id FK
+    int target_score
+    string status
+    int sequence_number
+  }
+  GAME_TEAMS {
+    uuid game_id FK
+    uuid team_id FK
+    string side
+    int consecutive_wins_before
+  }
+  GAME_PLAYERS {
+    uuid id PK
+    uuid game_id FK
+    uuid user_id FK
+    uuid team_id FK
+  }
+  PLAYER_SCORES {
+    uuid game_player_id PK,FK
+    int points
+  }
+  DAILY_SCORE_SETTINGS {
+    uuid id PK
+    uuid court_group_id FK
+    date business_date
+    int target_score
+  }
+  SCORE_CHANGE_REQUESTS {
+    uuid id PK
+    uuid game_id FK
+    int proposed_score
+    string status
+  }
+  COURT_EVENTS {
+    uuid id PK
+    string title
+    datetime start_at
+    datetime end_at
+    string closure_type
+  }
+  MAINTENANCE_REPORTS {
+    uuid id PK
+    uuid reporter_user_id FK
+    uuid court_id FK
+    string status
+    string description
+  }
+  NOTIFICATIONS {
+    uuid id PK
+    uuid user_id FK
+    string type
+    string delivery_status
+  }

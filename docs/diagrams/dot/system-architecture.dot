@@ -1,0 +1,21 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="transparent", pad=0.3, nodesep=0.55, ranksep=0.8];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=12, color="#215c3d", fillcolor="#f5faf6", margin="0.16,0.10"];
+  edge [color="#557463", fontname="Arial", fontsize=10, arrowsize=0.8];
+  user [label="ผู้เล่น / หัวหน้าทีม / Admin", fillcolor="#d5f26f"];
+  web [label="Next.js Web App\nVercel"];
+  line [label="LINE Login +\nMessaging API"];
+  db [label="Supabase PostgreSQL", shape=cylinder];
+  rt [label="Supabase Realtime"];
+  storage [label="Supabase Storage"];
+  cron [label="Scheduled Jobs / Cron"];
+  user -> web [label="HTTPS"];
+  web -> line [label="Auth / Notification"];
+  web -> db [label="API / SQL"];
+  db -> rt;
+  db -> storage;
+  db -> cron;
+  rt -> web [label="Live updates"];
+  storage -> web [label="Images"];
+  cron -> line [label="Scheduled messages"];
+}

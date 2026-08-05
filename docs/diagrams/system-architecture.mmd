@@ -1,0 +1,10 @@
+flowchart LR
+  U[ผู้เล่น / หัวหน้าทีม / Admin] -->|HTTPS| W[Next.js Web App\nVercel]
+  W -->|Auth & API| L[LINE Login + Messaging API]
+  W -->|SQL / Realtime| S[(Supabase PostgreSQL)]
+  S --> R[Supabase Realtime]
+  S --> ST[Supabase Storage]
+  S --> C[Scheduled Jobs / Cron]
+  R --> W
+  ST --> W
+  C --> L
