@@ -1,4 +1,13 @@
 flowchart TD
+  GAME["PLAYING"] --> END["END_REQUESTED"] --> SCORE["AWAITING_SCORE"] --> COMPLETE["COMPLETED"]
+  COMPLETE --> WIN_DECIDE["DECIDING_CONTINUE"]
+  WIN_DECIDE -->|Continue| HOLD["HOLDING_COURT"]
+  WIN_DECIDE -->|Stop| LEFT
+  COMPLETE --> DECIDE["DECIDING_REQUEUE"]
+  COMPLETE --> CLOSE_CHECKIN["Remove active check-in game and PLAYING sessions"]
+  HOLD --> REST["RESTING after second win"] --> RETURN["RETURNING_CHAMPION"]
+  DECIDE -->|Requeue| WAIT["WAITING"]
+  DECIDE -->|Leave / timeout| LEFT["LEFT_QUEUE"]
   A[สร้างทีม] --> B{สมาชิกครบหรือไม่}
   B -- ไม่ครบ --> C[หัวหน้าเพิ่ม/ลบสมาชิก]
   C --> B

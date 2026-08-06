@@ -30,12 +30,16 @@ export type MockGame = {
   teamAId: string;
   teamAName: string;
   teamAMembers: QueueMemberSnapshot[];
+  teamAConsecutiveWinsBefore?: number;
   teamBId: string;
   teamBName: string;
   teamBMembers: QueueMemberSnapshot[];
+  teamBConsecutiveWinsBefore?: number;
   targetScore: number;
   startedAt: string;
   status: "PLAYING";
+  isRestGame?: boolean;
+  restingChampionTeamId?: string;
 };
 
 export type CheckInDataState = {

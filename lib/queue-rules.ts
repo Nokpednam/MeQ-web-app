@@ -2,11 +2,22 @@ import { getTeamStatus } from "./team-rules";
 import type { Team } from "./team-types";
 import type { Court, CourtId, QueueDataState, QueueEntry, QueueMutationResult, QueueRuleError } from "./queue-types";
 
-const ACTIVE_STATUSES = new Set(["WAITING", "CALLED", "CHECKING_IN", "READY_TO_PLAY", "PLAYING", "AWAITING_SCORE", "RESTING"] as const);
-const NON_LEAVABLE_STATUSES = new Set(["CALLED", "CHECKING_IN", "READY_TO_PLAY", "PLAYING", "AWAITING_SCORE", "RESTING"] as const);
+const ACTIVE_STATUSES = new Set(["WAITING", "CALLED", "CHECKING_IN", "READY_TO_PLAY", "PLAYING", "DECIDING_CONTINUE", "HOLDING_COURT", "DECIDING_REQUEUE", "AWAITING_SCORE", "RESTING", "RETURNING_CHAMPION"] as const);
+const NON_LEAVABLE_STATUSES = new Set(["CALLED", "CHECKING_IN", "READY_TO_PLAY", "PLAYING", "DECIDING_CONTINUE", "HOLDING_COURT", "DECIDING_REQUEUE", "AWAITING_SCORE", "RESTING", "RETURNING_CHAMPION"] as const);
 
 export function isActiveQueueEntry(entry: QueueEntry): boolean {
   return ACTIVE_STATUSES.has(entry.status as (typeof ACTIVE_STATUSES extends Set<infer T> ? T : never));
+}
+
+export function deduplicateActiveQueueEntries(entries: QueueEntry[]): QueueEntry[] {
+  const priority: Record<string, number> = { PLAYING: 100, HOLDING_COURT: 90, RETURNING_CHAMPION: 85, RESTING: 80, AWAITING_SCORE: 75, DECIDING_CONTINUE: 70, DECIDING_REQUEUE: 70, READY_TO_PLAY: 60, CHECKING_IN: 50, CALLED: 40, WAITING: 30 };
+  const preferred = new Map<string, QueueEntry>();
+  for (const entry of entries) {
+    if (!isActiveQueueEntry(entry)) continue;
+    const current = preferred.get(entry.teamId);
+    if (!current || (priority[entry.status] ?? 0) > (priority[current.status] ?? 0)) preferred.set(entry.teamId, entry);
+  }
+  return entries.filter((entry) => !isActiveQueueEntry(entry) || preferred.get(entry.teamId)?.id === entry.id);
 }
 
 export function isTeamCompatibleWithCourt(team: Team, court: Court): boolean {
@@ -73,7 +84,7 @@ export function leaveQueue(state: QueueDataState, teamId: string, actorUserId: s
   if (actorUserId !== captainUserId) return { state, result: { ok: false, error: "CAPTAIN_ONLY" } };
   const activeEntry = getActiveQueueEntryForTeam(state.entries, teamId);
   if (!activeEntry) return { state, result: { ok: false, error: "QUEUE_ENTRY_NOT_FOUND" } };
-  if (NON_LEAVABLE_STATUSES.has(activeEntry.status as "CALLED" | "CHECKING_IN" | "READY_TO_PLAY" | "PLAYING" | "AWAITING_SCORE" | "RESTING")) {
+  if (NON_LEAVABLE_STATUSES.has(activeEntry.status as "CALLED" | "CHECKING_IN" | "READY_TO_PLAY" | "PLAYING" | "DECIDING_CONTINUE" | "HOLDING_COURT" | "DECIDING_REQUEUE" | "AWAITING_SCORE" | "RESTING" | "RETURNING_CHAMPION")) {
     return { state, result: { ok: false, error: "CANNOT_LEAVE_ACTIVE_STATE" } };
   }
   const entries = reorderQueuePositions(state.entries.filter((entry) => entry.id !== activeEntry.id), activeEntry.courtId);

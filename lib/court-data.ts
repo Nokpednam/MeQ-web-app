@@ -12,7 +12,6 @@ export const courts: Court[] = [
     closesAt: "24:00",
     targetScore: 7,
     allowedTargetScores: [7, 9, 11],
-    currentGame: { home: "Falcon", away: "Red Fox", status: "PLAYING" },
   },
   {
     id: "3x3-b",
@@ -25,7 +24,6 @@ export const courts: Court[] = [
     closesAt: "24:00",
     targetScore: 7,
     allowedTargetScores: [7, 9, 11],
-    currentGame: { home: "Phoenix", away: "Mango", status: "PLAYING" },
   },
   {
     id: "5x5",
@@ -38,7 +36,6 @@ export const courts: Court[] = [
     closesAt: "24:00",
     targetScore: 15,
     allowedTargetScores: [11, 15, 21],
-    currentGame: { home: "Engineering", away: "Alumni", status: "AWAITING_SCORE" },
   },
 ];
 

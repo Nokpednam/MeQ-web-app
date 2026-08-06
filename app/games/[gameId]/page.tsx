@@ -1,0 +1,1 @@
+import{GameStatusClient}from"@/components/game-status-client";export default async function Page({params}:{params:Promise<{gameId:string}>}){const{gameId}=await params;return <GameStatusClient gameId={gameId}/>}

@@ -1,0 +1,1 @@
+import{GameScoresClient}from"@/components/game-scores-client";export default async function Page({params}:{params:Promise<{gameId:string}>}){const{gameId}=await params;return <GameScoresClient gameId={gameId}/>}

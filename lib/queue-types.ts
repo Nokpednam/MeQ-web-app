@@ -1,7 +1,7 @@
 import type { TeamType } from "./team-types";
 
 export type CourtId = "3x3-a" | "3x3-b" | "5x5";
-export type QueueEntryStatus = "WAITING" | "CALLED" | "CHECKING_IN" | "READY_TO_PLAY" | "PLAYING" | "MISSED_QUEUE" | "CANCELLED" | "AWAITING_SCORE" | "RESTING";
+export type QueueEntryStatus = "WAITING" | "CALLED" | "CHECKING_IN" | "READY_TO_PLAY" | "PLAYING" | "DECIDING_CONTINUE" | "HOLDING_COURT" | "DECIDING_REQUEUE" | "MISSED_QUEUE" | "CANCELLED" | "AWAITING_SCORE" | "RESTING" | "RETURNING_CHAMPION" | "LEFT_QUEUE";
 
 export type Court = {
   id: CourtId;
@@ -14,11 +14,6 @@ export type Court = {
   closesAt: "24:00";
   targetScore: number;
   allowedTargetScores: readonly number[];
-  currentGame?: {
-    home: string;
-    away: string;
-    status: "PLAYING" | "AWAITING_SCORE";
-  };
 };
 
 export type QueueEntry = {
@@ -49,6 +44,7 @@ export type QueueDataState = {
   entries: QueueEntry[];
   mockTeams: QueueTeamSnapshot[];
   locationInRange: boolean;
+  lastResetAt?: string;
 };
 
 export type QueueRuleError =

@@ -1,0 +1,21 @@
+stateDiagram-v2
+  PLAYING --> END_REQUESTED: captain requests end
+  END_REQUESTED --> PLAYING: requester cancels
+  END_REQUESTED --> AWAITING_SCORE: opponent captain confirms
+  AWAITING_SCORE --> VALIDATING_RESULT: both teams submit
+  AWAITING_SCORE --> AWAITING_SCORE: first team submitted (persist and wait)
+  VALIDATING_RESULT --> INVALID_SCORE: validation fails
+  INVALID_SCORE --> VALIDATING_RESULT: both teams resubmit
+  VALIDATING_RESULT --> COMPLETED: valid final score
+  COMPLETED --> CHECK_IN_CLOSED: close game check-in session
+  COMPLETED --> ACTIVE_QUERY_CLEARED: active court query no longer returns gameId
+  COMPLETED --> RECENT_RESULTS: query completed games by unique gameId
+  COMPLETED --> DECIDING_CONTINUE: first consecutive win
+  DECIDING_CONTINUE --> HOLDING_COURT: winner chooses to continue
+  DECIDING_CONTINUE --> LEFT_QUEUE: winner chooses not to continue
+  COMPLETED --> RESTING: second consecutive win
+  COMPLETED --> DECIDING_REQUEUE: losing team (180 seconds)
+  DECIDING_REQUEUE --> WAITING: captain chooses requeue
+  DECIDING_REQUEUE --> LEFT_QUEUE: leave or timeout
+  RESTING --> RETURNING_CHAMPION: one rest game completed
+  RETURNING_CHAMPION --> PLAYING: champion returns on same court

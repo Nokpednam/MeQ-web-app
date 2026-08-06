@@ -1,4 +1,8 @@
 erDiagram
+  GAME ||--o{ SCORE_SUBMISSION : has
+  SCORE_SUBMISSION ||--|{ PLAYER_SCORE : contains
+  GAME ||--o| POST_GAME_DECISION : creates
+  GAME ||--|{ PLAYER_GAME_HISTORY : records
   USERS ||--o| TEAM_MEMBERS : joins
   TEAMS ||--o{ TEAM_MEMBERS : contains
   USERS ||--o{ TEAMS : captains
