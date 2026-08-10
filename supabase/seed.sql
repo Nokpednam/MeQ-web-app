@@ -1,0 +1,3 @@
+-- Essential court reference data is deployed by
+-- 20260810200000_seed_reference_courts.sql. Keep local-only mock rows below
+-- when development fixtures are added later.

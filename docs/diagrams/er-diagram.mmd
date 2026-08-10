@@ -1,121 +1,74 @@
 erDiagram
-  GAME ||--o{ SCORE_SUBMISSION : has
-  SCORE_SUBMISSION ||--|{ PLAYER_SCORE : contains
-  GAME ||--o| POST_GAME_DECISION : creates
-  GAME ||--|{ PLAYER_GAME_HISTORY : records
-  USERS ||--o| TEAM_MEMBERS : joins
-  TEAMS ||--o{ TEAM_MEMBERS : contains
-  USERS ||--o{ TEAMS : captains
-  COURT_GROUPS ||--o{ COURTS : contains
-  COURTS ||--o{ QUEUE_ENTRIES : has
-  TEAMS ||--o{ QUEUE_ENTRIES : enters
-  COURTS ||--o{ GAMES : hosts
-  GAMES ||--|{ GAME_TEAMS : includes
-  TEAMS ||--o{ GAME_TEAMS : participates
-  GAMES ||--o{ GAME_PLAYERS : records
-  USERS ||--o{ GAME_PLAYERS : plays
-  GAME_PLAYERS ||--o| PLAYER_SCORES : receives
+  AUTH_USERS ||--|| PROFILES : owns
+  PROFILES ||--o{ TEAM_MEMBERSHIPS : joins
+  TEAMS ||--o{ TEAM_MEMBERSHIPS : contains
+  COURT_GROUPS ||--o{ COURTS : groups
   COURT_GROUPS ||--o{ DAILY_SCORE_SETTINGS : configures
-  USERS ||--o{ SCORE_CHANGE_REQUESTS : proposes
-  GAMES ||--o{ SCORE_CHANGE_REQUESTS : applies_before
-  COURTS }o--o{ COURT_EVENTS : affected_by
-  USERS ||--o{ MAINTENANCE_REPORTS : reports
+  COURTS ||--o{ QUEUE_ENTRIES : queues
+  TEAMS ||--o{ QUEUE_ENTRIES : enters
+  QUEUE_ENTRIES ||--o{ ACTIVE_QUEUE_PLAYERS : locks
+  PROFILES ||--o{ ACTIVE_QUEUE_PLAYERS : prevents_multi_queue
+  COURTS ||--o{ GAMES : hosts
+  GAMES ||--|{ GAME_ROSTER_SNAPSHOTS : freezes
+  GAMES ||--o{ SCORE_SUBMISSIONS : receives
+  GAME_ROSTER_SNAPSHOTS ||--o| PLAYER_SCORES : scores
+  GAMES ||--|{ PLAYER_GAME_HISTORY : records_once
+  QUEUE_ENTRIES ||--o| TEAM_CHECK_INS : checks_in
+  COURT_EVENTS ||--|{ COURT_EVENT_COURTS : affects
+  COURTS ||--o{ COURT_EVENT_COURTS : affected
+  PROFILES ||--o{ MAINTENANCE_REPORTS : reports
   COURTS ||--o{ MAINTENANCE_REPORTS : concerns
-  USERS ||--o{ NOTIFICATIONS : receives
 
-  USERS {
+  PROFILES {
     uuid id PK
-    string line_user_id UK
     string display_name
     string role
   }
   TEAMS {
     uuid id PK
     uuid captain_user_id FK
-    string name
-    string team_type
-    string status
+    string format
+    int consecutive_wins
   }
-  TEAM_MEMBERS {
+  TEAM_MEMBERSHIPS {
     uuid id PK
     uuid team_id FK
-    uuid user_id FK UK
-    string member_role
-  }
-  COURT_GROUPS {
-    uuid id PK
-    string name
-    string game_type
+    uuid user_id FK
+    datetime left_at
   }
   COURTS {
-    uuid id PK
-    uuid court_group_id FK
-    string name
-    string image_path
-    point location
+    string id PK
+    string court_group_id FK
+    uuid active_game_id FK
   }
   QUEUE_ENTRIES {
     uuid id PK
-    uuid court_id FK
+    string court_id FK
     uuid team_id FK
     int position
     string status
-    datetime joined_at
+  }
+  ACTIVE_QUEUE_PLAYERS {
+    uuid user_id PK
+    uuid queue_entry_id FK
   }
   GAMES {
     uuid id PK
-    uuid court_id FK
-    int target_score
+    string court_id FK
     string status
-    int sequence_number
+    int target_score
+    uuid winner_team_id FK
   }
-  GAME_TEAMS {
-    uuid game_id FK
-    uuid team_id FK
-    string side
-    int consecutive_wins_before
-  }
-  GAME_PLAYERS {
+  SCORE_SUBMISSIONS {
     uuid id PK
     uuid game_id FK
-    uuid user_id FK
     uuid team_id FK
+    string status
   }
-  PLAYER_SCORES {
-    uuid game_player_id PK,FK
+  PLAYER_GAME_HISTORY {
+    uuid game_id PK
+    uuid user_id PK
+    string format
     int points
-  }
-  DAILY_SCORE_SETTINGS {
-    uuid id PK
-    uuid court_group_id FK
-    date business_date
-    int target_score
-  }
-  SCORE_CHANGE_REQUESTS {
-    uuid id PK
-    uuid game_id FK
-    int proposed_score
-    string status
-  }
-  COURT_EVENTS {
-    uuid id PK
-    string title
-    datetime start_at
-    datetime end_at
-    string closure_type
-  }
-  MAINTENANCE_REPORTS {
-    uuid id PK
-    uuid reporter_user_id FK
-    uuid court_id FK
-    string status
-    string description
-    string category
-    string image_path
-  }
-  NOTIFICATIONS {
-    uuid id PK
-    uuid user_id FK
-    string type
-    string delivery_status
+    boolean won
   }
