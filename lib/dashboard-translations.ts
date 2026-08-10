@@ -111,6 +111,7 @@ export const dashboardTranslations = {
     languageThai: "ไทย",
     languageEnglish: "อังกฤษ",
     profileName: "ผู้ใช้งาน",
+    adminCenter: "แอดมิน",
   },
   en: {
     university: "Naresuan University Basketball Courts",
@@ -222,6 +223,7 @@ export const dashboardTranslations = {
     languageThai: "Thai",
     languageEnglish: "English",
     profileName: "User",
+    adminCenter: "Admin",
   },
 } as const;
 

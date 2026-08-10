@@ -7,6 +7,8 @@ import { getActiveQueueEntryForTeam, isActiveQueueEntry, joinQueue as joinQueueR
 import { LocalStorageQueueRepository, type QueueRepository } from "@/lib/queue-repository";
 import type { CourtId, QueueDataState, QueueMutationResult } from "@/lib/queue-types";
 import { useTeamData } from "@/components/team-provider";
+import { useAdminData } from "@/components/admin-provider";
+import { getAdminCourt } from "@/lib/admin-rules";
 
 type QueueContextValue = {
   ready: boolean;
@@ -24,6 +26,7 @@ export function QueueProvider({ children, repository }: { children: React.ReactN
   const queueRepository = useMemo(() => repository ?? new LocalStorageQueueRepository(), [repository]);
   const [state, setState] = useState<QueueDataState | null>(null);
   const { currentTeam, currentUser, syncRosterLocks } = useTeamData();
+  const { state: adminState } = useAdminData();
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => setState(queueRepository.load()));
@@ -42,7 +45,8 @@ export function QueueProvider({ children, repository }: { children: React.ReactN
 
   function joinQueue(courtId: CourtId): QueueMutationResult {
     if (!state || !currentTeam || !currentUser) return { ok: false, error: "TEAM_NOT_FOUND" };
-    const court = getCourtById(courtId);
+    const baseCourt = getCourtById(courtId);
+    const court = baseCourt && adminState ? getAdminCourt(adminState, baseCourt) : baseCourt;
     if (!court) return { ok: false, error: "COURT_NOT_FOUND" };
     const locationChecker = new MockLocationChecker(state.locationInRange);
     const queueState = { ...state, locationInRange: locationChecker.isInRange() };

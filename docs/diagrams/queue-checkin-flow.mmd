@@ -2,8 +2,8 @@ stateDiagram-v2
   [*] --> WAITING
   WAITING --> CALLED: callNextTeam (head only)
   CALLED --> CHECKING_IN: beginTeamCheckIn
-  CHECKING_IN --> CHECKING_IN: member check-in / cancel
-  CHECKING_IN --> READY_TO_PLAY: full roster checked in
+  CHECKING_IN --> CHECKING_IN: background roster location checks
+  CHECKING_IN --> READY_TO_PLAY: captain confirms own team once
   CALLED --> MISSED_QUEUE: deadline expired
   CHECKING_IN --> MISSED_QUEUE: deadline expired
   READY_TO_PLAY --> PLAYING: two teams ready + startMockGame
@@ -11,5 +11,6 @@ stateDiagram-v2
 
   note right of CHECKING_IN
     Deadline derives from calledAt + 180 seconds.
-    Every member validates their own mock location.
+    Location is checked for every member.
+    The captain confirms the team once.
   end note

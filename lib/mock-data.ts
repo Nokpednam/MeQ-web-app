@@ -72,6 +72,11 @@ export const playerStats: PlayerStatsView = {
   highestScoreInGame: 9,
 };
 
+export const playerStatsByFormat = {
+  THREE_X_THREE: { totalGames: 12, wins: 8, losses: 4, winRate: 67, totalPoints: 46, averagePoints: 3.8, highestScoreInGame: 7 },
+  FIVE_X_FIVE: { totalGames: 6, wins: 3, losses: 3, winRate: 50, totalPoints: 40, averagePoints: 6.7, highestScoreInGame: 9 },
+} as const satisfies Record<"THREE_X_THREE" | "FIVE_X_FIVE", PlayerStatsView>;
+
 export const upcomingEvents = [
   { date: "8 ส.ค.", title: "งดใช้ Full Court 2", detail: "กิจกรรมมหาวิทยาลัย 16:00–20:00" },
   { date: "12 ส.ค.", title: "ตรวจระบบไฟ", detail: "อาจปิดสนามช่วง 09:00–10:30" },

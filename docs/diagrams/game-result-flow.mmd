@@ -1,7 +1,9 @@
 stateDiagram-v2
-  PLAYING --> END_REQUESTED: captain requests end
+  PLAYING --> END_REQUESTED: captain requests end and opens own score form
   END_REQUESTED --> PLAYING: requester cancels
-  END_REQUESTED --> AWAITING_SCORE: opponent captain confirms
+  END_REQUESTED --> PLAYING: opponent rejects
+  END_REQUESTED --> END_REQUESTED: requester submits own scores
+  END_REQUESTED --> AWAITING_SCORE: opponent submits scores and confirms end
   AWAITING_SCORE --> VALIDATING_RESULT: both teams submit
   AWAITING_SCORE --> AWAITING_SCORE: first team submitted (persist and wait)
   VALIDATING_RESULT --> INVALID_SCORE: validation fails

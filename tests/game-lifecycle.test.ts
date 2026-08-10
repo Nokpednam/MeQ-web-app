@@ -2,11 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   closeGameCheckInSession,
+  confirmEndByScoreSubmission,
   chooseWinnerContinuation,
   getActiveGameForCourt,
   isGameActive,
   processCompletedGame,
   processSubmittedGame,
+  rejectEndGameRequest,
+  requestEndGame,
+  saveScoreDraft,
   synchronizeHoldingWinnerEntry,
 } from "../lib/game-lifecycle-rules";
 import type {
@@ -16,7 +20,7 @@ import type {
 } from "../lib/game-lifecycle-types";
 import type { CheckInDataState } from "../lib/check-in-types";
 import type { QueueDataState } from "../lib/queue-types";
-import { callNextTeam, startMockGame } from "../lib/check-in-rules";
+import { callNextTeam, confirmTeamReady, startMockGame } from "../lib/check-in-rules";
 import { getCourtById } from "../lib/court-data";
 
 const members = (prefix: string) => [0, 1, 2].map((index) => ({
@@ -97,6 +101,49 @@ function checkInState(): CheckInDataState {
     }],
   };
 }
+
+test("one captain action confirms the entire roster while a member cannot", () => {
+  const queue: QueueDataState = {
+    version: 1,
+    locationInRange: true,
+    entries: [{ id: "ready-entry", courtId: "3x3-a", teamId: "falcon", position: 1, status: "WAITING", joinedAt: "2026-08-06T00:00:00.000Z" }],
+    mockTeams: [],
+  };
+  const state: CheckInDataState = { version: 1, activeMockUserId: null, locations: {}, sessions: [], games: [] };
+  const team = { id: "falcon", name: "Falcon", type: "THREE_X_THREE" as const, memberCount: 3, members: members("c") };
+  const called = callNextTeam(queue, state, "3x3-a", team, "2026-08-06T00:01:00.000Z");
+  assert.equal(called.result.ok, true);
+  if (!called.result.ok || !called.result.session) return;
+  const denied = confirmTeamReady(called.queueState, called.checkInState, called.result.session.id, "c1", {}, "2026-08-06T00:01:10.000Z");
+  assert.deepEqual(denied.result, { ok: false, error: "NOT_CAPTAIN" });
+  const confirmed = confirmTeamReady(called.queueState, called.checkInState, called.result.session.id, "c0", {}, "2026-08-06T00:01:10.000Z");
+  assert.equal(confirmed.result.ok, true);
+  assert.equal(confirmed.result.ok && confirmed.result.session?.status, "READY_TO_PLAY");
+  assert.equal(confirmed.result.ok && confirmed.result.session?.checkIns.length, 3);
+});
+
+test("opponent score submission confirms an end request without a separate confirmation", () => {
+  const playing = { ...createGame(), status: "PLAYING" as const };
+  const requested = requestEndGame(playing, "a0", "2026-08-06T01:08:00.000Z");
+  assert.equal(requested.ok, true);
+  if (!requested.ok) return;
+  const requesterDraft = saveScoreDraft(requested.game, undefined, "black", "a0", { a0: 7, a1: 0, a2: 0 }, "2026-08-06T01:09:00.000Z");
+  assert.equal(requesterDraft.error, undefined);
+  const confirmed = confirmEndByScoreSubmission(requested.game, "air", "b0");
+  assert.equal(confirmed.ok, true);
+  assert.equal(confirmed.ok && confirmed.game.status, "AWAITING_SCORE");
+  assert.equal(confirmed.ok && confirmed.game.confirmedByUserId, "b0");
+});
+
+test("opposing captain can reject an end request", () => {
+  const requested = requestEndGame({ ...createGame(), status: "PLAYING" }, "a0", "2026-08-06T01:08:00.000Z");
+  assert.equal(requested.ok, true);
+  if (!requested.ok) return;
+  const rejected = rejectEndGameRequest(requested.game, "b0");
+  assert.equal(rejected.ok, true);
+  assert.equal(rejected.ok && rejected.game.status, "PLAYING");
+  assert.equal(rejected.ok && rejected.game.requestedByTeamId, undefined);
+});
 
 test("finalize synchronizes active game, queue, check-in, result, and statistics", () => {
   const game = createGame();

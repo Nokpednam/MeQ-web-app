@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:game-lifecycle": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/game-lifecycle.test.js"
+    "test:game-lifecycle": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/game-lifecycle.test.js",
+    "test:admin": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/admin-rules.test.js"
   },
   "dependencies": {
     "next": "16.2.11",

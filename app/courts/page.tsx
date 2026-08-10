@@ -8,19 +8,23 @@ import { courts } from "@/lib/court-data";
 import { queueTranslations } from "@/lib/dashboard-translations";
 import { useGameLifecycle } from "@/components/game-lifecycle-provider";
 import { getActiveGameForCourt } from "@/lib/game-lifecycle-rules";
+import { useAdminData } from "@/components/admin-provider";
+import { getAdminCourt } from "@/lib/admin-rules";
 
 export default function CourtsPage() {
   const { language } = useMeqLanguage();
   const copy = queueTranslations[language];
   const { ready, state } = useQueueData();
   const { games } = useGameLifecycle();
+  const admin = useAdminData();
 
   if (!ready || !state) return <div className="team-loading" role="status">{copy.loading}</div>;
 
   return <div className="court-page">
     <header className="team-page-heading"><div><p className="section-label">{copy.pageLabel}</p><h1>{copy.courtsTitle}</h1><p>{copy.courtsIntro}</p></div><Link className="back-link" href="/">← {copy.backDashboard}</Link></header>
     <div className="court-selection-grid">
-      {courts.map((court) => {
+      {courts.map((baseCourt) => {
+        const court=admin.state?getAdminCourt(admin.state,baseCourt):baseCourt;
         const activeGame = getActiveGameForCourt(games, court.id);
         const queueCount = state.entries.filter((entry) => entry.courtId === court.id && entry.status !== "PLAYING" && entry.status !== "AWAITING_SCORE").length;
         return <article className="selection-card" key={court.id}>

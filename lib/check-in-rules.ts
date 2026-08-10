@@ -43,7 +43,7 @@ export function callNextTeam(queueState: QueueDataState, checkInState: CheckInDa
   if (!head || !team) return { queueState:normalizedQueue, checkInState, result: { ok: false, error: "NO_WAITING_TEAM" } };
   const deadline = new Date(Date.parse(nowIso) + CHECK_IN_SECONDS * 1000).toISOString();
   const entries = reorderQueuePositions(normalizedQueue.entries.map((entry) => entry.id === head.id ? { ...entry, status: "CALLED" as const, position: 0, calledAt: nowIso, checkInDeadline: deadline } : entry), courtId);
-  const session: TeamCheckInSession = { id: `checkin-${crypto.randomUUID()}`, queueEntryId: head.id, courtId, teamId: team.id, teamName: team.name, members: team.members.map((member)=>({...member})), status: "CALLED", calledAt: nowIso, checkInDeadline: deadline, checkIns: [] };
+  const session: TeamCheckInSession = { id: `checkin-${crypto.randomUUID()}`, queueEntryId: head.id, courtId, teamId: team.id, teamName: team.name, captainUserId: team.captainUserId ?? team.members[0]?.id, members: team.members.map((member)=>({...member})), status: "CALLED", calledAt: nowIso, checkInDeadline: deadline, checkIns: [] };
   return { queueState: { ...normalizedQueue, entries }, checkInState: { ...checkInState, sessions: [...checkInState.sessions, session] }, result: { ok: true, session } };
 }
 
@@ -93,6 +93,26 @@ export function releaseOrphanPlayingEntries(queueState:QueueDataState,courtId:Co
   let nextPosition=queueState.entries.filter((entry)=>entry.courtId===courtId&&entry.status==="WAITING").reduce((max,entry)=>Math.max(max,entry.position),0);
   const entries=queueState.entries.map((entry)=>entry.courtId===courtId&&entry.status==="PLAYING"?{...entry,status:"WAITING" as const,position:++nextPosition}:entry);
   return {...queueState,entries:reorderQueuePositions(entries,courtId)};
+}
+
+export function confirmTeamReady(queueState: QueueDataState, checkInState: CheckInDataState, sessionId: string, captainUserId: string, locations: Record<string, LocationStatus>, nowIso: string): Transition {
+  const session = checkInState.sessions.find((item) => item.id === sessionId);
+  if (!session) return { queueState, checkInState, result: { ok: false, error: "SESSION_NOT_FOUND" } };
+  if (session.status !== "CALLED" && session.status !== "CHECKING_IN") return { queueState, checkInState, result: { ok: false, error: "SESSION_NOT_FOUND" } };
+  if (getCheckInTimeRemaining(session.checkInDeadline, Date.parse(nowIso)) === 0) return { queueState, checkInState, result: { ok: false, error: "DEADLINE_EXPIRED" } };
+  if ((session.captainUserId ?? session.members[0]?.id) !== captainUserId) return { queueState, checkInState, result: { ok: false, error: "NOT_CAPTAIN" } };
+  if (session.members.some((member) => locations[member.id] === "PERMISSION_DENIED")) return { queueState, checkInState, result: { ok: false, error: "PERMISSION_DENIED" } };
+  if (session.members.some((member) => locations[member.id] === "OUT_OF_RANGE")) return { queueState, checkInState, result: { ok: false, error: "OUT_OF_RANGE" } };
+  const nextSession: TeamCheckInSession = {
+    ...session,
+    status: "READY_TO_PLAY",
+    checkIns: session.members.map((member) => ({ userId: member.id, checkedInAt: nowIso, locationStatus: "WITHIN_RANGE" })),
+  };
+  return {
+    queueState: { ...queueState, entries: queueState.entries.map((entry) => entry.id === session.queueEntryId ? { ...entry, status: "READY_TO_PLAY" } : entry) },
+    checkInState: { ...checkInState, sessions: checkInState.sessions.map((item) => item.id === session.id ? nextSession : item) },
+    result: { ok: true, session: nextSession },
+  };
 }
 
 export function startMockGame(queueState:QueueDataState,checkInState:CheckInDataState,court:Court,nowIso:string,holdingTeam:QueueTeamSnapshot|null=null,returningChampionTeam:QueueTeamSnapshot|null=null):Transition {

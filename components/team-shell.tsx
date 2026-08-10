@@ -30,9 +30,9 @@ export function TeamShell({ children }: { children: React.ReactNode }) {
               <button className={language === "th" ? "is-active" : ""} onClick={() => selectLanguage("th")} type="button" aria-pressed={language === "th"}>TH</button>
               <button className={language === "en" ? "is-active" : ""} onClick={() => selectLanguage("en")} type="button" aria-pressed={language === "en"}>EN</button>
             </div>
-            <button className="profile-button" type="button" aria-label={dashboardCopy.profile}>
+            <Link className="profile-button" href="/profile" aria-label={dashboardCopy.profile}>
               <span aria-hidden="true">{currentUser?.initials ?? "NU"}</span><span className="profile-label">{currentUser?.displayName ?? dashboardCopy.profileName}</span>
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -51,7 +51,7 @@ export function TeamShell({ children }: { children: React.ReactNode }) {
         <Link href="/courts"><span aria-hidden="true">▱</span>{dashboardCopy.courts}</Link>
         <Link className="is-active" href="/teams"><span aria-hidden="true">◫</span>{dashboardCopy.teams}</Link>
         <Link href="/#maintenance"><span aria-hidden="true">!</span>{dashboardCopy.maintenance}</Link>
-        <Link href="/"><span aria-hidden="true">●</span>{dashboardCopy.profile}</Link>
+        <Link href="/profile"><span aria-hidden="true">●</span>{dashboardCopy.profile}</Link>
       </nav>
     </div>
   );

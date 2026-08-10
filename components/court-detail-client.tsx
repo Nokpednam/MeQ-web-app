@@ -16,6 +16,8 @@ import { CheckInPanel } from "@/components/check-in-panel";
 import { useGameLifecycle } from "@/components/game-lifecycle-provider";
 import { getActiveGameForCourt } from "@/lib/game-lifecycle-rules";
 import { winnerDecisionTranslations } from "@/lib/winner-decision-translations";
+import { useAdminData } from "@/components/admin-provider";
+import { getAdminCourt } from "@/lib/admin-rules";
 
 const statusKeys: Record<QueueEntryStatus, "waiting" | "called" | "readyToPlay" | "playing" | "awaitingScore" | "resting"> = {
   WAITING: "waiting", CALLED: "called", CHECKING_IN: "called", READY_TO_PLAY: "readyToPlay", PLAYING: "playing", DECIDING_CONTINUE: "called", HOLDING_COURT: "playing", DECIDING_REQUEUE: "called", MISSED_QUEUE: "waiting", CANCELLED: "waiting", AWAITING_SCORE: "awaitingScore", RESTING: "resting", RETURNING_CHAMPION: "readyToPlay", LEFT_QUEUE: "waiting",
@@ -28,9 +30,11 @@ export function CourtDetailClient({ courtId }: { courtId: string }) {
   const { ready, state, joinQueue, leaveQueue, setMockLocation } = useQueueData();
   const { state: teamState, currentTeam, currentUser } = useTeamData();
   const { games } = useGameLifecycle();
+  const admin = useAdminData();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<QueueRuleError | null>(null);
-  const court = getCourtById(courtId);
+  const baseCourt = getCourtById(courtId);
+  const court = baseCourt && admin.state ? getAdminCourt(admin.state, baseCourt) : baseCourt;
 
   if (!ready || !state) return <div className="team-loading" role="status">{copy.loading}</div>;
   if (!court) return <section className="team-not-found"><h1>{copy.courtNotFound}</h1><Link className="queue-primary-button" href="/courts">{copy.courtsTitle}</Link></section>;

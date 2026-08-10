@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { gameTranslations } from "@/lib/game-translations";
+import { gameFlowTranslations } from "@/lib/game-flow-translations";
 import { scoreFormTranslations } from "@/lib/score-form-translations";
 import type { GameLifecycleError } from "@/lib/game-lifecycle-types";
 import { useGameLifecycle } from "./game-lifecycle-provider";
@@ -15,6 +16,7 @@ export function GameScoresClient({ gameId }: { gameId: string }) {
   const router = useRouter();
   const { language } = useMeqLanguage();
   const copy = gameTranslations[language];
+  const flowCopy = gameFlowTranslations[language];
   const scoreCopy = scoreFormTranslations[language];
   const { games, submissions, activeUserId, setActiveUser, saveDraft, submitScores } = useGameLifecycle();
   const [scores, setScores] = useState<Record<string, number>>({});
@@ -43,7 +45,7 @@ export function GameScoresClient({ gameId }: { gameId: string }) {
   }, [team, submission]);
 
   if (!game) return <div className="game-page"><h1>{copy.gameNotFound}</h1></div>;
-  if (game.status !== "AWAITING_SCORE" && game.status !== "INVALID_SCORE" && game.status !== "COMPLETED") {
+  if (game.status !== "END_REQUESTED" && game.status !== "AWAITING_SCORE" && game.status !== "INVALID_SCORE" && game.status !== "COMPLETED") {
     return <div className="game-page"><header className="game-page-heading"><div><p className="section-label">SCORE SUBMISSION</p><h1>{copy.awaitingScores}</h1></div><Link href={`/games/${game.id}`}>← {copy.game}</Link></header><div className="team-notice" role="status">{copy[`status_${game.status}` as keyof typeof copy]}</div></div>;
   }
   const currentGame = game;
@@ -94,6 +96,7 @@ export function GameScoresClient({ gameId }: { gameId: string }) {
 
   return <div className="game-page">
     <header className="game-page-heading"><div><p className="section-label">SCORE SUBMISSION</p><h1>{copy.scores}</h1><p>{copy.scoresHint}</p></div><Link href={`/games/${game.id}`}>← {copy.game}</Link></header>
+    {game.status === "END_REQUESTED" ? <div className="team-notice" role="status">{team?.teamId === game.requestedByTeamId ? flowCopy.requesterScoreHint : flowCopy.opponentScoreConfirms}</div> : null}
     {game.status === "INVALID_SCORE" ? <div className="team-error" role="alert">{copy.invalid}: {game.invalidReason === "NO_TEAM_REACHED_TARGET" ? scoreCopy.noTeamReachedTarget : copy[`invalid_${game.invalidReason}` as keyof typeof copy]}</div> : null}
     {error ? <div className="team-error" role="alert">{copy[`error_${error}` as keyof typeof copy]}</div> : null}
     <div className="score-submit-status" aria-live="polite" aria-atomic="true">{phaseMessage}</div>

@@ -11,7 +11,7 @@ export type Court = {
   image: string;
   isOpen: boolean;
   opensAt: "05:00";
-  closesAt: "24:00";
+  closesAt: "00:00";
   targetScore: number;
   allowedTargetScores: readonly number[];
 };
@@ -35,6 +35,7 @@ export type QueueTeamSnapshot = {
   id: string;
   name: string;
   type: TeamType;
+  captainUserId?: string;
   memberCount: number;
   members: QueueMemberSnapshot[];
 };

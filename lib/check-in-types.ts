@@ -15,6 +15,7 @@ export type TeamCheckInSession = {
   courtId: CourtId;
   teamId: string;
   teamName: string;
+  captainUserId?: string;
   members: QueueMemberSnapshot[];
   status: CheckInStatus;
   calledAt: string;
@@ -50,6 +51,6 @@ export type CheckInDataState = {
   games: MockGame[];
 };
 
-export type CheckInError = "NO_WAITING_TEAM" | "TEAM_ALREADY_CALLED" | "SESSION_NOT_FOUND" | "MEMBER_NOT_IN_TEAM" | "ALREADY_CHECKED_IN" | "NOT_CHECKED_IN" | "OUT_OF_RANGE" | "PERMISSION_DENIED" | "DEADLINE_EXPIRED" | "CANNOT_CANCEL" | "NOT_ENOUGH_READY_TEAMS" | "GAME_ALREADY_ACTIVE";
+export type CheckInError = "NO_WAITING_TEAM" | "TEAM_ALREADY_CALLED" | "SESSION_NOT_FOUND" | "MEMBER_NOT_IN_TEAM" | "NOT_CAPTAIN" | "ALREADY_CHECKED_IN" | "NOT_CHECKED_IN" | "OUT_OF_RANGE" | "PERMISSION_DENIED" | "DEADLINE_EXPIRED" | "CANNOT_CANCEL" | "NOT_ENOUGH_READY_TEAMS" | "GAME_ALREADY_ACTIVE";
 
 export type CheckInResult = { ok: true; session?: TeamCheckInSession; game?: MockGame } | { ok: false; error: CheckInError };
