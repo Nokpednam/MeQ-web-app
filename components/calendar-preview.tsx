@@ -1,24 +1,7 @@
-import type { DashboardCopy, DashboardLanguage } from "@/lib/dashboard-translations";
+"use client";
+import Link from "next/link";
+import type{DashboardCopy,DashboardLanguage}from "@/lib/dashboard-translations";
+import type{SupabaseCourtEvent}from "@/lib/supabase-dashboard-repository";
 
-const eventMeta = [
-  { dateTh: "8 ส.ค.", dateEn: "8 AUG", time: "16:00–20:00", court: "5x5", impact: "high", title: "eventOneTitle", detail: "eventOneDetail" },
-  { dateTh: "12 ส.ค.", dateEn: "12 AUG", time: "09:00–10:30", court: "3x3 A / B", impact: "medium", title: "eventTwoTitle", detail: "eventTwoDetail" },
-  { dateTh: "18 ส.ค.", dateEn: "18 AUG", time: "05:00–08:00", court: "ALL COURTS", impact: "high", title: "eventThreeTitle", detail: "eventThreeDetail" },
-] as const;
-
-export function CalendarPreview({ copy, language }: { copy: DashboardCopy; language: DashboardLanguage }) {
-  return (
-    <section className="dashboard-section events-section" aria-labelledby="events-heading">
-      <div className="section-heading"><div><p className="section-label">CALENDAR</p><h2 id="events-heading">{copy.upcomingEvents}</h2></div><button className="outline-button" type="button">{copy.viewCalendar}<b>→</b></button></div>
-      <div className="event-list">
-        {eventMeta.map((event) => (
-          <article className="event-item" key={event.dateEn}>
-            <time>{language === "th" ? event.dateTh : event.dateEn}</time>
-            <div className="event-copy"><div><span className={`impact impact-${event.impact}`}>{event.impact === "high" ? copy.impactHigh : event.impact === "medium" ? copy.impactMedium : copy.impactLow}</span><span>{event.court}</span></div><h3>{copy[event.title]}</h3><p>{copy[event.detail]}</p></div>
-            <strong className="event-time">{event.time}</strong>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
+export function eventPresentation(event:SupabaseCourtEvent,language:DashboardLanguage){const start=new Date(event.startsAt),end=new Date(event.endsAt),locale=language==="th"?"th-TH":"en-GB";return{date:start.toLocaleDateString(locale,{day:"numeric",month:"short",year:"numeric"}),time:event.allDay?(language==="th"?"ตลอดวัน":"ALL DAY"):`${start.toLocaleTimeString(locale,{hour:"2-digit",minute:"2-digit"})}–${end.toLocaleTimeString(locale,{hour:"2-digit",minute:"2-digit"})}`,court:event.courtIds.length===3?(language==="th"?"ทุกสนาม":"ALL COURTS"):event.courtIds.map(id=>id.toUpperCase()).join(" / ")}}
+export function CalendarPreview({copy,language,events}:{copy:DashboardCopy;language:DashboardLanguage;events:SupabaseCourtEvent[]}){return <section className="dashboard-section events-section" aria-labelledby="events-heading"><div className="section-heading"><div><p className="section-label">CALENDAR</p><h2 id="events-heading">{copy.upcomingEvents}</h2></div><Link className="outline-button" href="/calendar">{copy.viewCalendar}<b>→</b></Link></div><div className="event-list">{events.length===0?<p className="empty-queue">{language==="th"?"ยังไม่มีกิจกรรมสนามที่กำลังจะมาถึง":"No upcoming court events"}</p>:events.slice(0,2).map(event=>{const view=eventPresentation(event,language);return <article className="event-item" key={event.id}><time>{view.date}</time><div className="event-copy"><div><span className={`impact impact-${event.impact.toLowerCase()}`}>{event.impact==="HIGH"?copy.impactHigh:event.impact==="MEDIUM"?copy.impactMedium:copy.impactLow}</span><span>{view.court}</span></div><h3>{event.title}</h3><p>{event.details}</p></div><strong className="event-time">{view.time}</strong></article>})}</div></section>}

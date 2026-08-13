@@ -65,15 +65,20 @@ git remote add origin <YOUR_GITHUB_REPOSITORY_URL>
 git push -u origin main
 ```
 
-## Supabase CLI (รอบถัดไป)
-ต้องติดตั้ง Docker Desktop ก่อนใช้ Supabase local stack:
+## Supabase foundation
+
+โครงสร้าง PostgreSQL, RLS, transactional RPC และ seed เริ่มต้นอยู่ใน `supabase/`
+โดยยังไม่เชื่อม project จริงหรือเปลี่ยน UI จาก localStorage ดูแผนการย้ายระบบได้ที่
+`docs/architecture/supabase-foundation.md`
+
+เมื่อต้องการทดสอบกับ Supabase local stack ต้องติดตั้ง Docker Desktop แล้วรัน:
 
 ```bash
 npx supabase init
 npx supabase start
 ```
 
-ในรอบถัดไปจะเพิ่ม migration, Row Level Security และ seed data
+จากนั้นใช้ migration และ seed ในโฟลเดอร์ `supabase/` กับ local project ก่อนเชื่อม Development project
 
 ## Vercel CLI (เมื่อพร้อม Deploy)
 

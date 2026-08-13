@@ -7,9 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:game-lifecycle": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/game-lifecycle.test.js",
+    "test:admin": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/admin-rules.test.js"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.2",
     "next": "16.2.11",
     "react": "19.2.8",
     "react-dom": "19.2.8"
@@ -20,6 +24,7 @@
     "@types/react-dom": "^19.2.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "16.2.11",
+    "supabase": "^2.113.0",
     "typescript": "^5.9.2"
   }
 }

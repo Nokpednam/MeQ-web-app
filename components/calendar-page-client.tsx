@@ -1,0 +1,7 @@
+"use client";
+import Link from "next/link";
+import{eventPresentation}from "./calendar-preview";
+import{useMeqLanguage}from "./use-meq-language";
+import type{SupabaseCourtEvent}from "@/lib/supabase-dashboard-repository";
+
+export function CalendarPageClient({events}:{events:SupabaseCourtEvent[]}){const{language}=useMeqLanguage();return <main className="court-page calendar-page"><header className="team-page-heading"><div><p className="section-label">CALENDAR</p><h1>{language==="th"?"ปฏิทินกิจกรรมสนาม":"Court event calendar"}</h1><p>{language==="th"?"ช่วงเวลาที่สนามปิดหรือได้รับผลกระทบ":"Court closures and affected periods"}</p></div><Link className="back-link" href="/">← {language==="th"?"กลับ Dashboard":"Back to Dashboard"}</Link></header><section className="events-section dashboard-section"><div className="event-list">{events.length===0?<p className="empty-queue">{language==="th"?"ยังไม่มีกิจกรรมสนามที่กำลังจะมาถึง":"No upcoming court events"}</p>:events.map(event=>{const view=eventPresentation(event,language);return <article className="event-item" key={event.id}><time>{view.date}</time><div className="event-copy"><div><span className={`impact impact-${event.impact.toLowerCase()}`}>{language==="th"?(event.impact==="HIGH"?"กระทบสูง":event.impact==="MEDIUM"?"กระทบปานกลาง":"กระทบต่ำ"):`${event.impact.toLowerCase()} impact`}</span><span>{view.court}</span></div><h2>{event.title}</h2><p>{event.details}</p></div><strong className="event-time">{view.time}</strong></article>})}</div></section></main>}

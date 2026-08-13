@@ -1,0 +1,24 @@
+flowchart TD
+  Browser["Next.js client"] -->|"Supabase Auth session"| Server["Next.js server / Edge Function"]
+  Browser -->|"อ่านข้อมูลที่ RLS อนุญาต"| API["Supabase Data API"]
+  Server -->|"ตรวจ session และหลักฐานตำแหน่ง"| RPC["Transactional PostgreSQL RPC"]
+  API --> RLS["RLS + column privileges"]
+  RPC --> Rules["DB constraints + business validation"]
+  RLS --> DB[("PostgreSQL")]
+  Rules --> DB
+  DB --> Audit["audit_logs"]
+  Auth["auth.users"] --> Profile["profiles: USER / ADMIN"]
+  Profile --> RLS
+
+  subgraph "Client ห้ามเขียนโดยตรง"
+    Queue["queue_entries"]
+    Game["games"]
+    Score["score_submissions / player_scores"]
+    Active["active_queue_players"]
+  end
+
+  RPC --> Queue
+  RPC --> Game
+  RPC --> Score
+  RPC --> Active
+

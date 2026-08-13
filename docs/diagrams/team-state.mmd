@@ -1,4 +1,13 @@
 stateDiagram-v2
+  PLAYING --> DECIDING_CONTINUE: first consecutive win
+  DECIDING_CONTINUE --> HOLDING_COURT: winner continues
+  DECIDING_CONTINUE --> LEFT_QUEUE: winner stops
+  PLAYING --> RESTING: second consecutive win
+  PLAYING --> DECIDING_REQUEUE: loss
+  DECIDING_REQUEUE --> WAITING: requeue
+  DECIDING_REQUEUE --> LEFT_QUEUE: leave or timeout
+  RESTING --> RETURNING_CHAMPION: rest game completed
+  RETURNING_CHAMPION --> PLAYING
   [*] --> INCOMPLETE: สร้างทีม
   INCOMPLETE --> READY: สมาชิกครบ
   READY --> INCOMPLETE: ลบสมาชิก
