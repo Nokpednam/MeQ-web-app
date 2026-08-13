@@ -6,25 +6,18 @@ import Image from "next/image";
 import { CalendarPreview } from "@/components/calendar-preview";
 import { CourtCard } from "@/components/court-card";
 import { dashboardTranslations, type DashboardLanguage } from "@/lib/dashboard-translations";
-import { courts, playerStats, playerStatsByFormat } from "@/lib/mock-data";
-import { useCheckIn } from "@/components/check-in-provider";
-import { useTeamData } from "@/components/team-provider";
-import { checkInTranslations } from "@/lib/check-in-translations";
-import { useGameLifecycle } from "@/components/game-lifecycle-provider";
 import { gameTranslations } from "@/lib/game-translations";
 import { getActiveGameForCourt, isGameActive } from "@/lib/game-lifecycle-rules";
-import { useQueueData } from "@/components/queue-provider";
-import { winnerDecisionTranslations } from "@/lib/winner-decision-translations";
 import { useAdminData } from "@/components/admin-provider";
-import { getAdminCourt } from "@/lib/admin-rules";
-import { getCourtById } from "@/lib/court-data";
 import type { MaintenanceCategory } from "@/lib/admin-types";
+import type { SupabaseDashboardData } from "@/lib/supabase-dashboard-repository";
+import type { CourtView, PlayerStatsView } from "@/lib/mock-data";
 
 const navigation = [
   ["home", "#top"],
   ["courts", "/courts"],
   ["teams", "/teams"],
-  ["maintenance", "#maintenance"],
+  ["maintenance", "/maintenance/new"],
   ["profile", "/profile"],
 ] as const;
 
@@ -37,7 +30,9 @@ function getLocalDateKey(value?: string) {
   return `${year}-${month}-${day}`;
 }
 
-export function Dashboard() {
+const emptyStats:PlayerStatsView={totalGames:0,wins:0,losses:0,winRate:0,totalPoints:0,averagePoints:0,highestScoreInGame:0};
+
+export function Dashboard({data}:{data:SupabaseDashboardData}) {
   const [language, setLanguage] = useState<DashboardLanguage>("th");
   const [showAllResults, setShowAllResults] = useState(false);
   const [selectedResultDate, setSelectedResultDate] = useState("");
@@ -48,33 +43,22 @@ export function Dashboard() {
   const [maintenanceImageName, setMaintenanceImageName] = useState("");
   const [maintenanceImageError, setMaintenanceImageError] = useState("");
   const copy = dashboardTranslations[language];
-  const checkInCopy = checkInTranslations[language];
-  const { state: checkInState } = useCheckIn();
-  const { currentUser } = useTeamData();
-  const lifecycle = useGameLifecycle();
-  const { state: queueState } = useQueueData();
   const admin = useAdminData();
   const gameCopy = gameTranslations[language];
-  const winnerCopy = winnerDecisionTranslations[language];
-  const activeGames = lifecycle.games.filter(isGameActive);
-  const completedGames = lifecycle.games.filter((game) => game.status === "COMPLETED").sort((a,b)=>Date.parse(b.completedAt??"")-Date.parse(a.completedAt??""));
+  const activeGames = data.games.filter(isGameActive);
+  const completedGames = data.games.filter((game) => game.status === "COMPLETED").sort((a,b)=>Date.parse(b.completedAt??"")-Date.parse(a.completedAt??""));
   const gamesOnSelectedDate = selectedResultDate ? completedGames.filter((game) => getLocalDateKey(game.completedAt) === selectedResultDate) : completedGames;
   const visibleCompletedGames = selectedResultDate || showAllResults ? gamesOnSelectedDate : gamesOnSelectedDate.slice(0, 2);
-  const calledSession = checkInState?.sessions.find((session) => (session.status === "CALLED" || session.status === "CHECKING_IN") && session.members.some((member) => member.id === currentUser?.id));
-  const lifecycleAlert = lifecycle.games.find((game) => (game.status === "END_REQUESTED" || game.status === "AWAITING_SCORE" || game.status === "INVALID_SCORE") && (game.teamA.captainUserId === lifecycle.activeUserId || game.teamB.captainUserId === lifecycle.activeUserId));
-  const decisionAlert = lifecycle.decisions.find((decision) => decision.status === "DECIDING" && decision.captainUserId === lifecycle.activeUserId);
-  const winnerDecisionAlert = lifecycle.games.find((game) => game.status === "COMPLETED" && game.postGame && game.postGame.winnerConsecutiveWins < 2 && game.postGame.winnerContinuationDecision !== "CONTINUE" && game.postGame.winnerContinuationDecision !== "LEAVE" && (game.winnerTeamId === game.teamA.teamId ? game.teamA.captainUserId : game.teamB.captainUserId) === lifecycle.activeUserId);
-  const lifecycleHistory = lifecycle.history.filter((item) => item.playerId === lifecycle.activeUserId);
+  const lifecycleHistory = data.history;
   const lifecycleWins = lifecycleHistory.filter((item) => item.won).length;
-  const computedStats = lifecycleHistory.length ? { totalGames:lifecycleHistory.length,wins:lifecycleWins,losses:lifecycleHistory.length-lifecycleWins,winRate:Math.round(lifecycleWins/lifecycleHistory.length*100),totalPoints:lifecycleHistory.reduce((sum,item)=>sum+item.points,0),averagePoints:Number((lifecycleHistory.reduce((sum,item)=>sum+item.points,0)/lifecycleHistory.length).toFixed(1)),highestScoreInGame:Math.max(...lifecycleHistory.map((item)=>item.points)) } : playerStats;
+  const computedStats = lifecycleHistory.length ? { totalGames:lifecycleHistory.length,wins:lifecycleWins,losses:lifecycleHistory.length-lifecycleWins,winRate:Math.round(lifecycleWins/lifecycleHistory.length*100),totalPoints:lifecycleHistory.reduce((sum,item)=>sum+item.points,0),averagePoints:Number((lifecycleHistory.reduce((sum,item)=>sum+item.points,0)/lifecycleHistory.length).toFixed(1)),highestScoreInGame:Math.max(...lifecycleHistory.map((item)=>item.points)) } : emptyStats;
   const formatStats = (["THREE_X_THREE", "FIVE_X_FIVE"] as const).map((teamType) => {
     const games = lifecycleHistory.filter((item) => item.teamType === teamType);
-    if (!lifecycleHistory.length) return { teamType, label: teamType === "THREE_X_THREE" ? "3x3" : "5x5", ...playerStatsByFormat[teamType] };
     const wins = games.filter((item) => item.won).length;
     const totalPoints = games.reduce((sum, item) => sum + item.points, 0);
     return { teamType, label: teamType === "THREE_X_THREE" ? "3x3" : "5x5", totalGames: games.length, wins, losses: games.length - wins, winRate: games.length ? Math.round(wins / games.length * 100) : 0, totalPoints, averagePoints: games.length ? Number((totalPoints / games.length).toFixed(1)) : 0, highestScoreInGame: games.length ? Math.max(...games.map((item)=>item.points)) : 0 };
   });
-  const dashboardCourts = courts.map((court) => { const domainCourt=getCourtById(court.id);const configured=domainCourt&&admin.state?getAdminCourt(admin.state,domainCourt):domainCourt;return {...court,targetScore:configured?.targetScore??court.targetScore,status:configured&&!configured.isOpen?"CLOSED" as const:court.status}; });
+  const dashboardCourts: CourtView[] = data.queue.courts.map((court)=>({id:court.id,name:court.name,type:court.type,image:court.image,status:court.isOpen?"OPEN":"CLOSED",targetScore:court.targetScore,queue:[]}));
 
   useEffect(() => {
     const savedLanguage = window.localStorage.getItem("meq-language");
@@ -91,11 +75,7 @@ export function Dashboard() {
   }, [maintenanceImagePreview]);
 
   function openMaintenanceDialog() {
-    setMaintenanceSubmitted(false);
-    setMaintenanceImagePreview("");
-    setMaintenanceImageName("");
-    setMaintenanceImageError("");
-    setMaintenanceOpen(true);
+    window.location.href = "/maintenance/new";
   }
 
   function selectMaintenanceImage(file?: File) {
@@ -125,13 +105,13 @@ export function Dashboard() {
             {navigation.slice(0, 4).map(([label, href]) => <a key={label} href={href}>{copy[label]}</a>)}
           </nav>
           <div className="header-tools">
-            <Link className="admin-entry" href="/admin">{copy.adminCenter}</Link>
+            {data.profile.role === "ADMIN" ? <Link className="admin-entry" href="/admin">{copy.adminCenter}</Link> : null}
             <div className="language-switcher" aria-label={copy.switchLanguage} role="group">
               <button className={language === "th" ? "is-active" : ""} onClick={() => selectLanguage("th")} type="button" aria-pressed={language === "th"}>TH</button>
               <button className={language === "en" ? "is-active" : ""} onClick={() => selectLanguage("en")} type="button" aria-pressed={language === "en"}>EN</button>
             </div>
             <Link className="profile-button" href="/profile" aria-label={copy.profile}>
-              <span aria-hidden="true">{currentUser?.initials ?? "NU"}</span><span className="profile-label">{currentUser?.displayName ?? copy.profileName}</span>
+              <span aria-hidden="true">{data.profile.avatarUrl ? <Image src={data.profile.avatarUrl} alt="" width={40} height={40} /> : data.profile.initials}</span><span className="profile-label">{data.profile.displayName}</span>
             </Link>
           </div>
         </div>
@@ -149,14 +129,9 @@ export function Dashboard() {
             <div><dt>5x5 · {copy.todayScore}</dt><dd>15 <small>{copy.points}</small></dd></div>
           </dl>
         </section>
-        {calledSession ? <Link className="dashboard-checkin-alert" href={`/courts/${calledSession.courtId}#check-in`}><span>!</span><div><strong>{checkInCopy.TEAM_CALLED}</strong><small>{calledSession.teamName} · {checkInCopy.imReady}</small></div><b>→</b></Link> : null}
-        {lifecycleAlert ? <Link className="dashboard-checkin-alert" href={`/games/${lifecycleAlert.id}/scores`}><span>!</span><div><strong>{gameCopy.awaitingScores}</strong><small>{lifecycleAlert.teamA.teamName} VS {lifecycleAlert.teamB.teamName}</small></div><b>→</b></Link> : null}
-        {decisionAlert ? <Link className="dashboard-checkin-alert" href={`/games/${decisionAlert.gameId}/result`}><span>!</span><div><strong>{gameCopy.requeueTitle}</strong><small>{gameCopy.decisionTime}</small></div><b>→</b></Link> : null}
-        {winnerDecisionAlert ? <Link className="dashboard-checkin-alert" href={`/games/${winnerDecisionAlert.id}/result`}><span>!</span><div><strong>{winnerCopy.title}</strong><small>{winnerCopy.pending}</small></div><b>→</b></Link> : null}
-
         <section id="courts" className="dashboard-section">
           <div className="section-heading"><div><p className="section-label">COURTS / 03</p><h2>{copy.courtOverview}</h2></div><p>{copy.courtOverviewHint}</p></div>
-          <div className="court-grid">{dashboardCourts.map((court) => <CourtCard key={court.id} court={court} copy={copy} activeGame={getActiveGameForCourt(lifecycle.games,court.id as "3x3-a"|"3x3-b"|"5x5")} queueCount={queueState?.entries.filter((entry)=>entry.courtId===court.id&&entry.status==="WAITING").length??0} />)}</div>
+          <div className="court-grid">{dashboardCourts.map((court) => <CourtCard key={court.id} court={court} copy={copy} activeGame={getActiveGameForCourt(data.games,court.id as "3x3-a"|"3x3-b"|"5x5")} queueCount={data.queue.entries.filter((entry)=>entry.courtId===court.id&&entry.status==="WAITING").length} />)}</div>
         </section>
 
         <div className="dashboard-grid">
@@ -205,8 +180,8 @@ export function Dashboard() {
           {!selectedResultDate && completedGames.length > 2 ? <div className="results-toggle"><button className="stats-button" type="button" aria-expanded={showAllResults} onClick={() => setShowAllResults((value) => !value)}>{showAllResults ? copy.showLessResults : copy.viewAllResults}<b>{showAllResults ? "↑" : "→"}</b></button></div> : null}
         </section>
 
-        <CalendarPreview copy={copy} language={language} />
-        {maintenanceOpen ? <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMaintenanceOpen(false); }}><section className="member-dialog maintenance-dialog" role="dialog" aria-modal="true" aria-labelledby="maintenance-heading"><header><div><p className="section-label">MAINTENANCE</p><h2 id="maintenance-heading">{copy.reportIssue}</h2><p>{copy.maintenanceMockNotice}</p></div><button className="dialog-close" type="button" onClick={() => setMaintenanceOpen(false)} aria-label={copy.closeDialog}>×</button></header>{maintenanceSubmitted ? <div className="maintenance-success" role="status"><span>✓</span><h3>{copy.maintenanceSuccess}</h3><p>{copy.maintenanceSuccessHint}</p><button className="queue-primary-button" type="button" onClick={() => setMaintenanceOpen(false)}>{copy.closeDialog}</button></div> : <form className="maintenance-form" onSubmit={(event) => { event.preventDefault(); const data=new FormData(event.currentTarget);admin.addReport({courtId:String(data.get("court")) as "3x3-a"|"3x3-b"|"5x5",category:String(data.get("category")).toUpperCase() as MaintenanceCategory,details:String(data.get("details")),...(maintenanceImageName?{imageName:maintenanceImageName}:{})});setMaintenanceSubmitted(true); }}><label><span>{copy.maintenanceCourt}</span><select name="court" required defaultValue=""><option value="" disabled>{copy.maintenanceSelectCourt}</option>{courts.map((court) => <option value={court.id} key={court.id}>{court.name}</option>)}</select></label><label><span>{copy.maintenanceCategory}</span><select name="category" required defaultValue=""><option value="" disabled>{copy.maintenanceSelectCategory}</option><option value="surface">{copy.maintenanceSurface}</option><option value="hoop">{copy.maintenanceHoop}</option><option value="lighting">{copy.maintenanceLighting}</option><option value="other">{copy.maintenanceOther}</option></select></label><label><span>{copy.maintenanceDetails}</span><textarea name="details" required minLength={5} rows={4} placeholder={copy.maintenanceDetailsPlaceholder} /></label><div className="maintenance-image-field"><span>{copy.maintenanceImage}</span><small>{copy.maintenanceImageHint}</small><label className="maintenance-upload"><input name="image" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => selectMaintenanceImage(event.target.files?.[0])} /><b>＋</b>{copy.chooseImage}</label>{maintenanceImageError ? <p role="alert">{maintenanceImageError}</p> : null}{maintenanceImagePreview ? <div className="maintenance-image-preview"><Image src={maintenanceImagePreview} alt={copy.maintenanceImagePreview} width={520} height={260} unoptimized /><div><span>{maintenanceImageName}</span><button type="button" onClick={() => selectMaintenanceImage()}>{copy.removeImage}</button></div></div> : null}</div><div className="maintenance-actions"><button className="queue-secondary-button" type="button" onClick={() => setMaintenanceOpen(false)}>{copy.cancel}</button><button className="queue-primary-button" type="submit">{copy.submitMaintenance}</button></div></form>}</section></div> : null}
+        <CalendarPreview copy={copy} language={language} events={data.events} />
+        {maintenanceOpen ? <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMaintenanceOpen(false); }}><section className="member-dialog maintenance-dialog" role="dialog" aria-modal="true" aria-labelledby="maintenance-heading"><header><div><p className="section-label">MAINTENANCE</p><h2 id="maintenance-heading">{copy.reportIssue}</h2><p>{copy.maintenanceMockNotice}</p></div><button className="dialog-close" type="button" onClick={() => setMaintenanceOpen(false)} aria-label={copy.closeDialog}>×</button></header>{maintenanceSubmitted ? <div className="maintenance-success" role="status"><span>✓</span><h3>{copy.maintenanceSuccess}</h3><p>{copy.maintenanceSuccessHint}</p><button className="queue-primary-button" type="button" onClick={() => setMaintenanceOpen(false)}>{copy.closeDialog}</button></div> : <form className="maintenance-form" onSubmit={(event) => { event.preventDefault(); const data=new FormData(event.currentTarget);admin.addReport({courtId:String(data.get("court")) as "3x3-a"|"3x3-b"|"5x5",category:String(data.get("category")).toUpperCase() as MaintenanceCategory,details:String(data.get("details")),...(maintenanceImageName?{imageName:maintenanceImageName}:{})});setMaintenanceSubmitted(true); }}><label><span>{copy.maintenanceCourt}</span><select name="court" required defaultValue=""><option value="" disabled>{copy.maintenanceSelectCourt}</option>{dashboardCourts.map((court) => <option value={court.id} key={court.id}>{court.name}</option>)}</select></label><label><span>{copy.maintenanceCategory}</span><select name="category" required defaultValue=""><option value="" disabled>{copy.maintenanceSelectCategory}</option><option value="surface">{copy.maintenanceSurface}</option><option value="hoop">{copy.maintenanceHoop}</option><option value="lighting">{copy.maintenanceLighting}</option><option value="other">{copy.maintenanceOther}</option></select></label><label><span>{copy.maintenanceDetails}</span><textarea name="details" required minLength={5} rows={4} placeholder={copy.maintenanceDetailsPlaceholder} /></label><div className="maintenance-image-field"><span>{copy.maintenanceImage}</span><small>{copy.maintenanceImageHint}</small><label className="maintenance-upload"><input name="image" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => selectMaintenanceImage(event.target.files?.[0])} /><b>＋</b>{copy.chooseImage}</label>{maintenanceImageError ? <p role="alert">{maintenanceImageError}</p> : null}{maintenanceImagePreview ? <div className="maintenance-image-preview"><Image src={maintenanceImagePreview} alt={copy.maintenanceImagePreview} width={520} height={260} unoptimized /><div><span>{maintenanceImageName}</span><button type="button" onClick={() => selectMaintenanceImage()}>{copy.removeImage}</button></div></div> : null}</div><div className="maintenance-actions"><button className="queue-secondary-button" type="button" onClick={() => setMaintenanceOpen(false)}>{copy.cancel}</button><button className="queue-primary-button" type="submit">{copy.submitMaintenance}</button></div></form>}</section></div> : null}
       </main>
 
       <nav className="bottom-nav" aria-label={copy.mainNavigation}>
