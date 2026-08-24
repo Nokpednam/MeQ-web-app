@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { cache } from "react";
 import type { Team, User } from "./team-types";
 
 type ProfileRow = { id: string; display_name: string; avatar_url: string | null };
@@ -54,7 +55,10 @@ export async function getTeamPageData(supabase: SupabaseClient, userId: string):
   };
 }
 
+/** Deduplicate the team feed when a layout and its page render in one request. */
+export const getCachedTeamPageData = cache(getTeamPageData);
+
 export async function getTeamById(supabase: SupabaseClient, teamId: string, userId: string) {
-  const data = await getTeamPageData(supabase, userId);
+  const data = await getCachedTeamPageData(supabase, userId);
   return data.currentTeam?.id === teamId ? data : { ...data, currentTeam: null };
 }
