@@ -2,9 +2,15 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { submitMaintenanceReportAction } from "@/app/maintenance/actions";
 
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return <button className="queue-primary-button" type="submit" disabled={pending} aria-disabled={pending}>{pending ? "กำลังส่งรายการ…" : "ส่งรายการแจ้งซ่อม"}</button>;
+}
 
 export function MaintenanceReportForm() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -23,6 +29,11 @@ export function MaintenanceReportForm() {
     setError("");
 
     if (!file) return;
+    if (file.size === 0) {
+      setError("ไฟล์รูปภาพว่างเปล่า กรุณาเลือกรูปใหม่");
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
     if (!allowedTypes.has(file.type)) {
       setError("รองรับเฉพาะไฟล์ JPG, PNG หรือ WebP");
       if (inputRef.current) inputRef.current.value = "";
@@ -52,6 +63,6 @@ export function MaintenanceReportForm() {
       {error ? <p className="maintenance-upload-error" role="alert">{error}</p> : null}
       {previewUrl ? <div className="maintenance-image-preview"><Image src={previewUrl} alt="ตัวอย่างรูปภาพแจ้งซ่อม" width={640} height={360} unoptimized/><div><span title={fileName}>{fileName}</span><button type="button" onClick={removeFile}>เอารูปออก</button></div></div> : null}
     </div>
-    <button className="queue-primary-button">ส่งรายการแจ้งซ่อม</button>
+    <SubmitButton />
   </form>;
 }
