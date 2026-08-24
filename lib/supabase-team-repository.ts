@@ -4,11 +4,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { cache } from "react";
 import type { Team, User } from "./team-types";
 
-type ProfileRow = { id: string; display_name: string; avatar_url: string | null };
+type ProfileRow = { id: string; display_name: string; avatar_url: string | null; role?: "USER" | "ADMIN" };
 type MembershipRow = { team_id: string; user_id: string; role: "CAPTAIN" | "MEMBER"; joined_at: string };
 type TeamRow = { id: string; name: string; format: "THREE_X_THREE" | "FIVE_X_FIVE"; captain_user_id: string; created_at: string; dissolved_at: string | null };
 
-export type AuthTeamProfile = { id: string; displayName: string; initials: string; avatarUrl: string | null };
+export type AuthTeamProfile = { id: string; displayName: string; initials: string; avatarUrl: string | null; role: "USER" | "ADMIN" };
 export type TeamPageData = { currentUser: AuthTeamProfile; currentTeam: Team | null; users: User[] };
 
 function initials(name: string) {
@@ -17,7 +17,7 @@ function initials(name: string) {
 
 export async function getTeamPageData(supabase: SupabaseClient, userId: string): Promise<TeamPageData> {
   const [{ data: profileData }, { data: profilesData }, { data: membershipsData }] = await Promise.all([
-    supabase.from("profiles").select("id,display_name,avatar_url").eq("id", userId).single(),
+    supabase.from("profiles").select("id,display_name,avatar_url,role").eq("id", userId).single(),
     supabase.from("profiles").select("id,display_name,avatar_url").order("display_name"),
     supabase.from("team_memberships").select("team_id,user_id,role,joined_at").is("left_at", null),
   ]);
@@ -49,7 +49,7 @@ export async function getTeamPageData(supabase: SupabaseClient, userId: string):
 
   const membershipByUser = new Map(memberships.map((item) => [item.user_id, item.team_id]));
   return {
-    currentUser: { id: profile.id, displayName: profile.display_name, initials: initials(profile.display_name), avatarUrl: profile.avatar_url },
+    currentUser: { id: profile.id, displayName: profile.display_name, initials: initials(profile.display_name), avatarUrl: profile.avatar_url, role: profile.role === "ADMIN" ? "ADMIN" : "USER" },
     currentTeam,
     users: profiles.map((item) => ({ id: item.id, displayName: item.display_name, initials: initials(item.display_name), currentTeamId: membershipByUser.get(item.id) ?? null })),
   };
