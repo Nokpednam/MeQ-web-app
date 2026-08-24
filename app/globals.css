@@ -947,3 +947,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .public-maintenance-board.is-compact { margin-top: 18px; border-color: var(--orange-600); background: var(--orange-50); }
 .public-maintenance-board.is-compact .public-maintenance-list { grid-template-columns: 1fr; }
 @media (max-width:599px) { .public-maintenance-board { padding: 16px; border-radius: 15px; } .public-maintenance-list { grid-template-columns: 1fr; } .public-maintenance-list header time { width: 100%; margin-left: 0; } }
+.court-location-verifier{display:grid;gap:.65rem;padding:.85rem;border:1px solid var(--neutral-300);border-radius:14px;background:var(--neutral-50)}
+.court-location-verifier p{margin:0;font-size:.88rem;line-height:1.5}
+.court-location-verifier .queue-success,.court-location-verifier .team-error{margin:0;padding:.7rem;font-size:.82rem}

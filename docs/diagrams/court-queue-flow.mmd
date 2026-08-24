@@ -3,11 +3,16 @@ flowchart TD
   B -- No --> C["Create a team"]
   B -- Yes --> D{"Roster READY and court compatible?"}
   D -- No --> E["Show reason and team management link"]
-  D -- Yes --> F{"Within mock 50 m range?"}
-  F -- No --> G["Block queue entry"]
-  F -- Yes --> H{"Any active queue entry?"}
-  H -- Yes --> I["Open current court; leave first"]
-  H -- No --> J["Append WAITING entry"]
+  D -- Yes --> E1["Each member requests browser GPS"]
+  E1 --> F["Database computes distance from configured court point"]
+  F --> F1{"Distance + accuracy within configured radius?"}
+  F1 -- No --> G["Reject without creating verification"]
+  F1 -- Yes --> F2["Issue 10-minute verification"]
+  F2 --> H{"Every roster member has a current verification?"}
+  H -- No --> G
+  H -- Yes --> I{"Any active queue entry?"}
+  I -- Yes --> I1["Open current court; leave first"]
+  I -- No --> J["Append WAITING entry"]
   J --> K["Lock roster editing"]
   K --> L{"Captain leaves while leaveable?"}
   L -- Yes --> M["Remove entry and reorder positions"]
