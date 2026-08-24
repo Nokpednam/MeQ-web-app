@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { verifyCourtLocationAction } from "@/app/courts/actions";
 import type { CourtId } from "@/lib/queue-types";
 
@@ -17,10 +17,10 @@ function browserError(error: GeolocationPositionError) {
   return "ตรวจตำแหน่งไม่สำเร็จ กรุณาลองใหม่";
 }
 
-function serverError(code: string) {
+function serverError(code: string, accuracyMetres: number) {
   const copy: Record<string, string> = {
     OUT_OF_RANGE: "คุณอยู่นอกพื้นที่ทดสอบ 300 เมตรจากคณะ",
-    LOCATION_ACCURACY_TOO_LOW: "ความแม่นยำของตำแหน่งต่ำเกินไป กรุณาออกไปยังพื้นที่เปิดแล้วลองใหม่",
+    LOCATION_ACCURACY_TOO_LOW: `โทรศัพท์รายงานความคลาดเคลื่อนประมาณ ±${Math.round(accuracyMetres)} เมตร (ระบบรับได้ไม่เกิน 150 เมตร)`,
     INVALID_COORDINATES: "ข้อมูลตำแหน่งไม่ถูกต้อง กรุณาลองใหม่",
     COURT_LOCATION_NOT_CONFIGURED: "สนามนี้ยังไม่ได้ตั้งค่าตำแหน่ง",
     AUTH_REQUIRED: "กรุณาเข้าสู่ระบบอีกครั้ง",
@@ -30,23 +30,53 @@ function serverError(code: string) {
 
 export function CourtLocationVerifier({ courtId }: { courtId: CourtId }) {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const watchId = useRef<number | null>(null);
+  const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function stopWatching() {
+    if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
+    if (timeoutId.current !== null) clearTimeout(timeoutId.current);
+    watchId.current = null;
+    timeoutId.current = null;
+  }
+
+  useEffect(() => stopWatching, []);
+
+  async function submitPosition(position: GeolocationPosition) {
+    const { latitude, longitude, accuracy } = position.coords;
+    const result = await verifyCourtLocationAction(courtId, latitude, longitude, accuracy);
+    setStatus(result.ok
+      ? { kind: "success", distance: result.distanceMetres, expiresAt: result.expiresAt }
+      : { kind: "error", message: serverError(result.error, accuracy) });
+  }
 
   function verify() {
     if (!("geolocation" in navigator)) {
       setStatus({ kind: "error", message: "อุปกรณ์หรือเบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง" });
       return;
     }
+    stopWatching();
     setStatus({ kind: "checking" });
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        const result = await verifyCourtLocationAction(courtId, coords.latitude, coords.longitude, coords.accuracy);
-        setStatus(result.ok
-          ? { kind: "success", distance: result.distanceMetres, expiresAt: result.expiresAt }
-          : { kind: "error", message: serverError(result.error) });
+    let bestPosition: GeolocationPosition | null = null;
+    watchId.current = navigator.geolocation.watchPosition(
+      (position) => {
+        if (!bestPosition || position.coords.accuracy < bestPosition.coords.accuracy) bestPosition = position;
+        if (position.coords.accuracy <= 150) {
+          stopWatching();
+          void submitPosition(position);
+        }
       },
-      (error) => setStatus({ kind: "error", message: browserError(error) }),
-      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
+      (error) => {
+        stopWatching();
+        setStatus({ kind: "error", message: browserError(error) });
+      },
+      { enableHighAccuracy: true, maximumAge: 0 },
     );
+    timeoutId.current = setTimeout(() => {
+      stopWatching();
+      if (bestPosition) void submitPosition(bestPosition);
+      else setStatus({ kind: "error", message: "ยังไม่ได้รับตำแหน่งจากโทรศัพท์ภายใน 15 วินาที กรุณาลองใหม่" });
+    }, 15_000);
   }
 
   return <div className="court-location-verifier">
@@ -60,4 +90,3 @@ export function CourtLocationVerifier({ courtId }: { courtId: CourtId }) {
     {status.kind === "error" ? <div className="team-error" role="alert">{status.message}</div> : null}
   </div>;
 }
-
