@@ -950,3 +950,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .court-location-verifier{display:grid;gap:.65rem;padding:.85rem;border:1px solid var(--neutral-300);border-radius:14px;background:var(--neutral-50)}
 .court-location-verifier p{margin:0;font-size:.88rem;line-height:1.5}
 .court-location-verifier .queue-success,.court-location-verifier .team-error{margin:0;padding:.7rem;font-size:.82rem}
+.location-permission-guide{padding:.8rem;border-left:4px solid var(--orange-600);border-radius:10px;background:var(--orange-50);font-size:.84rem;line-height:1.5}
+.location-permission-guide strong,.location-permission-guide small{display:block}
+.location-permission-guide ol{margin:.45rem 0;padding-left:1.25rem}
+.location-permission-guide small{color:var(--neutral-700)}

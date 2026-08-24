@@ -11,7 +11,7 @@ type Status =
   | { kind: "error"; message: string };
 
 function browserError(error: GeolocationPositionError) {
-  if (error.code === error.PERMISSION_DENIED) return "ไม่ได้รับอนุญาตให้ใช้ตำแหน่ง กรุณาเปิดสิทธิ์ตำแหน่งให้เว็บไซต์";
+  if (error.code === error.PERMISSION_DENIED) return "ยังไม่ได้อนุญาตตำแหน่ง แตะไอคอนตั้งค่าข้าง URL → สิทธิ์ → ตำแหน่ง แล้วเลือกอนุญาต";
   if (error.code === error.POSITION_UNAVAILABLE) return "ไม่พบตำแหน่งปัจจุบัน กรุณาเปิด GPS แล้วลองใหม่";
   if (error.code === error.TIMEOUT) return "ค้นหาตำแหน่งนานเกินไป กรุณาลองใหม่ในพื้นที่เปิด";
   return "ตรวจตำแหน่งไม่สำเร็จ กรุณาลองใหม่";
@@ -20,7 +20,7 @@ function browserError(error: GeolocationPositionError) {
 function serverError(code: string, accuracyMetres: number) {
   const copy: Record<string, string> = {
     OUT_OF_RANGE: "คุณอยู่นอกพื้นที่ทดสอบ 300 เมตรจากคณะ",
-    LOCATION_ACCURACY_TOO_LOW: `โทรศัพท์รายงานความคลาดเคลื่อนประมาณ ±${Math.round(accuracyMetres)} เมตร (ระบบรับได้ไม่เกิน 150 เมตร)`,
+    LOCATION_ACCURACY_TOO_LOW: `โทรศัพท์รายงานความคลาดเคลื่อนประมาณ ±${Math.round(accuracyMetres)} เมตร ให้เปลี่ยนสิทธิ์ตำแหน่งเป็น “แน่นอน” แล้วลองอีกครั้ง`,
     INVALID_COORDINATES: "ข้อมูลตำแหน่งไม่ถูกต้อง กรุณาลองใหม่",
     COURT_LOCATION_NOT_CONFIGURED: "สนามนี้ยังไม่ได้ตั้งค่าตำแหน่ง",
     AUTH_REQUIRED: "กรุณาเข้าสู่ระบบอีกครั้ง",
@@ -81,8 +81,16 @@ export function CourtLocationVerifier({ courtId }: { courtId: CourtId }) {
 
   return <div className="court-location-verifier">
     <p>สมาชิกแต่ละคนต้องยืนยันตำแหน่งก่อนเข้าคิว การยืนยันมีอายุ 10 นาที</p>
+    <div className="location-permission-guide">
+      <strong>เมื่อ Chrome ถาม ให้เลือกตามนี้</strong>
+      <ol>
+        <li><b>แน่นอน</b> — ตำแหน่งที่แน่นอน</li>
+        <li><b>อนุญาตขณะเข้าชมเว็บไซต์</b></li>
+      </ol>
+      <small>ถ้าเลือกผิด การรีเว็บอย่างเดียวจะไม่ล้างสิทธิ์ ให้แตะไอคอนตั้งค่าข้าง URL → สิทธิ์ → ตำแหน่ง แล้วแก้เป็น “แน่นอน”</small>
+    </div>
     <button className="queue-secondary-button" type="button" onClick={verify} disabled={status.kind === "checking"}>
-      {status.kind === "checking" ? "กำลังตรวจตำแหน่ง…" : "ยืนยันตำแหน่ง GPS"}
+      {status.kind === "checking" ? "กำลังตรวจตำแหน่ง…" : status.kind === "error" ? "ลองตรวจตำแหน่งอีกครั้ง" : "ยืนยันตำแหน่ง GPS"}
     </button>
     {status.kind === "success" ? <div className="queue-success" role="status">
       ยืนยันแล้ว · ห่างจากจุดทดสอบ {Math.round(status.distance)} เมตร · ใช้ได้ถึง {new Date(status.expiresAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
