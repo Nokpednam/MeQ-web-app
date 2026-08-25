@@ -14,6 +14,13 @@ type TeamRow = { id: string; name: string; format: Court["type"]; captain_user_i
 type CheckInRow = { id:string; queue_entry_id:string; team_id:string; court_id:CourtId; status:"ACTIVE"|"READY"; captain_confirmed_by:string|null; captain_confirmed_at:string|null; deadline:string; created_at:string };
 
 export type SupabaseCheckIn = CheckInRow;
+export type TeamLocationStatus = {
+  userId: string;
+  displayName: string;
+  isCurrentUser: boolean;
+  status: "VERIFIED" | "MISSING" | "EXPIRED";
+  expiresAt: string | null;
+};
 export type SupabaseQueueData = { teamData: TeamPageData; courts: Court[]; entries: QueueEntry[]; teams: QueueTeamSnapshot[]; checkIns:SupabaseCheckIn[]; isAdmin:boolean };
 
 function openingTime(value: string) { return value.slice(0, 5) as "05:00"; }
@@ -36,4 +43,22 @@ export async function getSupabaseQueueData(supabase: SupabaseClient, userId: str
   const entries = ((entriesResult.data ?? []) as EntryRow[]).map((row) => ({ id: row.id, courtId: row.court_id, teamId: row.team_id, position: row.position ?? 0, status: row.status, joinedAt: row.joined_at, ...(row.called_at ? { calledAt: row.called_at } : {}), ...(row.check_in_deadline ? { checkInDeadline: row.check_in_deadline } : {}) }));
   const teams = ((teamsResult.data ?? []) as TeamRow[]).map((team) => { const members = teamData.users.filter((user) => user.currentTeamId === team.id).map((user) => ({ id: user.id, displayName: user.displayName, initials: user.initials })); return { id: team.id, name: team.name, type: team.format, captainUserId: team.captain_user_id, memberCount: members.length, members }; });
   return { teamData, courts, entries, teams,checkIns:(checkInsResult.data??[]) as CheckInRow[],isAdmin:teamData.currentUser.role==="ADMIN" };
+}
+
+export async function getTeamLocationStatuses(supabase: SupabaseClient, courtId: CourtId): Promise<TeamLocationStatus[]> {
+  const { data, error } = await supabase.rpc("get_team_location_status", { p_court_id: courtId });
+  if (error) throw new Error(`TEAM_LOCATION_STATUS_FAILED: ${error.message}`);
+  return (data ?? []).map((row: {
+    user_id: string;
+    display_name: string;
+    is_current_user: boolean;
+    status: TeamLocationStatus["status"];
+    expires_at: string | null;
+  }) => ({
+    userId: row.user_id,
+    displayName: row.display_name,
+    isCurrentUser: row.is_current_user,
+    status: row.status,
+    expiresAt: row.expires_at,
+  }));
 }

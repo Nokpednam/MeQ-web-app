@@ -9,7 +9,8 @@ flowchart TD
   F1 -- No --> G["Reject without creating verification"]
   F1 -- Yes --> F2["Issue 10-minute verification"]
   F2 --> H{"Every roster member has a current verification?"}
-  H -- No --> G
+  H -- No --> H1["Show member-level ready, missing, or expired status"]
+  H1 --> G
   H -- Yes --> I{"Any active queue entry?"}
   I -- Yes --> I1["Open current court; leave first"]
   I -- No --> J["Append WAITING entry"]

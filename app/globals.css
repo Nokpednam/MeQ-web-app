@@ -954,3 +954,11 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .location-permission-guide strong,.location-permission-guide small{display:block}
 .location-permission-guide ol{margin:.45rem 0;padding-left:1.25rem}
 .location-permission-guide small{color:var(--neutral-700)}
+.team-location-status{display:grid;gap:.7rem;padding:.85rem;border:1px solid var(--neutral-300);border-radius:14px;background:var(--white)}
+.team-location-status>header{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.team-location-status>header div{display:grid;gap:.15rem}.team-location-status>header small{color:var(--neutral-700)}
+.team-location-status>header>b{white-space:nowrap;color:var(--orange-700);font-size:.86rem}
+.team-location-status ul{display:grid;gap:.5rem;margin:0;padding:0;list-style:none}
+.team-location-status li{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.65rem;border-radius:10px;background:var(--neutral-50)}
+.team-location-status li>span{display:grid;gap:.1rem;min-width:0}.team-location-status li small{color:var(--neutral-700);font-size:.78rem}
+.team-location-status li>b{white-space:nowrap;font-size:.78rem}.team-location-status .is-ready{color:var(--success)}.team-location-status .is-pending{color:var(--warning)}

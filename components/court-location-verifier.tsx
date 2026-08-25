@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { verifyCourtLocationAction } from "@/app/courts/actions";
 import type { CourtId } from "@/lib/queue-types";
 
@@ -29,6 +30,7 @@ function serverError(code: string, accuracyMetres: number) {
 }
 
 export function CourtLocationVerifier({ courtId }: { courtId: CourtId }) {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const watchId = useRef<number | null>(null);
   const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -48,6 +50,7 @@ export function CourtLocationVerifier({ courtId }: { courtId: CourtId }) {
     setStatus(result.ok
       ? { kind: "success", distance: result.distanceMetres, expiresAt: result.expiresAt }
       : { kind: "error", message: serverError(result.error, accuracy) });
+    if (result.ok) router.refresh();
   }
 
   function verify() {
