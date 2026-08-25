@@ -8,6 +8,12 @@ sequenceDiagram
     participant B as หัวหน้าทีม B
     participant UI as หน้าสนาม
 
+    A->>DB: verify_court_location(courtId, coordinates, accuracy)
+    DB->>DB: validate accuracy and distance; set a 10-minute expiry
+    DB-->>UI: return each member's readiness and expiry
+    UI->>UI: disable queue entry exactly when any verification expires
+    A->>DB: join_court_queue(courtId)
+    DB->>DB: revalidate full roster and every unexpired location
     Admin->>DB: call_next_queue_team(courtId)
     DB->>DB: lock court queue and call first WAITING team
     Admin->>DB: call_next_queue_team(courtId)
@@ -24,3 +30,5 @@ sequenceDiagram
 The browser never supplies team membership, roster readiness, queue position,
 target score, or game participants. Those values are resolved and validated in
 PostgreSQL. Expired sessions are closed before another team is called.
+The browser expiry timer only updates the interface; queue admission always
+revalidates location expiry against the database clock.
