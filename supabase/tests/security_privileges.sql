@@ -1,6 +1,6 @@
 begin;
 
-select plan(22);
+select plan(25);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -44,6 +44,22 @@ select ok(
     'EXECUTE'
   ),
   'validated maintenance admin RPC remains available'
+);
+
+select ok(
+  has_function_privilege('authenticated','public.decide_winner_continuation(uuid, boolean)','EXECUTE')
+  and not has_function_privilege('anon','public.decide_winner_continuation(uuid, boolean)','EXECUTE'),
+  'winner continuation RPC is authenticated only'
+);
+select ok(
+  has_function_privilege('authenticated','public.decide_loser_requeue(uuid, boolean)','EXECUTE')
+  and not has_function_privilege('anon','public.decide_loser_requeue(uuid, boolean)','EXECUTE'),
+  'loser requeue RPC is authenticated only'
+);
+select ok(
+  has_function_privilege('authenticated','public.expire_post_game_decisions(text)','EXECUTE')
+  and not has_function_privilege('anon','public.expire_post_game_decisions(text)','EXECUTE'),
+  'post-game timeout RPC is authenticated only'
 );
 
 select * from finish();

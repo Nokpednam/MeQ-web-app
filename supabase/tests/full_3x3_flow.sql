@@ -68,6 +68,17 @@ begin
   if (select count(*) from public.player_game_history h where h.game_id=v_game_id)<>6 then raise exception 'player history was not created for all players'; end if;
   if not exists(select 1 from public.queue_entries where team_id=team_a.id and status='DECIDING_CONTINUE') then raise exception 'winner continuation decision was not created'; end if;
   if not exists(select 1 from public.queue_entries where team_id=team_b.id and status='DECIDING_REQUEUE') then raise exception 'loser decision was not created'; end if;
+  perform set_config('request.jwt.claim.sub',a1::text,true);
+  perform public.decide_winner_continuation(v_game_id,true);
+  if not exists(select 1 from public.queue_entries where team_id=team_a.id and status='HOLDING_COURT') then raise exception 'winner did not hold the court'; end if;
+  perform set_config('request.jwt.claim.sub',b1::text,true);
+  perform public.decide_loser_requeue(v_game_id,true);
+  if not exists(select 1 from public.queue_entries where team_id=team_b.id and status='WAITING' and position=1) then raise exception 'loser did not requeue at the tail'; end if;
+  update public.queue_entries set status='DECIDING_REQUEUE',position=null,decision_deadline=now()-interval '1 second'
+    where team_id=team_b.id and court_id='3x3-a' and status='WAITING';
+  if public.expire_post_game_decisions('3x3-a')<>1 then raise exception 'expired loser decision was not processed'; end if;
+  if not exists(select 1 from public.queue_entries where team_id=team_b.id and status='LEFT_QUEUE') then raise exception 'timed-out loser did not leave'; end if;
+  if exists(select 1 from public.active_queue_players where team_id=team_b.id) then raise exception 'timed-out loser reservations were not released'; end if;
   perform public.submit_team_scores(v_game_id,jsonb_build_object(b1::text,3,b2::text,2,b3::text,0));
   if (select count(*) from public.player_game_history h where h.game_id=v_game_id)<>6 then raise exception 'duplicate finalization changed history'; end if;
   raise notice 'FULL_3X3_FLOW_TEST_PASSED';

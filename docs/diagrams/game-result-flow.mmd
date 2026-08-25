@@ -18,6 +18,6 @@ stateDiagram-v2
   COMPLETED --> RESTING: second consecutive win
   COMPLETED --> DECIDING_REQUEUE: losing team (180 seconds)
   DECIDING_REQUEUE --> WAITING: captain chooses requeue
-  DECIDING_REQUEUE --> LEFT_QUEUE: leave or timeout
+  DECIDING_REQUEUE --> LEFT_QUEUE: leave or PostgreSQL deadline timeout
   RESTING --> RETURNING_CHAMPION: one rest game completed
   RETURNING_CHAMPION --> PLAYING: champion returns on same court
