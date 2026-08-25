@@ -23,6 +23,16 @@ function rpcError(error: { message?: string } | null) {
   return error?.message?.match(/[A-Z][A-Z_]+/)?.[0] ?? "UNKNOWN_ERROR";
 }
 
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function teamMutationInput(formData: FormData) {
+  const teamId = String(formData.get("teamId") ?? "");
+  const userId = String(formData.get("userId") ?? "");
+  return { teamId, userId, valid: isUuid(teamId) && isUuid(userId) };
+}
+
 export async function createTeamAction(formData: FormData) {
   const name = String(formData.get("name") ?? "");
   const format = String(formData.get("format") ?? "") as TeamType;
@@ -37,31 +47,38 @@ export async function createTeamAction(formData: FormData) {
 }
 
 export async function addTeamMemberAction(formData: FormData) {
-  const teamId = String(formData.get("teamId")); const userId = String(formData.get("userId"));
+  const { teamId, userId, valid } = teamMutationInput(formData);
+  if (!valid) redirect("/teams?error=INVALID_REQUEST");
   const supabase = await authenticatedClient(); const { error } = await supabase.rpc("add_team_member", { p_team_id: teamId, p_user_id: userId });
-  refreshTeamViews(); redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : ""}`);
+  refreshTeamViews(); redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : "?notice=member-added"}`);
 }
 
 export async function removeTeamMemberAction(formData: FormData) {
-  const teamId = String(formData.get("teamId")); const userId = String(formData.get("userId"));
+  const { teamId, userId, valid } = teamMutationInput(formData);
+  if (!valid) redirect("/teams?error=INVALID_REQUEST");
   const supabase = await authenticatedClient(); const { error } = await supabase.rpc("remove_team_member", { p_team_id: teamId, p_user_id: userId });
-  refreshTeamViews(); redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : ""}`);
+  refreshTeamViews(); redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : "?notice=member-removed"}`);
 }
 
 export async function transferCaptainAction(formData: FormData) {
-  const teamId = String(formData.get("teamId")); const userId = String(formData.get("userId"));
+  const { teamId, userId, valid } = teamMutationInput(formData);
+  if (!valid) redirect("/teams?error=INVALID_REQUEST");
   const supabase = await authenticatedClient(); const { error } = await supabase.rpc("transfer_team_captain", { p_team_id: teamId, p_user_id: userId });
-  refreshTeamViews(); redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : ""}`);
+  refreshTeamViews(); redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : "?notice=captain-transferred"}`);
 }
 
 export async function leaveTeamAction(formData: FormData) {
-  const teamId = String(formData.get("teamId")); const supabase = await authenticatedClient();
+  const teamId = String(formData.get("teamId") ?? "");
+  if (!isUuid(teamId)) redirect("/teams?error=INVALID_REQUEST");
+  const supabase = await authenticatedClient();
   const { error } = await supabase.rpc("leave_team", { p_team_id: teamId }); refreshTeamViews();
-  redirect(error ? `/teams/${teamId}?error=${rpcError(error)}` : "/teams");
+  redirect(error ? `/teams/${teamId}?error=${rpcError(error)}` : "/teams?notice=team-left");
 }
 
 export async function dissolveTeamAction(formData: FormData) {
-  const teamId = String(formData.get("teamId")); const supabase = await authenticatedClient();
+  const teamId = String(formData.get("teamId") ?? "");
+  if (!isUuid(teamId)) redirect("/teams?error=INVALID_REQUEST");
+  const supabase = await authenticatedClient();
   const { error } = await supabase.rpc("dissolve_team", { p_team_id: teamId }); refreshTeamViews();
-  redirect(error ? `/teams/${teamId}?error=${rpcError(error)}` : "/teams");
+  redirect(error ? `/teams/${teamId}?error=${rpcError(error)}` : "/teams?notice=team-dissolved");
 }
