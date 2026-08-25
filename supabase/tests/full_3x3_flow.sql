@@ -54,6 +54,13 @@ begin
   if v_game_id is null or game_status<>'PLAYING' then raise exception 'game was not created'; end if;
 
   perform set_config('request.jwt.claim.sub',a1::text,true);
+  perform public.request_game_end(v_game_id);
+  perform public.cancel_game_end_request(v_game_id);
+  perform public.request_game_end(v_game_id);
+  perform set_config('request.jwt.claim.sub',b1::text,true);
+  perform public.reject_game_end_request(v_game_id);
+  perform set_config('request.jwt.claim.sub',a1::text,true);
+  perform public.request_game_end(v_game_id);
   perform public.submit_team_scores(v_game_id,jsonb_build_object(a1::text,5,a2::text,2,a3::text,0));
   if (select status from public.games where id=v_game_id)<>'AWAITING_SCORE' then raise exception 'first submission status invalid'; end if;
   perform set_config('request.jwt.claim.sub',b1::text,true);

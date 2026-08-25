@@ -1,5 +1,5 @@
 stateDiagram-v2
-  PLAYING --> END_REQUESTED: captain requests end and opens own score form
+  PLAYING --> END_REQUESTED: PostgreSQL validates captain request
   END_REQUESTED --> PLAYING: requester cancels
   END_REQUESTED --> PLAYING: opponent rejects
   END_REQUESTED --> END_REQUESTED: requester submits own scores

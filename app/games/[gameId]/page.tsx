@@ -1,1 +1,5 @@
-import{GameStatusClient}from"@/components/game-status-client";export default async function Page({params}:{params:Promise<{gameId:string}>}){const{gameId}=await params;return <GameStatusClient gameId={gameId}/>}
+import { notFound } from "next/navigation";
+import { SupabaseGameStatus } from "@/components/supabase-game-status";
+import { getSupabaseGame } from "@/lib/supabase-game-repository";
+import { createClient } from "@/lib/supabase/server";
+export default async function Page({params}:{params:Promise<{gameId:string}>}){const{gameId}=await params;const supabase=await createClient();const{data:{user}}=await supabase.auth.getUser();if(!user)notFound();const game=await getSupabaseGame(supabase,gameId,user.id);if(!game)notFound();return <SupabaseGameStatus game={game}/>}

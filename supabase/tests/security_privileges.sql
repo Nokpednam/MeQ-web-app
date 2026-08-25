@@ -1,6 +1,6 @@
 begin;
 
-select plan(25);
+select plan(28);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -60,6 +60,21 @@ select ok(
   has_function_privilege('authenticated','public.expire_post_game_decisions(text)','EXECUTE')
   and not has_function_privilege('anon','public.expire_post_game_decisions(text)','EXECUTE'),
   'post-game timeout RPC is authenticated only'
+);
+select ok(
+  has_function_privilege('authenticated','public.request_game_end(uuid)','EXECUTE')
+  and not has_function_privilege('anon','public.request_game_end(uuid)','EXECUTE'),
+  'game end request RPC is authenticated only'
+);
+select ok(
+  has_function_privilege('authenticated','public.cancel_game_end_request(uuid)','EXECUTE')
+  and not has_function_privilege('anon','public.cancel_game_end_request(uuid)','EXECUTE'),
+  'game end cancellation RPC is authenticated only'
+);
+select ok(
+  has_function_privilege('authenticated','public.reject_game_end_request(uuid)','EXECUTE')
+  and not has_function_privilege('anon','public.reject_game_end_request(uuid)','EXECUTE'),
+  'game end rejection RPC is authenticated only'
 );
 
 select * from finish();
