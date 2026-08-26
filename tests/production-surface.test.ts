@@ -38,3 +38,11 @@ test("desktop navigation highlights only an explicitly current route", () => {
   assert.match(styles, /\.desktop-nav a\.nav-current/);
   assert.match(dashboard, /href === "#top" \? "nav-current"/);
 });
+
+test("court and team headers render the LINE profile image when available", () => {
+  for (const file of ["components/court-shell.tsx", "components/team-shell.tsx"]) {
+    const shell = readFileSync(resolve(root, file), "utf8");
+    assert.match(shell, /profile\.avatarUrl\s*\?/);
+    assert.match(shell, /src=\{profile\.avatarUrl\}/);
+  }
+});

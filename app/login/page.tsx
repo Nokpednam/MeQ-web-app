@@ -16,17 +16,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <main className="auth-shell">
       <section className="auth-card">
         <div className="auth-hero">
-          <span className="auth-ball" aria-hidden="true">●</span>
-          <div><span className="auth-brand">MeQ</span><p>สนามบาส มหาวิทยาลัยนเรศวร</p></div>
+          <span className="auth-brand">MeQ</span>
+          <span className="auth-campus">สนามบาส มหาวิทยาลัยนเรศวร</span>
         </div>
-        <p className="section-label">พร้อมลงสนาม</p>
-        <h1>จัดทีม เข้าคิว<br />แล้วไปเล่นกัน</h1>
-        <p className="auth-intro">ดูคิวสนามแบบเรียลไทม์ จัดการทีม และเก็บผลงานการแข่งขันไว้ในที่เดียว</p>
-        <ul className="auth-benefits" aria-label="สิ่งที่ทำได้ใน MeQ">
-          <li><span aria-hidden="true">1</span>เช็กคิวสนามก่อนเดินไป</li>
-          <li><span aria-hidden="true">2</span>รวมทีมและยืนยันเข้าสนาม</li>
-          <li><span aria-hidden="true">3</span>ดูผลการแข่งขันและสถิติของคุณ</li>
-        </ul>
+        <div className="auth-court" aria-hidden="true"><span /><span /><b>MEQ</b></div>
+        <p className="section-label">เริ่มเล่นกับ MeQ</p>
+        <h1>เช็กคิวให้พร้อม<br />ก่อนลงสนาม</h1>
+        <p className="auth-intro">ดูคิวแบบเรียลไทม์ รวมทีม และติดตามผลการแข่งขันของคุณได้ง่าย ๆ</p>
         {params.error ? <p className="auth-alert is-error" role="alert">{params.error}</p> : null}
         {params.message ? <p className="auth-alert is-success" role="status">{params.message}</p> : null}
         <form action={signInWithLine} className="line-auth-form">
@@ -36,7 +32,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             เข้าสู่ระบบด้วย LINE
           </button>
         </form>
-        <p className="auth-privacy-note">MeQ จะใช้ชื่อและรูปโปรไฟล์ LINE เพื่อสร้างบัญชีผู้เล่นของคุณ</p>
+        <p className="auth-privacy-note">เข้าสู่ระบบครั้งเดียวด้วย LINE<br />MeQ ใช้เพียงชื่อและรูปโปรไฟล์สำหรับบัญชีผู้เล่น</p>
         {process.env.NODE_ENV !== "production" ? <details className="auth-development">
           <summary>Development: เข้าสู่ระบบด้วยอีเมล</summary>
           <form className="auth-form">
