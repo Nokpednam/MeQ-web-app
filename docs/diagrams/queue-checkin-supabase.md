@@ -27,6 +27,15 @@ sequenceDiagram
     DB-->>UI: redirect to the new game
 ```
 
+```mermaid
+flowchart LR
+  Cron[Supabase Cron every 30 seconds] --> Cleanup[private.expire_all_queue_timeouts]
+  Cleanup --> CheckIns[Expire overdue team check-ins]
+  Cleanup --> Decisions[Expire overdue loser requeue decisions]
+  CheckIns --> Queue[Release active players and reorder court queue]
+  Decisions --> Queue
+```
+
 The browser never supplies team membership, roster readiness, queue position,
 target score, or game participants. Those values are resolved and validated in
 PostgreSQL. Expired sessions are closed before another team is called.

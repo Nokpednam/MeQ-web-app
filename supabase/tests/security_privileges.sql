@@ -1,6 +1,6 @@
 begin;
 
-select plan(28);
+select plan(30);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -75,6 +75,16 @@ select ok(
   has_function_privilege('authenticated','public.reject_game_end_request(uuid)','EXECUTE')
   and not has_function_privilege('anon','public.reject_game_end_request(uuid)','EXECUTE'),
   'game end rejection RPC is authenticated only'
+);
+select ok(
+  not has_function_privilege('authenticated','private.expire_post_game_decisions_internal(text)','EXECUTE')
+  and not has_function_privilege('anon','private.expire_post_game_decisions_internal(text)','EXECUTE'),
+  'internal post-game expiry is not callable by clients'
+);
+select ok(
+  not has_function_privilege('authenticated','private.expire_all_queue_timeouts()','EXECUTE')
+  and not has_function_privilege('anon','private.expire_all_queue_timeouts()','EXECUTE'),
+  'scheduled queue cleanup is not callable by clients'
 );
 
 select * from finish();
