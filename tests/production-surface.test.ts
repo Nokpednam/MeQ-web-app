@@ -46,3 +46,9 @@ test("court and team headers render the LINE profile image when available", () =
     assert.match(shell, /src=\{profile\.avatarUrl\}/);
   }
 });
+
+test("login verifies the session consistently to avoid redirect loops", () => {
+  const login = readFileSync(resolve(root, "app/login/page.tsx"), "utf8");
+  assert.match(login, /supabase\.auth\.getUser\(\)/);
+  assert.doesNotMatch(login, /supabase\.auth\.getClaims\(\)/);
+});

@@ -9,8 +9,8 @@ type LoginPageProps = {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  if (data?.claims?.sub) redirect(params.next?.startsWith("/") ? params.next : "/profile");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) redirect(params.next?.startsWith("/") ? params.next : "/profile");
 
   return (
     <main className="auth-shell">
