@@ -12,6 +12,7 @@ declare
   team_b public.teams;
   check_a uuid;
   check_b uuid;
+  target_proposal_id uuid;
   v_game_id uuid;
   game_status public.game_status;
 begin
@@ -42,6 +43,10 @@ begin
   perform public.call_next_queue_team('3x3-a');
   select id into check_a from public.team_check_ins where team_id=team_a.id and status='ACTIVE';
   select id into check_b from public.team_check_ins where team_id=team_b.id and status='ACTIVE';
+  select id into target_proposal_id from public.propose_game_target_score(check_a,9);
+  perform set_config('request.jwt.claim.sub',b1::text,true);
+  perform public.confirm_game_target_score(target_proposal_id);
+  perform set_config('request.jwt.claim.sub',a1::text,true);
   perform public.confirm_team_ready(check_a);
   perform set_config('request.jwt.claim.sub',b1::text,true);
   perform public.confirm_team_ready(check_b);
@@ -52,6 +57,7 @@ begin
     and team_a_id in (team_a.id,team_b.id) and team_b_id in (team_a.id,team_b.id)
   order by created_at desc limit 1;
   if v_game_id is null or game_status<>'PLAYING' then raise exception 'game was not created'; end if;
+  if (select target_score from public.games where id=v_game_id)<>9 then raise exception 'confirmed target score was not applied'; end if;
 
   perform set_config('request.jwt.claim.sub',a1::text,true);
   perform public.request_game_end(v_game_id);

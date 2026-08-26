@@ -1,6 +1,6 @@
 begin;
 
-select plan(30);
+select plan(32);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -85,6 +85,16 @@ select ok(
   not has_function_privilege('authenticated','private.expire_all_queue_timeouts()','EXECUTE')
   and not has_function_privilege('anon','private.expire_all_queue_timeouts()','EXECUTE'),
   'scheduled queue cleanup is not callable by clients'
+);
+select ok(
+  has_function_privilege('authenticated','public.propose_game_target_score(uuid,integer)','EXECUTE')
+  and not has_function_privilege('anon','public.propose_game_target_score(uuid,integer)','EXECUTE'),
+  'target score proposal RPC is authenticated only'
+);
+select ok(
+  has_function_privilege('authenticated','public.confirm_game_target_score(uuid)','EXECUTE')
+  and not has_function_privilege('anon','public.confirm_game_target_score(uuid)','EXECUTE'),
+  'target score confirmation RPC is authenticated only'
 );
 
 select * from finish();

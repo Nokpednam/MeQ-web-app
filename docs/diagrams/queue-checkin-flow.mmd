@@ -4,6 +4,8 @@ stateDiagram-v2
   CALLED --> CHECKING_IN: beginTeamCheckIn
   CHECKING_IN --> CHECKING_IN: background roster location checks
   CHECKING_IN --> READY_TO_PLAY: captain confirms own team once
+  CHECKING_IN --> SCORE_PROPOSED: captain proposes allowed target
+  SCORE_PROPOSED --> CHECKING_IN: opposing captain confirms target
   CALLED --> MISSED_QUEUE: deadline expired
   CHECKING_IN --> MISSED_QUEUE: deadline expired
   READY_TO_PLAY --> PLAYING: two teams ready + startMockGame
@@ -13,4 +15,5 @@ stateDiagram-v2
     Deadline derives from calledAt + 180 seconds.
     Location is checked for every member.
     The captain confirms the team once.
+    A confirmed target proposal is snapshotted when the game starts.
   end note

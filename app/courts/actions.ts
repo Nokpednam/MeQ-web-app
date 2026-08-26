@@ -71,3 +71,15 @@ export async function confirmTeamReadyAction(formData:FormData){
  const{data,error}=await supabase.rpc("confirm_team_ready",{p_check_in_id:checkInId});refreshQueue();
  const game=Array.isArray(data)?data[0]:data;redirect(error?`/courts/${courtId}?error=${queueError(error)}#check-in`:game?.id?`/games/${game.id}`:`/courts/${courtId}?notice=ready#check-in`);
 }
+
+export async function proposeGameTargetScoreAction(formData:FormData){
+ const courtId=String(formData.get("courtId")) as CourtId;const checkInId=String(formData.get("checkInId"));const targetScore=Number(formData.get("targetScore"));
+ const supabase=await authenticatedClient(`/courts/${courtId}`);const{error}=await supabase.rpc("propose_game_target_score",{p_check_in_id:checkInId,p_target_score:targetScore});refreshQueue();
+ redirect(`/courts/${courtId}${error?`?error=${queueError(error)}`:"?notice=score-proposed"}#check-in`);
+}
+
+export async function confirmGameTargetScoreAction(formData:FormData){
+ const courtId=String(formData.get("courtId")) as CourtId;const proposalId=String(formData.get("proposalId"));
+ const supabase=await authenticatedClient(`/courts/${courtId}`);const{error}=await supabase.rpc("confirm_game_target_score",{p_proposal_id:proposalId});refreshQueue();
+ redirect(`/courts/${courtId}${error?`?error=${queueError(error)}`:"?notice=score-confirmed"}#check-in`);
+}
