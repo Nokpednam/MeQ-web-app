@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "test:game-lifecycle": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/game-lifecycle.test.js",
     "test:admin": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/admin-rules.test.js",
-    "test:team-location": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/team-location-rules.test.js"
+    "test:team-location": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/team-location-rules.test.js",
+    "test:db": "supabase test db",
+    "test:unit": "npm run test:game-lifecycle && npm run test:admin && npm run test:team-location"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
