@@ -12,7 +12,8 @@ stateDiagram-v2
   MISSED_QUEUE --> WAITING: team joins again manually
 
   note right of CHECKING_IN
-    Deadline derives from calledAt + 180 seconds.
+    Deadline derives from the server-owned queue setting (60–600 seconds).
+    Admin changes affect newly called teams only.
     Location is checked for every member.
     The captain confirms the team once.
     A confirmed target proposal is snapshotted when the game starts.

@@ -15,6 +15,7 @@ declare
   short_team public.teams;
   entry_a public.queue_entries;
   entry_b public.queue_entries;
+  check_in public.team_check_ins;
   current_position bigint;
 begin
   insert into auth.users(id, instance_id, aud, role, email, encrypted_password, created_at, updated_at, raw_user_meta_data)
@@ -83,6 +84,16 @@ begin
   select position into current_position from public.queue_entries where id = entry_b.id;
   if current_position <> 1 then raise exception 'queue positions were not reordered'; end if;
   if exists (select 1 from public.active_queue_players where queue_entry_id = entry_a.id) then raise exception 'active player reservation was not released'; end if;
+
+  update public.profiles set role='ADMIN' where id=a1;
+  perform public.admin_set_check_in_duration(60);
+  check_in := public.call_next_queue_team('3x3-a');
+  if extract(epoch from (check_in.deadline-now())) not between 58 and 62 then
+    raise exception 'configured check-in duration was not applied';
+  end if;
+  if (select check_in_deadline from public.queue_entries where id=entry_b.id) <> check_in.deadline then
+    raise exception 'queue and check-in deadlines do not match';
+  end if;
 
   raise notice 'QUEUE_MANAGEMENT_TESTS_PASSED';
 end;

@@ -1,5 +1,37 @@
 import type { DashboardLanguage } from "./dashboard-translations";
+
 export const adminTranslations = {
-  th:{title:"ศูนย์ควบคุม MeQ",subtitle:"จัดการสนาม คะแนนเป้าหมาย กิจกรรม และงานแจ้งซ่อม",back:"กลับ Dashboard",mock:"สิทธิ์แอดมินจำลองสำหรับ Development",overview:"ภาพรวมระบบ",openCourts:"สนามเปิด",activeQueues:"ทีมในคิว",activeGames:"เกมที่กำลังดำเนินการ",newReports:"แจ้งซ่อมใหม่",courtControl:"ควบคุมสนาม",courtHint:"การปิดสนามมีผลต่อการรับทีมเข้าคิวทันที",open:"เปิดให้บริการ",closed:"ปิดรับคิว",targetScores:"คะแนนเป้าหมายวันนี้",targetHint:"3x3 A และ 3x3 B ใช้คะแนนร่วมกัน",calendar:"กิจกรรมและการปิดสนาม",calendarHint:"สร้าง แก้ไข หรือยกเลิกช่วงเวลาที่มีผลต่อสนาม",createEvent:"สร้างกิจกรรม",editEvent:"แก้ไขกิจกรรม",eventTitle:"ชื่อกิจกรรม",details:"รายละเอียด",date:"วันที่",start:"เริ่ม",end:"สิ้นสุด",allDay:"ปิดทั้งวัน",courts:"สนามที่ได้รับผลกระทบ",impact:"ระดับผลกระทบ",low:"ต่ำ",medium:"ปานกลาง",high:"สูง",save:"บันทึกกิจกรรม",cancelEdit:"ยกเลิกการแก้ไข",edit:"แก้ไข",cancelEvent:"ยกเลิกกิจกรรม",confirmCancel:"ยืนยันยกเลิกกิจกรรมนี้?",active:"ใช้งาน",cancelled:"ยกเลิกแล้ว",maintenance:"รายการแจ้งซ่อม",maintenanceHint:"ติดตามงานจากแบบฟอร์มแจ้งซ่อมบน Dashboard",noReports:"ยังไม่มีรายการแจ้งซ่อม",new:"รายการใหม่",inProgress:"กำลังดำเนินการ",resolved:"แก้ไขแล้ว",reset:"Reset admin data",confirmReset:"รีเซ็ตข้อมูลแอดมินจำลองทั้งหมด?",language:"เปลี่ยนภาษา",required:"กรุณากรอกข้อมูลให้ครบ"},
-  en:{title:"MeQ Control Center",subtitle:"Manage courts, target scores, events, and maintenance",back:"Back to Dashboard",mock:"Mock admin access for Development",overview:"System overview",openCourts:"Open courts",activeQueues:"Queued teams",activeGames:"Active games",newReports:"New reports",courtControl:"Court control",courtHint:"Closing a court immediately prevents new queue entries",open:"Open",closed:"Queue closed",targetScores:"Today's target scores",targetHint:"3x3 A and 3x3 B share one setting",calendar:"Events and court closures",calendarHint:"Create, edit, or cancel court-impacting schedules",createEvent:"Create event",editEvent:"Edit event",eventTitle:"Event title",details:"Details",date:"Date",start:"Start",end:"End",allDay:"Closed all day",courts:"Affected courts",impact:"Impact",low:"Low",medium:"Medium",high:"High",save:"Save event",cancelEdit:"Cancel edit",edit:"Edit",cancelEvent:"Cancel event",confirmCancel:"Cancel this event?",active:"Active",cancelled:"Cancelled",maintenance:"Maintenance reports",maintenanceHint:"Track reports submitted from the Dashboard",noReports:"No maintenance reports yet",new:"New",inProgress:"In progress",resolved:"Resolved",reset:"Reset admin data",confirmReset:"Reset all mock admin data?",language:"Switch language",required:"Complete all required fields"}
-} satisfies Record<DashboardLanguage,Record<string,string>>;
+  th: {
+    title: "ศูนย์ควบคุม MeQ", subtitle: "จัดการสนาม คะแนนเป้าหมาย เวลาเช็กอิน กิจกรรม และงานแจ้งซ่อม", back: "กลับ Dashboard",
+    mock: "สิทธิ์แอดมินจำลองสำหรับ Development", overview: "ภาพรวมระบบ", openCourts: "สนามเปิด", activeQueues: "ทีมในคิว",
+    activeGames: "เกมที่กำลังดำเนินการ", newReports: "แจ้งซ่อมใหม่", courtControl: "ควบคุมสนาม",
+    courtHint: "การปิดสนามมีผลต่อการรับทีมเข้าคิวทันที", open: "เปิดให้บริการ", closed: "ปิดรับคิว",
+    targetScores: "คะแนนเป้าหมายวันนี้", targetHint: "3x3 A และ 3x3 B ใช้คะแนนร่วมกัน",
+    checkInDuration: "เวลาเช็กอิน", checkInDurationHint: "ใช้กับทีมที่ถูกเรียกหลังจากบันทึกค่าใหม่ โดยฐานข้อมูลเป็นผู้คำนวณเส้นตาย",
+    currentDuration: "ค่าปัจจุบัน", minutes: "นาที", calendar: "กิจกรรมและการปิดสนาม",
+    calendarHint: "สร้าง แก้ไข หรือยกเลิกช่วงเวลาที่มีผลต่อสนาม", createEvent: "สร้างกิจกรรม", editEvent: "แก้ไขกิจกรรม",
+    eventTitle: "ชื่อกิจกรรม", details: "รายละเอียด", date: "วันที่", start: "เริ่ม", end: "สิ้นสุด", allDay: "ปิดทั้งวัน",
+    courts: "สนามที่ได้รับผลกระทบ", impact: "ระดับผลกระทบ", low: "ต่ำ", medium: "ปานกลาง", high: "สูง",
+    save: "บันทึกกิจกรรม", cancelEdit: "ยกเลิกการแก้ไข", edit: "แก้ไข", cancelEvent: "ยกเลิกกิจกรรม",
+    confirmCancel: "ยืนยันยกเลิกกิจกรรมนี้?", active: "ใช้งาน", cancelled: "ยกเลิกแล้ว", maintenance: "รายการแจ้งซ่อม",
+    maintenanceHint: "ติดตามงานจากแบบฟอร์มแจ้งซ่อมบน Dashboard", noReports: "ยังไม่มีรายการแจ้งซ่อม", new: "รายการใหม่",
+    inProgress: "กำลังดำเนินการ", resolved: "แก้ไขแล้ว", reset: "Reset admin data", confirmReset: "รีเซ็ตข้อมูลแอดมินจำลองทั้งหมด?",
+    language: "เปลี่ยนภาษา", required: "กรุณากรอกข้อมูลให้ครบ",
+  },
+  en: {
+    title: "MeQ Control Center", subtitle: "Manage courts, target scores, check-in time, events, and maintenance", back: "Back to Dashboard",
+    mock: "Mock admin access for Development", overview: "System overview", openCourts: "Open courts", activeQueues: "Queued teams",
+    activeGames: "Active games", newReports: "New reports", courtControl: "Court control",
+    courtHint: "Closing a court immediately prevents new queue entries", open: "Open", closed: "Queue closed",
+    targetScores: "Today's target scores", targetHint: "3x3 A and 3x3 B share one setting",
+    checkInDuration: "Check-in duration", checkInDurationHint: "Applies to teams called after the change; the database owns the deadline",
+    currentDuration: "Current setting", minutes: "min", calendar: "Events and court closures",
+    calendarHint: "Create, edit, or cancel court-impacting schedules", createEvent: "Create event", editEvent: "Edit event",
+    eventTitle: "Event title", details: "Details", date: "Date", start: "Start", end: "End", allDay: "Closed all day",
+    courts: "Affected courts", impact: "Impact", low: "Low", medium: "Medium", high: "High", save: "Save event",
+    cancelEdit: "Cancel edit", edit: "Edit", cancelEvent: "Cancel event", confirmCancel: "Cancel this event?", active: "Active",
+    cancelled: "Cancelled", maintenance: "Maintenance reports", maintenanceHint: "Track reports submitted from the Dashboard",
+    noReports: "No maintenance reports yet", new: "New", inProgress: "In progress", resolved: "Resolved", reset: "Reset admin data",
+    confirmReset: "Reset all mock admin data?", language: "Switch language", required: "Complete all required fields",
+  },
+} satisfies Record<DashboardLanguage, Record<string, string>>;

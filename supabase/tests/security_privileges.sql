@@ -1,6 +1,6 @@
 begin;
 
-select plan(32);
+select plan(34);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -13,7 +13,7 @@ from (values
   ('queue_entries'), ('active_queue_players'), ('location_verifications'),
   ('games'), ('game_roster_snapshots'), ('score_submissions'),
   ('player_scores'), ('player_game_history'), ('team_check_ins'),
-  ('court_events'), ('court_event_courts'), ('audit_logs')
+  ('court_events'), ('court_event_courts'), ('queue_settings'), ('audit_logs')
 ) as lifecycle(lifecycle_table);
 
 select ok(
@@ -95,6 +95,11 @@ select ok(
   has_function_privilege('authenticated','public.confirm_game_target_score(uuid)','EXECUTE')
   and not has_function_privilege('anon','public.confirm_game_target_score(uuid)','EXECUTE'),
   'target score confirmation RPC is authenticated only'
+);
+select ok(
+  has_function_privilege('authenticated','public.admin_set_check_in_duration(integer)','EXECUTE')
+  and not has_function_privilege('anon','public.admin_set_check_in_duration(integer)','EXECUTE'),
+  'check-in duration admin RPC is authenticated only'
 );
 
 select * from finish();

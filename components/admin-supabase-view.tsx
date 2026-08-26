@@ -1,5 +1,351 @@
 "use client";
-import Link from"next/link";import{useMeqLanguage}from"./use-meq-language";import{adminTranslations}from"@/lib/admin-translations";import type{SupabaseAdminData,AdminEventRow}from"@/lib/supabase-admin-repository";import{cancelCourtEventAction,saveCourtEventAction,setCourtOpenAction,setTargetScoreAction}from"@/app/admin/actions";
-function dateParts(event:AdminEventRow){const start=new Date(event.startsAt),end=new Date(event.endsAt);const date=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Bangkok",year:"numeric",month:"2-digit",day:"2-digit"}).format(start);return{date,start:start.toLocaleTimeString("en-GB",{timeZone:"Asia/Bangkok",hour:"2-digit",minute:"2-digit"}),end:end.toLocaleTimeString("en-GB",{timeZone:"Asia/Bangkok",hour:"2-digit",minute:"2-digit"})}}
-function EventForm({event,data,labels}:{event?:AdminEventRow;data:SupabaseAdminData;labels:ReturnType<typeof useMeqLanguage>["language"] extends never?never:typeof adminTranslations.th}){const value=event?dateParts(event):null;return <form className="admin-event-form" action={saveCourtEventAction}>{event?<input type="hidden" name="eventId" value={event.id}/>:null}<h3>{event?labels.editEvent:labels.createEvent}</h3><label><span>{labels.eventTitle}</span><input name="title" required minLength={2} maxLength={120} defaultValue={event?.title}/></label><label><span>{labels.details}</span><textarea name="details" rows={3} defaultValue={event?.details}/></label><label><span>{labels.date}</span><input type="date" name="date" required defaultValue={value?.date}/></label><label className="admin-check"><input type="checkbox" name="allDay" defaultChecked={event?.allDay}/><span>{labels.allDay}</span></label><div className="admin-form-row"><label><span>{labels.start}</span><input type="time" name="startTime" defaultValue={value?.start??"09:00"}/></label><label><span>{labels.end}</span><input type="time" name="endTime" defaultValue={value?.end??"10:00"}/></label></div><fieldset><legend>{labels.courts}</legend>{data.courts.map(court=><label className="admin-check" key={court.id}><input type="checkbox" name="courtIds" value={court.id} defaultChecked={event?.courtIds.includes(court.id)}/><span>{court.name}</span></label>)}</fieldset><button className="queue-primary-button">{labels.save}</button></form>}
-export function AdminSupabaseView({data}:{data:SupabaseAdminData}){const{language,selectLanguage}=useMeqLanguage();const copy=adminTranslations[language];return <main className="admin-shell"><header className="admin-header"><div><p className="section-label">ADMIN / SUPABASE</p><h1>{copy.title}</h1><p>{copy.subtitle}</p></div><div className="admin-header-actions"><div className="language-switcher"><button className={language==="th"?"is-active":""} onClick={()=>selectLanguage("th")}>TH</button><button className={language==="en"?"is-active":""} onClick={()=>selectLanguage("en")}>EN</button></div><Link className="queue-secondary-button" href="/">← {copy.back}</Link></div></header><div className="admin-mock-banner"><b>DB</b><span>{language==="th"?"ข้อมูลและสิทธิ์จัดการจาก Supabase":"Data and permissions from Supabase"}</span></div><section className="admin-section"><div className="admin-section-heading"><div><p className="section-label">OVERVIEW</p><h2>{copy.overview}</h2></div></div><dl className="admin-kpis"><div><dt>{copy.openCourts}</dt><dd>{data.courts.filter(c=>c.isOpen).length}/3</dd></div><div><dt>{copy.activeQueues}</dt><dd>{data.waitingCount}</dd></div><div><dt>{copy.activeGames}</dt><dd>{data.activeGameCount}</dd></div><div><dt>{copy.newReports}</dt><dd>{data.newReportCount}</dd></div></dl></section><div className="admin-two-column"><section className="admin-section"><div className="admin-section-heading"><div><p className="section-label">COURTS</p><h2>{copy.courtControl}</h2><p>{copy.courtHint}</p></div></div><div className="admin-court-list">{data.courts.map(court=><article key={court.id}><div><strong>{court.name}</strong><small>{court.format==="THREE_X_THREE"?"3x3":"5x5"}</small></div><form action={setCourtOpenAction}><input type="hidden" name="courtId" value={court.id}/><input type="hidden" name="isOpen" value={String(!court.isOpen)}/><button className={court.isOpen?"is-open":"is-closed"} aria-pressed={court.isOpen}><i/>{court.isOpen?copy.open:copy.closed}</button></form></article>)}</div></section><section className="admin-section"><div className="admin-section-heading"><div><p className="section-label">TARGET SCORE</p><h2>{copy.targetScores}</h2><p>{copy.targetHint}</p></div></div><div className="admin-score-settings">{[...new Map(data.courts.map(c=>[c.groupId,c])).values()].map(group=><article key={group.groupId}><header><strong>{group.groupId==="3x3"?"3x3 A / B":"5x5"}</strong><b>{group.targetScore}</b></header><div>{group.allowedScores.map(score=><form action={setTargetScoreAction} key={score}><input type="hidden" name="groupId" value={group.groupId}/><input type="hidden" name="score" value={score}/><button className={score===group.targetScore?"is-active":""}>{score}</button></form>)}</div></article>)}</div></section></div><section className="admin-section admin-calendar"><div className="admin-section-heading"><div><p className="section-label">CALENDAR</p><h2>{copy.calendar}</h2><p>{copy.calendarHint}</p></div></div><div className="admin-calendar-grid"><EventForm data={data} labels={copy}/><div className="admin-event-list">{data.events.length===0?<p className="admin-empty">{language==="th"?"ยังไม่มีกิจกรรม":"No events"}</p>:data.events.map(event=>{const value=dateParts(event);return <article className={event.cancelledAt?"is-cancelled":""} key={event.id}><header><div><strong>{event.title}</strong><span>{event.cancelledAt?copy.cancelled:copy.active}</span></div><time>{value.date} · {event.allDay?copy.allDay:`${value.start}–${value.end}`}</time></header><p>{event.details}</p><small>{event.courtIds.map(id=>id.toUpperCase()).join(" · ")}</small>{!event.cancelledAt?<footer><details><summary>{copy.edit}</summary><EventForm event={event} data={data} labels={copy}/></details><form action={cancelCourtEventAction}><input type="hidden" name="eventId" value={event.id}/><button>{copy.cancelEvent}</button></form></footer>:null}</article>})}</div></div></section></main>}
+import Link from "next/link";
+import { useMeqLanguage } from "./use-meq-language";
+import { adminTranslations } from "@/lib/admin-translations";
+import type {
+  SupabaseAdminData,
+  AdminEventRow,
+} from "@/lib/supabase-admin-repository";
+import {
+  cancelCourtEventAction,
+  saveCourtEventAction,
+  setCheckInDurationAction,
+  setCourtOpenAction,
+  setTargetScoreAction,
+} from "@/app/admin/actions";
+function dateParts(event: AdminEventRow) {
+  const start = new Date(event.startsAt),
+    end = new Date(event.endsAt);
+  const date = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Bangkok",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(start);
+  return {
+    date,
+    start: start.toLocaleTimeString("en-GB", {
+      timeZone: "Asia/Bangkok",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    end: end.toLocaleTimeString("en-GB", {
+      timeZone: "Asia/Bangkok",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  };
+}
+function EventForm({
+  event,
+  data,
+  labels,
+}: {
+  event?: AdminEventRow;
+  data: SupabaseAdminData;
+  labels: ReturnType<typeof useMeqLanguage>["language"] extends never
+    ? never
+    : typeof adminTranslations.th;
+}) {
+  const value = event ? dateParts(event) : null;
+  return (
+    <form className="admin-event-form" action={saveCourtEventAction}>
+      {event ? <input type="hidden" name="eventId" value={event.id} /> : null}
+      <h3>{event ? labels.editEvent : labels.createEvent}</h3>
+      <label>
+        <span>{labels.eventTitle}</span>
+        <input
+          name="title"
+          required
+          minLength={2}
+          maxLength={120}
+          defaultValue={event?.title}
+        />
+      </label>
+      <label>
+        <span>{labels.details}</span>
+        <textarea name="details" rows={3} defaultValue={event?.details} />
+      </label>
+      <label>
+        <span>{labels.date}</span>
+        <input type="date" name="date" required defaultValue={value?.date} />
+      </label>
+      <label className="admin-check">
+        <input type="checkbox" name="allDay" defaultChecked={event?.allDay} />
+        <span>{labels.allDay}</span>
+      </label>
+      <div className="admin-form-row">
+        <label>
+          <span>{labels.start}</span>
+          <input
+            type="time"
+            name="startTime"
+            defaultValue={value?.start ?? "09:00"}
+          />
+        </label>
+        <label>
+          <span>{labels.end}</span>
+          <input
+            type="time"
+            name="endTime"
+            defaultValue={value?.end ?? "10:00"}
+          />
+        </label>
+      </div>
+      <fieldset>
+        <legend>{labels.courts}</legend>
+        {data.courts.map((court) => (
+          <label className="admin-check" key={court.id}>
+            <input
+              type="checkbox"
+              name="courtIds"
+              value={court.id}
+              defaultChecked={event?.courtIds.includes(court.id)}
+            />
+            <span>{court.name}</span>
+          </label>
+        ))}
+      </fieldset>
+      <button className="queue-primary-button">{labels.save}</button>
+    </form>
+  );
+}
+export function AdminSupabaseView({ data }: { data: SupabaseAdminData }) {
+  const { language, selectLanguage } = useMeqLanguage();
+  const copy = adminTranslations[language];
+  return (
+    <main className="admin-shell">
+      <header className="admin-header">
+        <div>
+          <p className="section-label">ADMIN / SUPABASE</p>
+          <h1>{copy.title}</h1>
+          <p>{copy.subtitle}</p>
+        </div>
+        <div className="admin-header-actions">
+          <div className="language-switcher">
+            <button
+              className={language === "th" ? "is-active" : ""}
+              onClick={() => selectLanguage("th")}
+            >
+              TH
+            </button>
+            <button
+              className={language === "en" ? "is-active" : ""}
+              onClick={() => selectLanguage("en")}
+            >
+              EN
+            </button>
+          </div>
+          <Link className="queue-secondary-button" href="/">
+            ← {copy.back}
+          </Link>
+        </div>
+      </header>
+      <div className="admin-mock-banner">
+        <b>DB</b>
+        <span>
+          {language === "th"
+            ? "ข้อมูลและสิทธิ์จัดการจาก Supabase"
+            : "Data and permissions from Supabase"}
+        </span>
+      </div>
+      <section className="admin-section">
+        <div className="admin-section-heading">
+          <div>
+            <p className="section-label">OVERVIEW</p>
+            <h2>{copy.overview}</h2>
+          </div>
+        </div>
+        <dl className="admin-kpis">
+          <div>
+            <dt>{copy.openCourts}</dt>
+            <dd>{data.courts.filter((c) => c.isOpen).length}/3</dd>
+          </div>
+          <div>
+            <dt>{copy.activeQueues}</dt>
+            <dd>{data.waitingCount}</dd>
+          </div>
+          <div>
+            <dt>{copy.activeGames}</dt>
+            <dd>{data.activeGameCount}</dd>
+          </div>
+          <div>
+            <dt>{copy.newReports}</dt>
+            <dd>{data.newReportCount}</dd>
+          </div>
+        </dl>
+      </section>
+      <div className="admin-two-column">
+        <section className="admin-section">
+          <div className="admin-section-heading">
+            <div>
+              <p className="section-label">COURTS</p>
+              <h2>{copy.courtControl}</h2>
+              <p>{copy.courtHint}</p>
+            </div>
+          </div>
+          <div className="admin-court-list">
+            {data.courts.map((court) => (
+              <article key={court.id}>
+                <div>
+                  <strong>{court.name}</strong>
+                  <small>
+                    {court.format === "THREE_X_THREE" ? "3x3" : "5x5"}
+                  </small>
+                </div>
+                <form action={setCourtOpenAction}>
+                  <input type="hidden" name="courtId" value={court.id} />
+                  <input
+                    type="hidden"
+                    name="isOpen"
+                    value={String(!court.isOpen)}
+                  />
+                  <button
+                    className={court.isOpen ? "is-open" : "is-closed"}
+                    aria-pressed={court.isOpen}
+                  >
+                    <i />
+                    {court.isOpen ? copy.open : copy.closed}
+                  </button>
+                </form>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section className="admin-section">
+          <div className="admin-section-heading">
+            <div>
+              <p className="section-label">TARGET SCORE</p>
+              <h2>{copy.targetScores}</h2>
+              <p>{copy.targetHint}</p>
+            </div>
+          </div>
+          <div className="admin-score-settings">
+            {[...new Map(data.courts.map((c) => [c.groupId, c])).values()].map(
+              (group) => (
+                <article key={group.groupId}>
+                  <header>
+                    <strong>
+                      {group.groupId === "3x3" ? "3x3 A / B" : "5x5"}
+                    </strong>
+                    <b>{group.targetScore}</b>
+                  </header>
+                  <div>
+                    {group.allowedScores.map((score) => (
+                      <form action={setTargetScoreAction} key={score}>
+                        <input
+                          type="hidden"
+                          name="groupId"
+                          value={group.groupId}
+                        />
+                        <input type="hidden" name="score" value={score} />
+                        <button
+                          className={
+                            score === group.targetScore ? "is-active" : ""
+                          }
+                        >
+                          {score}
+                        </button>
+                      </form>
+                    ))}
+                  </div>
+                </article>
+              ),
+            )}
+          </div>
+        </section>
+      </div>
+      <section className="admin-section">
+        <div className="admin-section-heading">
+          <div>
+            <p className="section-label">CHECK-IN</p>
+            <h2>{copy.checkInDuration}</h2>
+            <p>{copy.checkInDurationHint}</p>
+          </div>
+        </div>
+        <div className="admin-score-settings">
+          <article>
+            <header>
+              <strong>{copy.currentDuration}</strong>
+              <b>{Math.round(data.checkInDurationSeconds / 60)} {copy.minutes}</b>
+            </header>
+            <div>
+              {[60, 120, 180, 300].map((seconds) => (
+                <form action={setCheckInDurationAction} key={seconds}>
+                  <input type="hidden" name="durationSeconds" value={seconds} />
+                  <button className={seconds === data.checkInDurationSeconds ? "is-active" : ""}>
+                    {seconds / 60} {copy.minutes}
+                  </button>
+                </form>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+      <section className="admin-section admin-calendar">
+        <div className="admin-section-heading">
+          <div>
+            <p className="section-label">CALENDAR</p>
+            <h2>{copy.calendar}</h2>
+            <p>{copy.calendarHint}</p>
+          </div>
+        </div>
+        <div className="admin-calendar-grid">
+          <EventForm data={data} labels={copy} />
+          <div className="admin-event-list">
+            {data.events.length === 0 ? (
+              <p className="admin-empty">
+                {language === "th" ? "ยังไม่มีกิจกรรม" : "No events"}
+              </p>
+            ) : (
+              data.events.map((event) => {
+                const value = dateParts(event);
+                return (
+                  <article
+                    className={event.cancelledAt ? "is-cancelled" : ""}
+                    key={event.id}
+                  >
+                    <header>
+                      <div>
+                        <strong>{event.title}</strong>
+                        <span>
+                          {event.cancelledAt ? copy.cancelled : copy.active}
+                        </span>
+                      </div>
+                      <time>
+                        {value.date} ·{" "}
+                        {event.allDay
+                          ? copy.allDay
+                          : `${value.start}–${value.end}`}
+                      </time>
+                    </header>
+                    <p>{event.details}</p>
+                    <small>
+                      {event.courtIds.map((id) => id.toUpperCase()).join(" · ")}
+                    </small>
+                    {!event.cancelledAt ? (
+                      <footer>
+                        <details>
+                          <summary>{copy.edit}</summary>
+                          <EventForm event={event} data={data} labels={copy} />
+                        </details>
+                        <form action={cancelCourtEventAction}>
+                          <input
+                            type="hidden"
+                            name="eventId"
+                            value={event.id}
+                          />
+                          <button>{copy.cancelEvent}</button>
+                        </form>
+                      </footer>
+                    ) : null}
+                  </article>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
