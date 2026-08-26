@@ -1,15 +1,17 @@
 # MeQ Starter v0.1
 
-โค้ดเริ่มต้นของ MeQ สำหรับตรวจแนวทางหน้าตา โครงสร้างโปรเจกต์ และกฎระบบ ก่อนเชื่อมฐานข้อมูลจริง
+เว็บแอป MeQ สำหรับจัดการทีม คิวสนามบาส เช็กอิน เกม คะแนน สถิติ ปฏิทิน และงานแจ้งซ่อมของมหาวิทยาลัยนเรศวร
 
-## สิ่งที่มีในรอบนี้
+## ระบบปัจจุบัน
 - Next.js App Router + TypeScript
-- Dashboard responsive สำหรับมือถือและคอมพิวเตอร์
-- สนาม 3x3 A, 3x3 B และ 5x5 พร้อมภาพ placeholder ที่เปลี่ยนเป็นรูปจริงได้
-- Mock queue, เกมที่กำลังเล่น, คะแนนประจำวัน, ปฏิทิน และแจ้งซ่อม
-- กฎธุรกิจใน `lib/meq-domain.ts`
+- Supabase Auth, PostgreSQL, RLS และ transactional RPC
+- LINE Login พร้อมข้อมูลโปรไฟล์ผู้เล่น
+- สนาม 3x3 A, 3x3 B และ 5x5 ซึ่งมีคิวแยกกัน
+- GPS verification, team check-in และ timeout ที่ประมวลผลฝั่งฐานข้อมูล
+- เกม คะแนนรายบุคคล สถิติ ปฏิทิน และแจ้งซ่อม
+- Admin ปรับสถานะสนาม คะแนนเป้าหมาย เวลาเช็กอิน และกิจกรรมได้
 - Queue Flow, State Diagram, Architecture และ ER Diagram ใน `docs/diagrams`
-- `AGENTS.md` สำหรับให้ Codex CLI เข้าใจกฎ MeQ ทุกครั้ง
+- CI ตรวจ typecheck, lint, production build, unit tests และ database tests
 
 ## เปิดใน VS Code
 1. แตกไฟล์ ZIP
@@ -65,11 +67,11 @@ git remote add origin <YOUR_GITHUB_REPOSITORY_URL>
 git push -u origin main
 ```
 
-## Supabase foundation
+## Supabase
 
-โครงสร้าง PostgreSQL, RLS, transactional RPC และ seed เริ่มต้นอยู่ใน `supabase/`
-โดยยังไม่เชื่อม project จริงหรือเปลี่ยน UI จาก localStorage ดูแผนการย้ายระบบได้ที่
-`docs/architecture/supabase-foundation.md`
+โครงสร้าง PostgreSQL, RLS, transactional RPC, migrations และ database tests อยู่ใน `supabase/`
+Production UI อ่านและแก้ข้อมูลผ่าน Supabase โดยไม่ใช้ repository จำลองหรือ `localStorage`
+ยกเว้นการจดจำภาษาที่ผู้ใช้เลือก ดูรายละเอียดที่ `docs/architecture/supabase-foundation.md`
 
 เมื่อต้องการทดสอบกับ Supabase local stack ต้องติดตั้ง Docker Desktop แล้วรัน:
 
@@ -78,7 +80,12 @@ npx supabase init
 npx supabase start
 ```
 
-จากนั้นใช้ migration และ seed ในโฟลเดอร์ `supabase/` กับ local project ก่อนเชื่อม Development project
+จากนั้นใช้ migration และ tests ในโฟลเดอร์ `supabase/`:
+
+```bash
+npx supabase db reset --local --no-seed
+npm run test:db
+```
 
 ## Vercel CLI (เมื่อพร้อม Deploy)
 

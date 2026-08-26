@@ -14,7 +14,7 @@ export function PregameTargetScore({ data, courtId }: { data: SupabaseQueueData;
 
   return <section className="checkin-section court-page">
     <div className="section-heading"><div><p className="section-label">TARGET SCORE</p><h2>คะแนนเป้าหมายเกมนี้</h2></div></div>
-    <div className="checkin-dev-panel">
+    <div className="pregame-target-panel">
       {proposal ? <>
         <p><strong>{proposal.target_score} แต้ม</strong> · {proposal.status === "CONFIRMED" ? "ทั้งสองทีมยืนยันแล้ว" : "รออีกทีมยืนยัน"}</p>
         {proposal.status === "PENDING" && proposal.proposed_by_team_id !== team.id ? <form action={confirmGameTargetScoreAction}>

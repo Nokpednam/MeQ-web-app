@@ -1,9 +1,26 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { getCourtById } from "../lib/court-data";
-import { createInitialAdminData } from "../lib/admin-repository";
 import { getAdminCourt, setCourtOpen, setDailyTargetScore, updateMaintenanceStatus } from "../lib/admin-rules";
 import type { AdminDataState } from "../lib/admin-types";
+
+function createInitialAdminData(): AdminDataState {
+  return {
+    version: 1,
+    courts: [
+      { courtId: "3x3-a", isOpen: true },
+      { courtId: "3x3-b", isOpen: true },
+      { courtId: "5x5", isOpen: true },
+    ],
+    targetScores: { threeXThree: 7, fiveXFive: 15 },
+    events: [{
+      id: "event-aug-08", title: "งดใช้ Full Court 2", details: "กิจกรรมมหาวิทยาลัย",
+      date: "2026-08-08", startTime: "16:00", endTime: "20:00", allDay: false,
+      courtIds: ["5x5"], impact: "HIGH", status: "ACTIVE", createdAt: "2026-08-01T02:00:00.000Z",
+    }],
+    maintenanceReports: [],
+  };
+}
 
 const court3A = getCourtById("3x3-a");
 const court3B = getCourtById("3x3-b");

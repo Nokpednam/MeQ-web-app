@@ -1,10 +1,11 @@
 # Supabase foundation for MeQ
 
-## ขอบเขตรอบนี้
+## สถานะปัจจุบัน
 
-Migration ใน `supabase/migrations` เป็น schema เป้าหมายสำหรับย้ายจาก mock data และ
-`localStorage` ไป PostgreSQL/Supabase ภายหลัง รอบนี้ยังไม่ติดตั้ง Supabase client,
-ยังไม่เชื่อม project จริง และไม่เปลี่ยนการทำงานของ UI ปัจจุบัน
+Production เชื่อม Supabase แล้วทั้ง Auth, PostgreSQL, Storage และ transactional RPC
+หน้า Dashboard, ทีม, คิว, GPS check-in, เกม, คะแนน, สถิติ, ปฏิทิน, Admin และแจ้งซ่อม
+อ่านหรือแก้ข้อมูลจริงผ่าน Supabase โค้ด repository จำลองและ provider ที่เขียนสถานะระบบลง
+`localStorage` ถูกถอดออกแล้ว โดย `localStorage` เหลือใช้เฉพาะการจดจำภาษาหน้าเว็บ
 
 ## Source of truth
 
@@ -34,27 +35,21 @@ Role `ADMIN` ห้ามแก้ผ่าน profile update ปกติ ผ�
 เก็บต่อ `court_group_id + business_date` ทำให้ 3x3 A/B อ่านค่าจาก group `3x3` เดียวกัน
 แต่มี `queue_entries.court_id` คนละค่า จึงยังเป็นคิวแยก
 
-## Migration path from localStorage
+## Production boundary
 
-1. สร้าง Supabase project สำหรับ Development และรัน migration/seed
-2. เปิด Auth provider พื้นฐานก่อน จากนั้นค่อยเพิ่ม LINE OAuth adapter
-3. เพิ่ม server-side Supabase client ใน Next.js โดยใช้ publishable/anon key กับ session cookie
-4. สร้าง async repository adapters ให้ตรง domain types ปัจจุบัน; UI ห้ามเรียก localStorage โดยตรง
-5. ย้าย Team repository แล้วทดสอบ constraint หนึ่งทีมต่อผู้ใช้
-6. ย้าย Queue/Check-in ผ่าน RPC และทดสอบ concurrent requests
-7. ย้าย Game/Score/Statistics และทดสอบ finalize ซ้ำ
-8. ย้าย Calendar/Maintenance และ Storage bucket สำหรับภาพ
-9. ปิด development seed และ simulator ใน Production
+- Server Components อ่านข้อมูลด้วย session cookie และ publishable key
+- การเปลี่ยน lifecycle ของทีม คิว เกม และคะแนนต้องผ่าน RPC ที่ตรวจ `auth.uid()`
+- GPS verification ถูกสร้างผ่าน trusted server action และหมดอายุตาม timestamp ของฐานข้อมูล
+- Development email login แสดงเฉพาะเมื่อ `NODE_ENV` ไม่ใช่ `production`
+- ไม่มี simulator provider หรือ local lifecycle repository อยู่ใน production component tree
+- ห้าม merge ข้อมูลจาก browser storage เข้าฐานข้อมูล production อัตโนมัติ
 
-ระหว่างย้ายให้เลือก repository implementation ด้วย environment/config ที่ฝั่ง server
-ห้าม merge ข้อมูล localStorage กับข้อมูล production แบบอัตโนมัติ
-
-## Required environment variables (later phase)
+## Required environment variables
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` หรือ publishable key ตาม project configuration
 - `SUPABASE_SERVICE_ROLE_KEY` เฉพาะ trusted server/Edge Function และห้ามมี prefix `NEXT_PUBLIC_`
-- LINE channel credentials เฉพาะ server เมื่อเริ่มทำ LINE Login
+- LINE channel credentials ต้องอยู่ฝั่ง server เท่านั้น
 
 ## Transactional invariants to test against a real local Supabase instance
 

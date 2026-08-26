@@ -11,13 +11,14 @@
     "test:game-lifecycle": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/game-lifecycle.test.js",
     "test:admin": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/admin-rules.test.js",
     "test:team-location": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/team-location-rules.test.js",
+    "test:production-surface": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/production-surface.test.js",
     "test:db": "supabase test db",
-    "test:unit": "npm run test:game-lifecycle && npm run test:admin && npm run test:team-location"
+    "test:unit": "npm run test:game-lifecycle && npm run test:admin && npm run test:team-location && npm run test:production-surface"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.2",
-    "next": "16.2.11",
+    "next": "16.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
@@ -28,7 +29,7 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "^19.2.0",
     "eslint": "^9.0.0",
-    "eslint-config-next": "16.2.11",
+    "eslint-config-next": "16.3.3",
     "supabase": "^2.113.0",
     "typescript": "^5.9.2"
   }
