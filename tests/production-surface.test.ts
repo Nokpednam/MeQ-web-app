@@ -30,3 +30,11 @@ test("production profile does not present itself as development data", () => {
   const profile = readFileSync(resolve(root, "components/profile-page.tsx"), "utf8");
   assert.doesNotMatch(profile, /<span>DEV<\/span>/);
 });
+
+test("desktop navigation highlights only an explicitly current route", () => {
+  const styles = readFileSync(resolve(root, "app/globals.css"), "utf8");
+  const dashboard = readFileSync(resolve(root, "components/dashboard.tsx"), "utf8");
+  assert.doesNotMatch(styles, /\.desktop-nav a:first-child/);
+  assert.match(styles, /\.desktop-nav a\.nav-current/);
+  assert.match(dashboard, /href === "#top" \? "nav-current"/);
+});

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signIn, signInWithLine, signUp } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/server";
@@ -16,10 +15,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main className="auth-shell">
       <section className="auth-card">
-        <Link className="auth-brand" href="/">MeQ</Link>
-        <p className="section-label">PLAYER ACCESS</p>
-        <h1>เข้าสู่ระบบ MeQ</h1>
-        <p className="auth-intro">ใช้บัญชีเดียวสำหรับทีม คิวสนาม ผลการแข่งขัน และสถิติของคุณ</p>
+        <div className="auth-hero">
+          <span className="auth-ball" aria-hidden="true">●</span>
+          <div><span className="auth-brand">MeQ</span><p>สนามบาส มหาวิทยาลัยนเรศวร</p></div>
+        </div>
+        <p className="section-label">พร้อมลงสนาม</p>
+        <h1>จัดทีม เข้าคิว<br />แล้วไปเล่นกัน</h1>
+        <p className="auth-intro">ดูคิวสนามแบบเรียลไทม์ จัดการทีม และเก็บผลงานการแข่งขันไว้ในที่เดียว</p>
+        <ul className="auth-benefits" aria-label="สิ่งที่ทำได้ใน MeQ">
+          <li><span aria-hidden="true">1</span>เช็กคิวสนามก่อนเดินไป</li>
+          <li><span aria-hidden="true">2</span>รวมทีมและยืนยันเข้าสนาม</li>
+          <li><span aria-hidden="true">3</span>ดูผลการแข่งขันและสถิติของคุณ</li>
+        </ul>
         {params.error ? <p className="auth-alert is-error" role="alert">{params.error}</p> : null}
         {params.message ? <p className="auth-alert is-success" role="status">{params.message}</p> : null}
         <form action={signInWithLine} className="line-auth-form">
@@ -43,7 +50,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
           </form>
         </details> : null}
-        <Link className="auth-back" href="/">← กลับ Dashboard</Link>
       </section>
     </main>
   );

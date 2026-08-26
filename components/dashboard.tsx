@@ -150,7 +150,7 @@ export function Dashboard({ data }: { data: SupabaseDashboardData }) {
           </a>
           <nav className="desktop-nav" aria-label={copy.mainNavigation}>
             {navigation.slice(0, 4).map(([label, href]) => (
-              <a key={label} href={href}>
+              <a key={label} href={href} className={href === "#top" ? "nav-current" : undefined}>
                 {copy[label]}
               </a>
             ))}
