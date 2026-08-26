@@ -1,4 +1,5 @@
 begin;
+select plan(1);
 
 do $$
 declare
@@ -68,5 +69,8 @@ begin
   raise notice 'TEAM_MANAGEMENT_TESTS_PASSED';
 end;
 $$;
+
+select pass('team management flow completed');
+select * from finish();
 
 rollback;

@@ -1,4 +1,5 @@
 begin;
+select plan(1);
 
 do $$
 declare
@@ -86,5 +87,8 @@ begin
   raise notice 'QUEUE_MANAGEMENT_TESTS_PASSED';
 end;
 $$;
+
+select pass('queue management flow completed');
+select * from finish();
 
 rollback;

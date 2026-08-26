@@ -1,4 +1,5 @@
 begin;
+select plan(1);
 
 do $$
 declare
@@ -67,7 +68,7 @@ begin
   perform public.reject_game_end_request(v_game_id);
   perform set_config('request.jwt.claim.sub',a1::text,true);
   perform public.request_game_end(v_game_id);
-  perform public.submit_team_scores(v_game_id,jsonb_build_object(a1::text,5,a2::text,2,a3::text,0));
+  perform public.submit_team_scores(v_game_id,jsonb_build_object(a1::text,7,a2::text,2,a3::text,0));
   if (select status from public.games where id=v_game_id)<>'AWAITING_SCORE' then raise exception 'first submission status invalid'; end if;
   perform set_config('request.jwt.claim.sub',b1::text,true);
   perform public.submit_team_scores(v_game_id,jsonb_build_object(b1::text,3,b2::text,2,b3::text,0));
@@ -75,9 +76,9 @@ begin
   if not exists(
     select 1 from public.games g
     where g.id=v_game_id and g.status='COMPLETED' and g.winner_team_id=team_a.id
-      and ((g.team_a_id=team_a.id and g.final_team_a_score=7 and g.final_team_b_score=5)
-        or (g.team_b_id=team_a.id and g.final_team_b_score=7 and g.final_team_a_score=5))
-  ) then raise exception '7-5 result not finalized'; end if;
+      and ((g.team_a_id=team_a.id and g.final_team_a_score=9 and g.final_team_b_score=5)
+        or (g.team_b_id=team_a.id and g.final_team_b_score=9 and g.final_team_a_score=5))
+  ) then raise exception '9-5 result not finalized'; end if;
   if (select count(*) from public.player_game_history h where h.game_id=v_game_id)<>6 then raise exception 'player history was not created for all players'; end if;
   if not exists(select 1 from public.queue_entries where team_id=team_a.id and status='DECIDING_CONTINUE') then raise exception 'winner continuation decision was not created'; end if;
   if not exists(select 1 from public.queue_entries where team_id=team_b.id and status='DECIDING_REQUEUE') then raise exception 'loser decision was not created'; end if;
@@ -97,5 +98,8 @@ begin
   raise notice 'FULL_3X3_FLOW_TEST_PASSED';
 end;
 $$;
+
+select pass('full 3x3 queue, scoring, and post-game flow completed');
+select * from finish();
 
 rollback;
