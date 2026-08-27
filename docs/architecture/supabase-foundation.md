@@ -1,65 +1,75 @@
 # Supabase foundation for MeQ
 
-## สถานะปัจจุบัน
+## Current implementation
 
-Production เชื่อม Supabase แล้วทั้ง Auth, PostgreSQL, Storage และ transactional RPC
-หน้า Dashboard, ทีม, คิว, GPS check-in, เกม, คะแนน, สถิติ, ปฏิทิน, Admin และแจ้งซ่อม
-อ่านหรือแก้ข้อมูลจริงผ่าน Supabase โค้ด repository จำลองและ provider ที่เขียนสถานะระบบลง
-`localStorage` ถูกถอดออกแล้ว โดย `localStorage` เหลือใช้เฉพาะการจดจำภาษาหน้าเว็บ
+The deployed application uses Supabase Auth, PostgreSQL, Storage, RLS policies, and PostgreSQL RPC functions. Dashboard, team, queue, GPS check-in, game, score, statistics, calendar, admin, and maintenance pages read or change Supabase data.
+
+The application does not currently subscribe to Supabase Realtime. LINE Login is implemented, but LINE Messaging, webhook handling, and message delivery tracking are not present in the repository.
 
 ## Source of truth
 
-- `profiles` อ้างถึง `auth.users` และเก็บ role เป็น `USER` หรือ `ADMIN`
-- `team_memberships` เป็นแหล่งจริงของสมาชิกทีม โดย partial unique index บังคับหนึ่งทีมต่อผู้ใช้
-- `queue_entries` เก็บสถานะคิว และ `active_queue_players` บังคับไม่ให้ผู้เล่นอยู่หลายคิว
-- `games` เป็นแหล่งจริงของเกม active/completed; `courts.active_game_id` ชี้เกมปัจจุบันเท่านั้น
-- `score_submissions` unique ด้วย `(game_id, team_id)` และ `player_scores` อ้าง roster snapshot
-- `player_game_history` unique ด้วย `(game_id, user_id)` และ view `player_statistics` คำนวณแยก 3x3/5x5
-- `maintenance_reports.image_path` เก็บ path ของ Supabase Storage ไม่เก็บรูปเป็น base64 ในฐานข้อมูล
+- `profiles` references `auth.users` and stores the `USER` or `ADMIN` role.
+- `team_memberships` stores team membership. A partial unique index limits a user to one active team.
+- `queue_entries` stores queue state. `active_queue_players` prevents a player from being active in multiple queues.
+- `games` stores active and completed games. `courts.active_game_id` points to the current game.
+- `score_submissions` is unique by `(game_id, team_id)`. `player_scores` uses the game's roster snapshot.
+- `player_game_history` is unique by `(game_id, user_id)`. `player_statistics` calculates separate 3x3 and 5x5 totals.
+- `maintenance_reports.image_path` stores a private Storage object path rather than image data.
 
-## Security boundary
+## Authentication and authorization
 
-ตาราง lifecycle เปิด RLS และไม่มี policy สำหรับ client write โดยตรง การเข้าคิว ออกจากคิว
-และส่งคะแนนต้องเรียก RPC ที่ตรวจ `auth.uid()` ภายใน transaction เท่านั้น RPC แบบ
-`security definer` ใช้ `search_path = ''`, อ้างชื่อ schema เต็ม และจำกัดสิทธิ์ execute
+Next.js uses the Supabase publishable key and session cookies. LINE Login is configured as the Supabase custom OAuth provider `custom:line`.
 
-ตำแหน่งต้องมาจาก verification ที่ยังไม่หมดอายุใน `location_verifications` ซึ่งควรถูกเขียนโดย
-Edge Function หรือ trusted server เท่านั้น ไม่รับ boolean ว่า “อยู่ในระยะ” จาก browser
+Lifecycle tables use RLS. Client writes to team, queue, game, and score state go through database RPC functions that check `auth.uid()`, membership, captain status, or admin role as required. Security-definer functions set an empty search path and use schema-qualified object names.
 
-Role `ADMIN` ห้ามแก้ผ่าน profile update ปกติ ผู้ใช้แก้ได้เฉพาะ `display_name` และ `avatar_url`;
-การตั้งผู้ดูแลต้องทำผ่าน trusted server/SQL operation ที่บันทึก audit log
+The application does not expose a service-role key to browser code. Admin role assignment is not part of the normal profile update path.
+
+## Location boundary
+
+The browser obtains coordinates from the device and sends them to a Next.js server action. The server action calls a database function that calculates the distance and stores an expiring verification. The database does not accept a client-provided `in_range` boolean.
+
+This verifies distance from the submitted coordinates, but it does not prove that a device has not spoofed its location. GPS checks should therefore be treated as an admission control for normal users, not as tamper-proof evidence.
+
+The current browser verification accepts the configured court radius, while team-ready confirmation applies a stricter database distance check. These values must be reviewed together before changing production behavior.
 
 ## Business date and time
 
-สนามเปิด 05:00–00:00 ตาม `Asia/Bangkok` และวันธุรกิจเริ่ม 05:00 น. ค่า target score
-เก็บต่อ `court_group_id + business_date` ทำให้ 3x3 A/B อ่านค่าจาก group `3x3` เดียวกัน
-แต่มี `queue_entries.court_id` คนละค่า จึงยังเป็นคิวแยก
+Courts operate from 05:00 to 00:00 in `Asia/Bangkok`. The business date changes at 05:00.
 
-## Production boundary
+Target scores are stored by `court_group_id` and business date. The 3x3 A and 3x3 B courts use the same `3x3` group for target scores but retain separate queue entries.
 
-- Server Components อ่านข้อมูลด้วย session cookie และ publishable key
-- การเปลี่ยน lifecycle ของทีม คิว เกม และคะแนนต้องผ่าน RPC ที่ตรวจ `auth.uid()`
-- GPS verification ถูกสร้างผ่าน trusted server action และหมดอายุตาม timestamp ของฐานข้อมูล
-- Development email login แสดงเฉพาะเมื่อ `NODE_ENV` ไม่ใช่ `production`
-- ไม่มี simulator provider หรือ local lifecycle repository อยู่ใน production component tree
-- ห้าม merge ข้อมูลจาก browser storage เข้าฐานข้อมูล production อัตโนมัติ
+## Transaction boundary
 
-## Required environment variables
+- Server Components read data with the current session and publishable key.
+- Team, queue, game, and score transitions use PostgreSQL RPC functions.
+- Database timestamps own check-in and requeue deadlines.
+- Scheduled database jobs process expired states.
+- Game finalization writes result and player history in a transaction.
+- The production component tree does not use a local lifecycle provider or browser storage as a database substitute.
+- Browser storage is used only to remember the selected language.
+
+## Environment variables
+
+The current application runtime reads:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` หรือ publishable key ตาม project configuration
-- `SUPABASE_SERVICE_ROLE_KEY` เฉพาะ trusted server/Edge Function และห้ามมี prefix `NEXT_PUBLIC_`
-- LINE channel credentials ต้องอยู่ฝั่ง server เท่านั้น
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_APP_URL`
 
-## Transactional invariants to test against a real local Supabase instance
+LINE Login credentials are configured in Supabase and LINE Developers. The LINE Messaging variables in `.env.example` are placeholders for planned work and are not read by the current application source.
 
-- คำขอเข้าคิวพร้อมกันของทีม/ผู้เล่นเดียวกัน สำเร็จได้ครั้งเดียว
-- position ต่อท้ายไม่ชนกันเมื่อหลายทีมเข้าพร้อมกัน
-- ทีมสมาชิกไม่ครบหรือผิดประเภทสนามเข้าคิวไม่ได้
-- ผู้เล่นที่ไม่มี location verification ภายใน 50 เมตรเข้าคิวไม่ได้
-- ส่งคะแนนทีมละหนึ่ง submission และคะแนน 0 เป็นค่าที่ถูกต้อง
-- finalize game id เดิมซ้ำไม่เพิ่ม history หรือสถิติซ้ำ
-- เกม completed ถูกล้างจาก `courts.active_game_id`
-- ผู้ชนะครั้งแรกเข้าสู่ `DECIDING_CONTINUE`; ครบสองครั้งเข้าสู่ `RESTING`
-- ทีมแพ้เข้าสู่ `DECIDING_REQUEUE` พร้อม deadline 3 นาที
+## Database test coverage
 
+The pgTAP suite covers database privileges, team membership, location status, queue operations, and a full 3x3 flow. Unit tests cover lifecycle rule helpers and production-surface checks.
+
+Still required for integration confidence:
+
+- two captains confirming ready at the same time
+- concurrent join, leave, call, and requeue operations
+- the complete winner hold, rest, and return flow in production SQL
+- invalid-score resubmission by both teams
+- negative RLS tests with separate authenticated users
+- browser tests for LINE callback and session handling
+- LINE webhook signature, duplicate-event, retry, and delivery tests after Messaging is implemented
+
+Changes to locking, lifecycle transitions, RLS, authentication, scoring, or LINE integration should wait for the related multi-user tests.

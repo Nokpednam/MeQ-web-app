@@ -1,12 +1,10 @@
 flowchart LR
   U[ผู้เล่น / หัวหน้าทีม / Admin] -->|HTTPS| W[Next.js Web App\nVercel]
-  W -->|Auth & API| L[LINE Login + Messaging API]
+  W -->|OAuth session| A[Supabase Auth]
+  A -->|Custom OAuth provider| L[LINE Login]
   W -->|RLS-protected reads| S[(Supabase PostgreSQL)]
   W -->|Validated transactional RPCs| S
-  S --> A[Column grants + RLS policies]
-  S --> R[Supabase Realtime]
-  S --> ST[Supabase Storage]
-  S --> C[Scheduled Jobs / Cron]
-  R --> W
-  ST --> W
-  C --> L
+  W -->|Private evidence files| ST[Supabase Storage]
+  S --> P[Column grants + RLS policies]
+  S -->|Expiry processing| C[PostgreSQL Scheduled Jobs]
+  C --> S
