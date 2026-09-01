@@ -256,6 +256,16 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .team-notice, .team-error { margin-bottom: 16px; padding: 12px 14px; border-radius: 10px; font-size: 12px; }
 .team-notice { background: var(--orange-50); color: var(--orange-700); }
 .team-error { background: #fff0ee; color: var(--danger); }
+.team-invitation-panel { margin-bottom: 20px; padding: clamp(18px, 4vw, 28px); border: 1px solid #d8e7df; border-radius: 18px; background: #f7fbf8; box-shadow: var(--soft-shadow); }
+.invitation-panel-heading { display: flex; align-items: start; justify-content: space-between; gap: 18px; }
+.invitation-panel-heading h2 { margin: 3px 0 4px; font-size: clamp(22px, 4vw, 30px); }
+.invitation-panel-heading p:last-child { margin: 0; color: var(--neutral-700); font-size: 12px; }
+.invitation-count { min-width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--court-green); color: var(--white); font-weight: 900; }
+.invitation-list { margin-top: 18px; display: grid; gap: 10px; }
+.invitation-card { padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid #e1ebe5; border-radius: 12px; background: var(--white); }
+.invitation-card strong, .invitation-card span { display: block; }
+.invitation-card span { margin-top: 4px; color: var(--neutral-700); font-size: 11px; }
+.invitation-actions { display: flex; gap: 8px; }
 .team-detail-hero { position: relative; min-height: 190px; padding: 28px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 24px; overflow: hidden; border-radius: 16px; background: var(--court-green); color: var(--white); box-shadow: var(--soft-shadow); }
 .team-type-display { width: 110px; height: 110px; display: grid; place-items: center; align-content: center; border: 2px solid rgba(255,255,255,.6); border-radius: 50%; }
 .team-type-display small { opacity: .7; }
@@ -307,6 +317,12 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .candidate-list small { margin-top: 3px; color: var(--neutral-700); font-size: 10px; }
 .candidate-list button { min-width: 74px; min-height: 44px; padding: 0 10px; border: 0; border-radius: 9px; background: var(--orange-600); color: var(--white); font-size: 11px; font-weight: 800; }
 .candidate-list button:disabled { background: #ebe8e4; color: var(--neutral-700); cursor: not-allowed; }
+.outgoing-invitations { padding: 18px; border-top: 1px solid #eee9e3; background: #fbfaf8; }
+.outgoing-invitations h3 { margin: 3px 0 12px; font-size: 17px; }
+.outgoing-invitations article { padding: 10px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #eee9e3; }
+.outgoing-invitations article strong, .outgoing-invitations article span { display: block; }
+.outgoing-invitations article span { margin-top: 3px; color: var(--neutral-700); font-size: 10px; }
+.outgoing-invitations .team-secondary-button { min-height: 40px; font-size: 10px; }
 
 .court-page { padding-top: 34px; }
 .court-selection-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
@@ -713,6 +729,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
   .team-page { padding-top: 26px; }
   .team-page-heading { align-items: start; flex-direction: column; gap: 6px; padding: 22px 20px; }
   .team-page-heading h1 { font-size: 34px; }
+  .invitation-card { align-items: stretch; flex-direction: column; }
+  .invitation-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .invitation-actions form, .invitation-actions button { width: 100%; }
   .team-empty-state { min-height: 390px; padding-inline: 18px; }
   .my-team-card { grid-template-columns: 1fr; }
   .team-card-accent { min-height: 170px; }

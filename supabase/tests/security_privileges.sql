@@ -1,6 +1,6 @@
 begin;
 
-select plan(34);
+select plan(37);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -9,7 +9,7 @@ select ok(
   'authenticated cannot directly mutate ' || lifecycle_table
 )
 from (values
-  ('courts'), ('daily_score_settings'), ('teams'), ('team_memberships'),
+  ('courts'), ('daily_score_settings'), ('teams'), ('team_memberships'), ('team_invitations'),
   ('queue_entries'), ('active_queue_players'), ('location_verifications'),
   ('games'), ('game_roster_snapshots'), ('score_submissions'),
   ('player_scores'), ('player_game_history'), ('team_check_ins'),
@@ -100,6 +100,21 @@ select ok(
   has_function_privilege('authenticated','public.admin_set_check_in_duration(integer)','EXECUTE')
   and not has_function_privilege('anon','public.admin_set_check_in_duration(integer)','EXECUTE'),
   'check-in duration admin RPC is authenticated only'
+);
+select ok(
+  not has_function_privilege('authenticated','public.add_team_member(uuid,uuid)','EXECUTE'),
+  'authenticated cannot bypass invitations with direct member addition'
+);
+select ok(
+  has_function_privilege('authenticated','public.invite_team_member(uuid,uuid)','EXECUTE')
+  and has_function_privilege('authenticated','public.accept_team_invitation(uuid)','EXECUTE')
+  and has_function_privilege('authenticated','public.decline_team_invitation(uuid)','EXECUTE')
+  and has_function_privilege('authenticated','public.cancel_team_invitation(uuid)','EXECUTE')
+  and not has_function_privilege('anon','public.invite_team_member(uuid,uuid)','EXECUTE')
+  and not has_function_privilege('anon','public.accept_team_invitation(uuid)','EXECUTE')
+  and not has_function_privilege('anon','public.decline_team_invitation(uuid)','EXECUTE')
+  and not has_function_privilege('anon','public.cancel_team_invitation(uuid)','EXECUTE'),
+  'team invitation RPCs are authenticated only'
 );
 
 select * from finish();

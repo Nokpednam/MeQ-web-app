@@ -52,3 +52,13 @@ test("login verifies the session consistently to avoid redirect loops", () => {
   assert.match(login, /supabase\.auth\.getUser\(\)/);
   assert.doesNotMatch(login, /supabase\.auth\.getClaims\(\)/);
 });
+
+test("team membership requires an invitation acceptance", () => {
+  const actions = readFileSync(resolve(root, "app/teams/actions.ts"), "utf8");
+  const views = readFileSync(resolve(root, "components/supabase-team-views.tsx"), "utf8");
+  assert.match(actions, /invite_team_member/);
+  assert.match(actions, /accept_team_invitation/);
+  assert.doesNotMatch(actions, /\.rpc\("add_team_member"/);
+  assert.match(views, /acceptTeamInvitationAction/);
+  assert.match(views, /declineTeamInvitationAction/);
+});

@@ -46,11 +46,47 @@ export async function createTeamAction(formData: FormData) {
   redirect(`/teams/${team.id}?notice=created`);
 }
 
-export async function addTeamMemberAction(formData: FormData) {
+export async function inviteTeamMemberAction(formData: FormData) {
   const { teamId, userId, valid } = teamMutationInput(formData);
   if (!valid) redirect("/teams?error=INVALID_REQUEST");
-  const supabase = await authenticatedClient(); const { error } = await supabase.rpc("add_team_member", { p_team_id: teamId, p_user_id: userId });
-  refreshTeamViews(); redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : "?notice=member-added"}`);
+  const supabase = await authenticatedClient();
+  const { error } = await supabase.rpc("invite_team_member", { p_team_id: teamId, p_user_id: userId });
+  refreshTeamViews();
+  redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : "?notice=invitation-sent"}`);
+}
+
+function invitationId(formData: FormData) {
+  const value = String(formData.get("invitationId") ?? "");
+  return isUuid(value) ? value : null;
+}
+
+export async function acceptTeamInvitationAction(formData: FormData) {
+  const id = invitationId(formData);
+  if (!id) redirect("/teams?error=INVALID_REQUEST");
+  const supabase = await authenticatedClient();
+  const { data, error } = await supabase.rpc("accept_team_invitation", { p_invitation_id: id });
+  refreshTeamViews();
+  if (error) redirect(`/teams?error=${rpcError(error)}`);
+  redirect(`/teams/${String(data)}?notice=invitation-accepted`);
+}
+
+export async function declineTeamInvitationAction(formData: FormData) {
+  const id = invitationId(formData);
+  if (!id) redirect("/teams?error=INVALID_REQUEST");
+  const supabase = await authenticatedClient();
+  const { error } = await supabase.rpc("decline_team_invitation", { p_invitation_id: id });
+  refreshTeamViews();
+  redirect(`/teams${error ? `?error=${rpcError(error)}` : "?notice=invitation-declined"}`);
+}
+
+export async function cancelTeamInvitationAction(formData: FormData) {
+  const id = invitationId(formData);
+  const teamId = String(formData.get("teamId") ?? "");
+  if (!id || !isUuid(teamId)) redirect("/teams?error=INVALID_REQUEST");
+  const supabase = await authenticatedClient();
+  const { error } = await supabase.rpc("cancel_team_invitation", { p_invitation_id: id });
+  refreshTeamViews();
+  redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : "?notice=invitation-cancelled"}`);
 }
 
 export async function removeTeamMemberAction(formData: FormData) {
