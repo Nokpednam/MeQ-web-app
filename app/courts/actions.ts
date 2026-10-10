@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { dispatchLineNotificationsQuietly } from "@/lib/line-dispatcher";
 import { createClient } from "@/lib/supabase/server";
 import type { CourtId } from "@/lib/queue-types";
 
@@ -63,7 +65,7 @@ export async function leaveCourtQueueAction(formData: FormData) {
 
 export async function callNextQueueTeamAction(formData:FormData){
  const courtId=String(formData.get("courtId")) as CourtId;const supabase=await authenticatedClient(`/courts/${courtId}`);
- const{error}=await supabase.rpc("call_next_queue_team",{p_court_id:courtId});refreshQueue();redirect(`/courts/${courtId}${error?`?error=${queueError(error)}`:"?notice=called"}#check-in`);
+ const{error}=await supabase.rpc("call_next_queue_team",{p_court_id:courtId});if(!error)after(dispatchLineNotificationsQuietly);refreshQueue();redirect(`/courts/${courtId}${error?`?error=${queueError(error)}`:"?notice=called"}#check-in`);
 }
 
 export async function confirmTeamReadyAction(formData:FormData){

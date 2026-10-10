@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { dispatchLineNotificationsQuietly } from "@/lib/line-dispatcher";
 import { createClient } from "@/lib/supabase/server";
 import { deleteMaintenanceReport } from "@/lib/supabase-maintenance-repository";
 
@@ -43,6 +45,8 @@ export async function submitMaintenanceReportAction(form: FormData) {
     redirect(`/maintenance/new?error=${reason}`);
   }
 
+  // Tell admins on LINE about the new report.
+  after(dispatchLineNotificationsQuietly);
   revalidatePath("/admin");
   revalidatePath("/admin/maintenance");
   revalidatePath("/maintenance");
@@ -63,6 +67,8 @@ export async function updateMaintenanceStatusAction(form: FormData) {
     p_admin_note: String(form.get("adminNote") ?? ""),
   });
   if (error) redirect(`${returnTo}?maintenance=error#maintenance-reports`);
+  // Tell the reporter on LINE about the status change.
+  after(dispatchLineNotificationsQuietly);
 
   revalidatePath("/admin");
   revalidatePath("/admin/maintenance");
