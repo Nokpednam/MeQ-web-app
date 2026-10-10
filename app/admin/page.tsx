@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { AdminSupabaseView } from "@/components/admin-supabase-view";
 import { AdminMaintenanceSection } from "@/components/admin-maintenance-section";
 import { createClient } from "@/lib/supabase/server";
@@ -18,11 +18,13 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   return <>
     <AdminSupabaseView data={viewData}/>
-    {viewData.newReportCount > 0 ? <div className="admin-alert-shell"><a className="admin-report-alert" href="#maintenance-reports"><span>!</span><div><strong>มีรายการแจ้งซ่อมใหม่ {viewData.newReportCount} รายการ</strong><small>แตะเพื่อเลื่อนไปตรวจสอบและอัปเดตสถานะ</small></div><b>→</b></a></div> : null}
+    {viewData.newReportCount > 0 ? <div className="admin-alert-shell"><a className="admin-report-alert" href="/admin/maintenance"><span>!</span><div><strong>มีรายการแจ้งซ่อมใหม่ {viewData.newReportCount} รายการ</strong><small>แตะเพื่อเปิดรายการแจ้งซ่อมทั้งหมด</small></div><b>→</b></a></div> : null}
     <main className="admin-shell admin-maintenance-shell">
       {query.maintenance === "saved" ? <div className="queue-success" role="status">บันทึกสถานะแจ้งซ่อมเรียบร้อยแล้ว และผู้ใช้จะเห็นสถานะล่าสุดทันที</div> : null}
       {query.maintenance === "error" ? <div className="team-error" role="alert">บันทึกสถานะไม่สำเร็จ กรุณาลองใหม่</div> : null}
-      <AdminMaintenanceSection reports={reports}/>
+      {query.maintenance === "deleted" ? <div className="queue-success" role="status">ลบรายการแจ้งซ่อมเรียบร้อยแล้ว</div> : null}
+      {query.maintenance === "delete-error" ? <div className="team-error" role="alert">ลบรายการไม่สำเร็จ กรุณาลองใหม่</div> : null}
+      <AdminMaintenanceSection reports={reports.slice(0, 2)} totalCount={reports.length} showMoreHref="/admin/maintenance"/>
     </main>
   </>;
 }

@@ -15,7 +15,7 @@ export const adminTranslations = {
     save: "บันทึกกิจกรรม", cancelEdit: "ยกเลิกการแก้ไข", edit: "แก้ไข", cancelEvent: "ยกเลิกกิจกรรม",
     confirmCancel: "ยืนยันยกเลิกกิจกรรมนี้?", active: "ใช้งาน", cancelled: "ยกเลิกแล้ว", maintenance: "รายการแจ้งซ่อม",
     maintenanceHint: "ติดตามงานจากแบบฟอร์มแจ้งซ่อมบน Dashboard", noReports: "ยังไม่มีรายการแจ้งซ่อม", new: "รายการใหม่",
-    inProgress: "กำลังดำเนินการ", resolved: "แก้ไขแล้ว", reset: "Reset admin data", confirmReset: "รีเซ็ตข้อมูลแอดมินจำลองทั้งหมด?",
+    inProgress: "แอดมินรับเรื่องแล้ว", waitingForCaretaker: "รอผู้ดูแลสนามเข้ามาซ่อม", resolved: "แก้ไขแล้ว", reset: "Reset admin data", confirmReset: "รีเซ็ตข้อมูลแอดมินจำลองทั้งหมด?",
     language: "เปลี่ยนภาษา", required: "กรุณากรอกข้อมูลให้ครบ",
   },
   en: {
@@ -31,7 +31,7 @@ export const adminTranslations = {
     courts: "Affected courts", impact: "Impact", low: "Low", medium: "Medium", high: "High", save: "Save event",
     cancelEdit: "Cancel edit", edit: "Edit", cancelEvent: "Cancel event", confirmCancel: "Cancel this event?", active: "Active",
     cancelled: "Cancelled", maintenance: "Maintenance reports", maintenanceHint: "Track reports submitted from the Dashboard",
-    noReports: "No maintenance reports yet", new: "New", inProgress: "In progress", resolved: "Resolved", reset: "Reset admin data",
+    noReports: "No maintenance reports yet", new: "New", inProgress: "Admin accepted", waitingForCaretaker: "Waiting for court caretaker", resolved: "Resolved", reset: "Reset admin data",
     confirmReset: "Reset all mock admin data?", language: "Switch language", required: "Complete all required fields",
   },
 } satisfies Record<DashboardLanguage, Record<string, string>>;

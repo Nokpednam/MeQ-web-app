@@ -19,7 +19,7 @@ export type AdminMaintenanceRow = {
   category: string;
   details: string;
   imageUrl: string | null;
-  status: "NEW" | "IN_PROGRESS" | "RESOLVED";
+  status: "NEW" | "IN_PROGRESS" | "WAITING_FOR_CARETAKER" | "RESOLVED";
   adminNote: string | null;
   createdAt: string;
 };

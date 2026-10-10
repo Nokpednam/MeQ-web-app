@@ -34,8 +34,18 @@ select ok(
   'maintenance reports reject direct deletes'
 );
 select ok(
-  has_column_privilege('authenticated', 'public.maintenance_reports', 'reporter_user_id', 'INSERT'),
-  'authenticated can still create maintenance reports'
+  not has_table_privilege('authenticated', 'public.maintenance_reports', 'INSERT')
+  and has_function_privilege(
+    'authenticated',
+    'public.create_maintenance_report(text, public.maintenance_category, text, text)',
+    'EXECUTE'
+  )
+  and not has_function_privilege(
+    'anon',
+    'public.create_maintenance_report(text, public.maintenance_category, text, text)',
+    'EXECUTE'
+  ),
+  'maintenance reports are created only through the authenticated workflow RPC'
 );
 select ok(
   has_function_privilege(
