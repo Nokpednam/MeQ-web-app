@@ -2,6 +2,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseQueueData } from "./supabase-queue-repository";
+import type { MaintenanceStatus } from "./admin-types";
 import type { CourtId } from "./queue-types";
 export type AdminEventRow = {
   id: string;
@@ -19,7 +20,7 @@ export type AdminMaintenanceRow = {
   category: string;
   details: string;
   imageUrl: string | null;
-  status: "NEW" | "IN_PROGRESS" | "WAITING_FOR_CARETAKER" | "RESOLVED";
+  status: MaintenanceStatus;
   adminNote: string | null;
   createdAt: string;
 };

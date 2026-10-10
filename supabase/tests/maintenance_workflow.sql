@@ -8,6 +8,7 @@ declare
   admin_id uuid := '17000000-0000-0000-0000-000000000003';
   first_report public.maintenance_reports;
   second_report public.maintenance_reports;
+  third_report public.maintenance_reports;
   deleted_image_path text;
 begin
   insert into auth.users(id, instance_id, aud, role, email, encrypted_password, created_at, updated_at, raw_user_meta_data)
@@ -70,6 +71,51 @@ begin
   perform set_config('request.jwt.claim.sub', reporter_id::text, true);
   if public.create_maintenance_report('3x3-a', 'LIGHTING', 'แจ้งใหม่หลังแอดมินลบรายการ', null) is null then
     raise exception 'deleted issue did not free the active-issue slot';
+  end if;
+
+  -- Rejecting a report closes it, frees the slot, and is recorded in history.
+  perform set_config('request.jwt.claim.sub', reporter_id::text, true);
+  third_report := public.create_maintenance_report('5x5', 'HOOP', 'รายงานป่วนทดสอบ', null);
+
+  begin
+    perform public.admin_list_maintenance_history(array[first_report.id]);
+    raise exception 'non-admin read maintenance history';
+  exception when insufficient_privilege then
+    if sqlerrm <> 'ADMIN_ONLY' then raise; end if;
+  end;
+
+  perform set_config('request.jwt.claim.sub', admin_id::text, true);
+  perform public.admin_update_maintenance_status(third_report.id, 'REJECTED', 'รายงานไม่ถูกต้อง');
+  if exists (select 1 from public.list_public_maintenance_status() where id = third_report.id) then
+    raise exception 'rejected report was visible in the public feed';
+  end if;
+  if exists (select 1 from public.maintenance_active_issues where report_id = third_report.id) then
+    raise exception 'rejected report kept its active-issue slot';
+  end if;
+
+  if (select count(*) from public.admin_list_maintenance_history(array[third_report.id])) <> 2 then
+    raise exception 'rejected report history should have a create and a reject entry';
+  end if;
+  if not exists (
+    select 1 from public.admin_list_maintenance_history(array[third_report.id])
+    where from_status = 'NEW' and to_status = 'REJECTED'
+      and admin_note = 'รายงานไม่ถูกต้อง' and changed_by_name = 'Maintenance Admin'
+  ) then
+    raise exception 'reject entry was not recorded with the admin name';
+  end if;
+  if (select count(*) from public.admin_list_maintenance_history(array[first_report.id])) <> 4 then
+    raise exception 'first report should have create, accept, caretaker, and resolve entries';
+  end if;
+
+  -- Saving the same status and note again does not add a duplicate entry.
+  perform public.admin_update_maintenance_status(third_report.id, 'REJECTED', 'รายงานไม่ถูกต้อง');
+  if (select count(*) from public.admin_list_maintenance_history(array[third_report.id])) <> 2 then
+    raise exception 'unchanged save added a history entry';
+  end if;
+
+  perform set_config('request.jwt.claim.sub', second_reporter_id::text, true);
+  if public.create_maintenance_report('5x5', 'HOOP', 'แป้นบาสหลวมจริง', null) is null then
+    raise exception 'rejected issue did not allow a new report';
   end if;
 
   raise notice 'MAINTENANCE_WORKFLOW_TESTS_PASSED';

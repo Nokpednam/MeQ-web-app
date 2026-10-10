@@ -1,6 +1,6 @@
 begin;
 
-select plan(37);
+select plan(38);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -125,6 +125,13 @@ select ok(
   and not has_function_privilege('anon','public.decline_team_invitation(uuid)','EXECUTE')
   and not has_function_privilege('anon','public.cancel_team_invitation(uuid)','EXECUTE'),
   'team invitation RPCs are authenticated only'
+);
+
+select ok(
+  not has_table_privilege('authenticated', 'public.maintenance_status_history', 'SELECT')
+  and not has_table_privilege('authenticated', 'public.maintenance_status_history', 'INSERT')
+  and not has_function_privilege('anon', 'public.admin_list_maintenance_history(uuid[])', 'EXECUTE'),
+  'maintenance status history is read only through the admin RPC'
 );
 
 select * from finish();

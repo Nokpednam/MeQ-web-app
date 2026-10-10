@@ -7,7 +7,7 @@ import { deleteMaintenanceReport } from "@/lib/supabase-maintenance-repository";
 
 
 const allowedImages = new Map([["image/jpeg", "jpg"], ["image/png", "png"], ["image/webp", "webp"]]);
-const allowedStatuses = new Set(["NEW", "IN_PROGRESS", "WAITING_FOR_CARETAKER", "RESOLVED"]);
+const allowedStatuses = new Set(["NEW", "IN_PROGRESS", "WAITING_FOR_CARETAKER", "RESOLVED", "REJECTED"]);
 
 export async function submitMaintenanceReportAction(form: FormData) {
   const supabase = await createClient();

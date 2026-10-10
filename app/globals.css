@@ -535,15 +535,22 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .admin-report-list article select { min-height: 44px; padding: 0 10px; border: 1px solid #d8d0c8; border-radius: 8px; background: white; font-weight: 850; }
 .admin-report-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
 .admin-report-actions form { display: contents; }
-.admin-delete-confirm { position: relative; }
+.admin-delete-confirm { width: 100%; }
 .admin-delete-confirm summary { list-style: none; }
 .admin-delete-confirm summary::-webkit-details-marker { display: none; }
 .admin-delete-trigger { min-width: 40px; min-height: 40px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #f0a49a; border-radius: 8px; background: #fef2f0; color: var(--danger); cursor: pointer; font-size: 16px; transition: background .15s, transform .12s; }
 .admin-delete-trigger:hover { background: #fce8e5; transform: scale(1.07); }
-.admin-delete-popover { position: absolute; z-index: 20; right: 0; top: calc(100% + 6px); min-width: 200px; padding: 14px; border: 1px solid #f0a49a; border-radius: 12px; background: white; box-shadow: 0 12px 28px rgba(185,40,30,.14); }
+.admin-delete-popover { width: min(260px, 100%); margin-top: 8px; padding: 14px; border: 1px solid #f0a49a; border-radius: 12px; background: white; box-shadow: 0 12px 28px rgba(185,40,30,.14); }
 .admin-delete-popover p { margin: 0 0 10px; font-size: 12px; font-weight: 750; color: var(--neutral-950); }
 .admin-delete-confirm-btn { width: 100%; min-height: 40px; border: 0; border-radius: 8px; background: var(--danger); color: white; font-weight: 900; cursor: pointer; transition: opacity .15s; }
 .admin-delete-confirm-btn:hover { opacity: .88; }
+.admin-report-list article.is-rejected { opacity: .72; }
+.admin-report-history { margin-top: 10px; font-size: 12px; }
+.admin-report-history summary { cursor: pointer; color: var(--court-green); font-weight: 900; }
+.admin-report-history ol { margin: 8px 0 0; padding: 0 0 0 14px; display: grid; gap: 8px; border-left: 2px solid #eadfd6; list-style: none; }
+.admin-report-history li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.admin-report-history time { color: var(--neutral-700); }
+.admin-report-history li p { width: 100%; margin: 0; color: var(--neutral-700); }
 .admin-alert-shell { width: min(100% - 32px,1240px); margin: 18px auto 0; }
 .admin-report-alert { min-height: 76px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; border: 1px solid #f0a47b; border-radius: 16px; background: #ffe4d3; color: var(--neutral-950); box-shadow: 0 12px 28px rgba(230,106,44,.16); text-decoration: none; }
 .admin-report-alert > span { width: 44px; height: 44px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 12px; background: var(--orange-600); color: white; font-size: 22px; font-weight: 950; }
@@ -564,6 +571,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .maintenance-status.status-in_progress { background: #fff3d7; color: #9b6700; }
 .maintenance-status.status-waiting_for_caretaker { background: #e8f0ec; color: var(--court-green); }
 .maintenance-status.status-resolved { background: #e5f4eb; color: var(--success); }
+.maintenance-status.status-rejected { background: #f1eeeb; color: var(--neutral-700); }
 .maintenance-more-link { min-height: 44px; margin-top: 14px; padding: 0 14px; display: inline-flex; align-items: center; border: 1px solid #d8d0c8; border-radius: 10px; color: var(--court-green); font-weight: 900; text-decoration: none; }
 .maintenance-all-page { padding-bottom: 80px; }
 
