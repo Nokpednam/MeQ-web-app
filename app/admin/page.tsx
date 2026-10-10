@@ -1,4 +1,4 @@
-﻿import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { AdminSupabaseView } from "@/components/admin-supabase-view";
 import { AdminMaintenanceSection } from "@/components/admin-maintenance-section";
 import { createClient } from "@/lib/supabase/server";
