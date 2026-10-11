@@ -36,7 +36,7 @@
 | สถิติผู้เล่น | ✅ มีแล้ว | แสดงในหน้าโปรไฟล์ |
 | ปฏิทินสนาม | ✅ มีแล้ว | |
 | แจ้งซ่อมอุปกรณ์ | 🟡 โค้ดเสร็จ รอขึ้นระบบจริง | อยู่ใน branch `feat/maintenance-workflow` (ดูด้านล่าง) |
-| แจ้งเตือนทาง LINE เมื่อถึงคิว | ❌ ยังไม่เริ่ม | มีแค่ตัวแปรว่างใน `.env.example` โค้ดยังไม่ได้ใช้ |
+| แจ้งเตือนทาง LINE | 🟡 โค้ดเสร็จ รอตั้งค่า LINE | branch `feat/line-notifications` ดู `docs/architecture/line-notifications.md` |
 | อัปเดตคิวแบบ realtime | ❌ ยังไม่มี | ยังไม่ได้ใช้ Supabase Realtime ต้องรีเฟรชหน้าเอง |
 
 ## ระบบแจ้งซ่อม (branch `feat/maintenance-workflow`, commit แล้ว ยังไม่ push)
@@ -70,10 +70,15 @@
 1. **ปิดงานแจ้งซ่อมให้จบ**
    - ลองใช้งานจริงบนเครื่อง (แจ้งซ่อม → แอดมินเปลี่ยนสถานะ → ผู้แจ้งเห็นสถานะ → ลบ)
    - **ทำต่อจากตรงนี้:** เจ้าของลองใช้บน localhost (ไม่รับเรื่อง, รอผู้ดูแล, ประวัติ) แล้ว push branch `feat/maintenance-workflow` + เปิด PR เข้า `main` ให้ CI และ Vercel Preview ตรวจ เจ้าของเป็นคน merge เอง
-2. **แจ้งเตือนทาง LINE เมื่อถึงคิว** (ฟีเจอร์ที่อยู่ในขอบเขตโปรเจกต์แต่ยังไม่มี)
-   - ใช้ LINE Messaging API (push message) ต้องให้ผู้ใช้เพิ่ม LINE Official Account เป็นเพื่อนก่อน
-   - ส่งจากฝั่ง server เท่านั้น (Edge Function หรือ Route Handler) ห้ามมี access token ฝั่ง browser
-   - ส่งเมื่อทีมถึงคิว / ใกล้ถึงคิว และเก็บประวัติการส่งเพื่อกันส่งซ้ำ
+2. **แจ้งเตือนทาง LINE** — โค้ดเสร็จ 2026-10-11 (outbox + trigger + dispatcher, test ผ่านบน local)
+   - ส่งถึง: แอดมิน (รายงานใหม่ + เตือนงานค้างทุกวัน 09:00), ผู้แจ้ง (สถานะเปลี่ยน), สมาชิกทีม (ถึงคิว)
+   - **ค้าง:** เจ้าของสร้าง Messaging API channel (provider เดียวกับ LINE Login), ใส่ env 3 ตัวใน `.env.local` + Vercel, สร้าง Vault secret 2 ตัว, push migration `20261011090000`
+   - LINE ส่งได้เฉพาะคนที่เป็นเพื่อน OA (LINE Notify ปิดไปแล้ว) จึงใส่ `bot_prompt=aggressive` ตอนล็อกอินให้ชวนเพิ่มเพื่อน (ตรวจแล้วว่า Supabase ส่งต่อถึง LINE) ต้องผูก OA ที่ LINE Login channel → Basic settings → Linked LINE Official Account ก่อนถึงจะเห็นผล
+   - **ทำต่อจากตรงนี้ (2026-10-11):** รอเจ้าของสร้าง OA + ผูก + ใส่ env แล้วทดสอบส่งจริงบน localhost; merge PR แจ้งซ่อมก่อน แล้วค่อย push/PR `feat/line-notifications`
+   - 2026-10-11: push migration `20261011090000` ขึ้น Supabase จริงแล้ว, ใส่ env 3 ตัวใน `.env.local` แล้ว, เจ้าของเพิ่มเพื่อน OA (@205hzelz) แล้ว
+   - 2026-10-11: ทดสอบบน localhost สำเร็จ แจ้งซ่อมใหม่ → แอดมินได้ LINE, เปลี่ยนสถานะ → ผู้แจ้งได้ LINE (outbox = SENT, 1 attempt) ระหว่างทางแก้ LINE Login เสีย (Channel secret ใน Supabase ไม่ตรง + ใส่ Issuer URL `https://access.line.me`)
+   - ⚠️ Supabase secret key ที่ใช้ใน `.env.local` เคยถูกส่งในแชต เจ้าของเลือกยังไม่เปลี่ยน ควรสร้างใหม่และลบตัวเดิม (ขึ้นต้น `sb_secret_WRz1J`) ก่อนใส่ใน Vercel
+   - ยังไม่มี: ปุ่มเพิ่มเพื่อน OA ในหน้าโปรไฟล์ สำหรับคนที่กดข้ามตอนล็อกอิน (ต้องใช้ลิงก์ OA)
 3. **ให้หน้าคิวอัปเดตเอง** ใช้ Supabase Realtime หรือ polling ทุกไม่กี่วินาที เพื่อแก้ปัญหา "คนมาใหม่ไม่รู้ว่าถึงคิวใคร" ได้จริง
 4. **เตรียมส่งโปรเจกต์จบ**
    - อัปเดต diagram ใน `docs/diagrams/` ให้ตรงกับระบบล่าสุด

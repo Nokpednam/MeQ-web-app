@@ -11,7 +11,7 @@ The deployment is being tested. Access through LINE may be limited by the LINE L
 The application is undergoing multi-user testing.
 
 - LINE Login is implemented.
-- LINE Messaging is under development for future queue and match notifications.
+- LINE notifications: queue calls for team members, new maintenance reports for admins, and status updates for reporters.
 
 ## User flow
 
@@ -75,7 +75,7 @@ Maintenance images are stored in a private Storage bucket. The database stores t
 
 LINE Login is implemented through Supabase Auth using the `custom:line` provider. When Supabase creates an auth user, a database trigger copies available LINE display-name and avatar metadata into the MeQ profile.
 
-LINE Messaging is under development for future queue and match notifications.
+LINE notifications are sent through a database outbox. Setup steps are in `docs/architecture/line-notifications.md`.
 
 ## Engineering notes
 

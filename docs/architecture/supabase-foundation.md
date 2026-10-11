@@ -4,7 +4,7 @@
 
 The deployed application uses Supabase Auth, PostgreSQL, Storage, RLS policies, and PostgreSQL RPC functions. Dashboard, team, queue, GPS check-in, game, score, statistics, calendar, admin, and maintenance pages read or change Supabase data.
 
-The application does not currently subscribe to Supabase Realtime. LINE Login is implemented, but LINE Messaging, webhook handling, and message delivery tracking are not present in the repository.
+The application does not currently subscribe to Supabase Realtime. LINE Login is implemented. LINE Messaging push notifications use a database outbox with delivery tracking (see `line-notifications.md`); webhook handling is not implemented.
 
 ## Source of truth
 
@@ -56,7 +56,7 @@ The current application runtime reads:
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `NEXT_PUBLIC_APP_URL`
 
-LINE Login credentials are configured in Supabase and LINE Developers. The LINE Messaging variables in `.env.example` are placeholders for planned work and are not read by the current application source.
+LINE Login credentials are configured in Supabase and LINE Developers. LINE Messaging uses the server-only variables `LINE_MESSAGING_ACCESS_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY`, and `LINE_DISPATCH_SECRET`; see `line-notifications.md`.
 
 ## Database test coverage
 

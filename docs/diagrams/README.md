@@ -13,7 +13,7 @@ Render เป็น SVG จาก root โปรเจกต์:
 
 แผนภาพหลัก:
 
-- `system-architecture.mmd` — ส่วนประกอบที่ใช้งานอยู่ในระบบปัจจุบัน; ไม่รวม LINE Messaging หรือ Supabase Realtime ที่ยังไม่ได้ implement
+- `system-architecture.mmd` — ส่วนประกอบที่ใช้งานอยู่ในระบบปัจจุบัน; ไม่รวม Supabase Realtime ที่ยังไม่ได้ implement; flow ของ LINE Messaging อยู่ที่ `docs/architecture/line-notifications.md`
 - `er-diagram.mmd` — schema ของ PostgreSQL/Supabase
 - `database-auth-flow.mmd` — ขอบเขต Auth, RLS และ transactional RPC
 - `queue-flow.mmd` / `queue-checkin-flow.mmd` — วงจรคิวและเช็กอิน

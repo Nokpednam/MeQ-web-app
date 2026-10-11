@@ -35,6 +35,9 @@ export async function signInWithLine(formData: FormData) {
     options: {
       redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
       scopes: "openid profile",
+      // Ask users to add the linked MeQ LINE Official Account as a friend
+      // during login; LINE only delivers push notifications to friends.
+      queryParams: { bot_prompt: "aggressive" },
     },
   });
 

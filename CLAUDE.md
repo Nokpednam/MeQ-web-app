@@ -75,4 +75,4 @@ Domain details that span files:
 
 ## Environment
 
-`.env.local` needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `NEXT_PUBLIC_APP_URL`. LINE Login is configured in Supabase as the custom OAuth provider `custom:line`. A database trigger copies LINE display name and avatar into `profiles`. The LINE Messaging variables in `.env.example` are placeholders, and the app does not read them yet. Supabase Realtime is not used.
+`.env.local` needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `NEXT_PUBLIC_APP_URL`. LINE Login is configured in Supabase as the custom OAuth provider `custom:line`. A database trigger copies LINE display name and avatar into `profiles`. LINE Messaging push notifications go through the `line_notifications` outbox (database triggers enqueue, `lib/line-dispatcher.ts` sends with the service role); see `docs/architecture/line-notifications.md` for the flow and the server-only env vars (`LINE_MESSAGING_ACCESS_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY`, `LINE_DISPATCH_SECRET`). Notifications go to admins, reporters, and called team members, never to court caretakers. Supabase Realtime is not used.
