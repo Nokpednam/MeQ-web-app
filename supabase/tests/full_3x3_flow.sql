@@ -1,6 +1,11 @@
 begin;
 select plan(1);
 
+-- join_court_queue rejects joins before courts.opens_at (Bangkok time), so open
+-- the courts for the whole day inside this transaction to keep the test
+-- independent of the wall clock. The rollback below restores the real hours.
+update public.courts set is_open = true, opens_at = '00:00';
+
 do $$
 declare
   a1 uuid := '41000000-0000-0000-0000-000000000001';
