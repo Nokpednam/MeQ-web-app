@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MaintenanceAdminTabs } from "@/components/maintenance-admin-nav";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminMaintenanceStats } from "@/lib/supabase-maintenance-repository";
 import { maintenanceCategoryLabel, maintenanceCourtName, maintenanceStatusCopy } from "@/lib/maintenance-copy";
@@ -26,7 +27,8 @@ export default async function AdminMaintenanceStatsPage({ searchParams }: { sear
   const activePeriod = days === null ? "all" : String(days);
 
   return <main className="admin-shell maintenance-all-page">
-    <header className="admin-header"><div><p className="section-label">MAINTENANCE STATS</p><h1>สถิติแจ้งซ่อม</h1><p>ภาพรวมรายงาน เวลาตอบรับ และเวลาซ่อมเสร็จ</p></div><Link className="back-link" href="/admin/maintenance">← กลับรายการแจ้งซ่อม</Link></header>
+    <header className="admin-header"><div><p className="section-label">MAINTENANCE STATS</p><h1>สถิติแจ้งซ่อม</h1><p>ภาพรวมรายงาน เวลาตอบรับ และเวลาซ่อมเสร็จ</p></div><div className="admin-header-actions"><Link className="queue-secondary-button" href="/admin">← กลับหน้าผู้ดูแล</Link></div></header>
+    <MaintenanceAdminTabs active="stats"/>
 
     <nav className="maintenance-stats-periods" aria-label="ช่วงเวลา">{maintenanceStatsPeriods.map((period) =>
       <Link key={period.value} className={period.value === activePeriod ? "is-active" : ""} href={`/admin/maintenance/stats?days=${period.value}`}>{period.label}</Link>)}

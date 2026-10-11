@@ -7,7 +7,7 @@ import type { AdminMaintenanceRow } from "@/lib/supabase-maintenance-repository"
 export function AdminMaintenanceSection({ reports, totalCount, showMoreHref, returnTo = "/admin" }: { reports: AdminMaintenanceRow[]; totalCount?: number; showMoreHref?: string; returnTo?: "/admin" | "/admin/maintenance" }) {
   const count = totalCount ?? reports.length;
   return <section className="admin-section" id="maintenance-reports">
-    <div className="admin-section-heading"><div><p className="section-label">MAINTENANCE</p><h2>รายการแจ้งซ่อม</h2><p>ตรวจสอบรายงาน โทรแจ้งผู้ดูแลสนาม แล้วอัปเดตสถานะให้ผู้ใช้ทราบ</p></div></div>
+    <div className="admin-section-heading"><div><p className="section-label">MAINTENANCE</p><h2>รายการแจ้งซ่อม</h2><p>ตรวจสอบรายงาน โทรแจ้งผู้ดูแลสนาม แล้วอัปเดตสถานะให้ผู้ใช้ทราบ</p></div>{returnTo === "/admin" ? <div className="maintenance-heading-actions"><Link className="queue-secondary-button" href="/admin/maintenance">📋 ดูทั้งหมด</Link><Link className="queue-primary-button" href="/admin/maintenance/stats">📊 ดูสถิติ</Link></div> : null}</div>
     {reports.length === 0 ? <p className="admin-empty">ยังไม่มีรายการแจ้งซ่อม</p> : <div className="admin-report-list">{reports.map((report) => <article className={report.status === "NEW" ? "is-new" : report.status === "REJECTED" ? "is-rejected" : ""} key={report.id}>
       <div><strong>{maintenanceCourtName(report.courtId)}</strong><span>{maintenanceCategoryLabel(report.category)}</span><time>{new Date(report.createdAt).toLocaleString("th-TH")}</time></div>
       <div className="admin-report-detail">
