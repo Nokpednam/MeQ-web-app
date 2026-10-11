@@ -75,6 +75,9 @@
    - **ค้าง:** เจ้าของสร้าง Messaging API channel (provider เดียวกับ LINE Login), ใส่ env 3 ตัวใน `.env.local` + Vercel, สร้าง Vault secret 2 ตัว, push migration `20261011090000`
    - LINE ส่งได้เฉพาะคนที่เป็นเพื่อน OA (LINE Notify ปิดไปแล้ว) จึงใส่ `bot_prompt=aggressive` ตอนล็อกอินให้ชวนเพิ่มเพื่อน (ตรวจแล้วว่า Supabase ส่งต่อถึง LINE) ต้องผูก OA ที่ LINE Login channel → Basic settings → Linked LINE Official Account ก่อนถึงจะเห็นผล
    - **ทำต่อจากตรงนี้ (2026-10-11):** รอเจ้าของสร้าง OA + ผูก + ใส่ env แล้วทดสอบส่งจริงบน localhost; merge PR แจ้งซ่อมก่อน แล้วค่อย push/PR `feat/line-notifications`
+   - 2026-10-11: push migration `20261011090000` ขึ้น Supabase จริงแล้ว, ใส่ env 3 ตัวใน `.env.local` แล้ว, เจ้าของเพิ่มเพื่อน OA (@205hzelz) แล้ว
+   - 2026-10-11: ทดสอบบน localhost สำเร็จ แจ้งซ่อมใหม่ → แอดมินได้ LINE, เปลี่ยนสถานะ → ผู้แจ้งได้ LINE (outbox = SENT, 1 attempt) ระหว่างทางแก้ LINE Login เสีย (Channel secret ใน Supabase ไม่ตรง + ใส่ Issuer URL `https://access.line.me`)
+   - ⚠️ Supabase secret key ที่ใช้ใน `.env.local` เคยถูกส่งในแชต เจ้าของเลือกยังไม่เปลี่ยน ควรสร้างใหม่และลบตัวเดิม (ขึ้นต้น `sb_secret_WRz1J`) ก่อนใส่ใน Vercel
    - ยังไม่มี: ปุ่มเพิ่มเพื่อน OA ในหน้าโปรไฟล์ สำหรับคนที่กดข้ามตอนล็อกอิน (ต้องใช้ลิงก์ OA)
 3. **ให้หน้าคิวอัปเดตเอง** ใช้ Supabase Realtime หรือ polling ทุกไม่กี่วินาที เพื่อแก้ปัญหา "คนมาใหม่ไม่รู้ว่าถึงคิวใคร" ได้จริง
 4. **เตรียมส่งโปรเจกต์จบ**
