@@ -23,7 +23,8 @@ async function authenticatedClient(next: string) {
   return supabase;
 }
 
-function refreshQueue() { revalidatePath("/courts", "layout"); revalidatePath("/teams", "layout"); }
+// Queue changes can queue LINE messages (next in line, called to check in).
+function refreshQueue() { revalidatePath("/courts", "layout"); revalidatePath("/teams", "layout"); after(dispatchLineNotificationsQuietly); }
 
 export async function verifyCourtLocationAction(
   courtId: CourtId,
@@ -65,7 +66,7 @@ export async function leaveCourtQueueAction(formData: FormData) {
 
 export async function callNextQueueTeamAction(formData:FormData){
  const courtId=String(formData.get("courtId")) as CourtId;const supabase=await authenticatedClient(`/courts/${courtId}`);
- const{error}=await supabase.rpc("call_next_queue_team",{p_court_id:courtId});if(!error)after(dispatchLineNotificationsQuietly);refreshQueue();redirect(`/courts/${courtId}${error?`?error=${queueError(error)}`:"?notice=called"}#check-in`);
+ const{error}=await supabase.rpc("call_next_queue_team",{p_court_id:courtId});refreshQueue();redirect(`/courts/${courtId}${error?`?error=${queueError(error)}`:"?notice=called"}#check-in`);
 }
 
 export async function confirmTeamReadyAction(formData:FormData){

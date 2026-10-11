@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { dispatchLineNotificationsQuietly } from "@/lib/line-dispatcher";
 import { createClient } from "@/lib/supabase/server";
 
 function code(error: { message?: string } | null) {
@@ -67,6 +69,8 @@ export async function submitTeamScoresAction(formData: FormData) {
     scores[userId] = value;
   }
   const { data, error } = await supabase.rpc("submit_team_scores", { p_game_id: id, p_scores: scores });
+  // A completed game queues result messages for every player.
+  if (!error) after(dispatchLineNotificationsQuietly);
   revalidatePath(`/games/${id}`); revalidatePath(`/games/${id}/scores`); revalidatePath(`/games/${id}/result`); revalidatePath("/courts", "layout");
   const result = Array.isArray(data) ? data[0] : data;
   redirect(error ? `/games/${id}/scores?error=${code(error)}` : result?.status === "COMPLETED" ? `/games/${id}/result` : `/games/${id}/scores?notice=submitted`);

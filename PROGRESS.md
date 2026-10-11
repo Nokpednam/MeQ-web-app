@@ -78,7 +78,8 @@
    - 2026-10-11: push migration `20261011090000` ขึ้น Supabase จริงแล้ว, ใส่ env 3 ตัวใน `.env.local` แล้ว, เจ้าของเพิ่มเพื่อน OA (@205hzelz) แล้ว
    - 2026-10-11: ทดสอบบน localhost สำเร็จ แจ้งซ่อมใหม่ → แอดมินได้ LINE, เปลี่ยนสถานะ → ผู้แจ้งได้ LINE (outbox = SENT, 1 attempt) ระหว่างทางแก้ LINE Login เสีย (Channel secret ใน Supabase ไม่ตรง + ใส่ Issuer URL `https://access.line.me`)
    - 2026-10-11: ขึ้นเว็บจริงครบ: Vercel env 4 ตัว (`NEXT_PUBLIC_APP_URL` ต้องเป็น type Config), Vault 2 ค่า, ทดสอบ cron → `/api/line/dispatch` → LINE ส่งสำเร็จ (เคย 401 เพราะใส่ secret ผิดตัวใน Vault)
-   - **รอออกแบบ:** ข้อความ LINE แยกตามบทบาท (แอดมิน / ผู้แจ้ง / สมาชิกทีม) เจ้าของจะออกแบบเอง ตอนนี้ข้อความอยู่ใน trigger ของ migration `20261011090000` และยังมีอีโมจิ ถ้าแก้ต้องทำ migration ใหม่ที่ `create or replace` ฟังก์ชัน `private.notify_*`
+   - 2026-10-12: ข้อความ LINE เป็นข้อความธรรมดาไม่มีอีโมจิ (เจ้าของเลือก) และเพิ่ม 3 เหตุการณ์: คิวถัดไป, ถูกเชิญเข้าทีม, ผลการแข่งขัน migration `20261012090000_line_message_copy.sql` (branch `docs/diagrams-and-line-copy`) **ยังไม่ push ขึ้น Supabase**
+   - 2026-10-12: อัปเดต diagram ทั้งหมด + PNG สำหรับเล่มใน `docs/diagrams/rendered/`
    - ⚠️ Supabase secret key ที่ใช้ใน `.env.local` เคยถูกส่งในแชต เจ้าของเลือกยังไม่เปลี่ยน ควรสร้างใหม่และลบตัวเดิม (ขึ้นต้น `sb_secret_WRz1J`) (ตอนนี้ใส่ใน Vercel แล้วด้วย ถ้าเปลี่ยนต้องอัปเดตทั้ง `.env.local` และ Vercel)
    - ยังไม่มี: ปุ่มเพิ่มเพื่อน OA ในหน้าโปรไฟล์ สำหรับคนที่กดข้ามตอนล็อกอิน (ต้องใช้ลิงก์ OA)
 3. **หน้าคิวอัปเดตเอง** — ✅ ขึ้นเว็บจริงแล้ว (PR #4): หน้า `/courts/*` และ `/games/*` รีเฟรชข้อมูลจาก server ทุก 10 วินาที หยุดเมื่อแท็บซ่อน/ออฟไลน์/กำลังพิมพ์ แสดง "อัปเดตอัตโนมัติ · N วินาทีที่แล้ว" (`components/live-refresh.tsx`) เลือก polling แทน Realtime เพราะไม่ต้องเปิด RLS ให้ client อ่านตารางคิวโดยตรง

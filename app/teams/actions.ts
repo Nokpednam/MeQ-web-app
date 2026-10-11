@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { dispatchLineNotificationsQuietly } from "@/lib/line-dispatcher";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeTeamName, validateTeamName } from "@/lib/team-rules";
 import type { TeamType } from "@/lib/team-types";
@@ -51,6 +53,8 @@ export async function inviteTeamMemberAction(formData: FormData) {
   if (!valid) redirect("/teams?error=INVALID_REQUEST");
   const supabase = await authenticatedClient();
   const { error } = await supabase.rpc("invite_team_member", { p_team_id: teamId, p_user_id: userId });
+  // Tell the invitee on LINE.
+  if (!error) after(dispatchLineNotificationsQuietly);
   refreshTeamViews();
   redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : "?notice=invitation-sent"}`);
 }

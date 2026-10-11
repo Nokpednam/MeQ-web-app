@@ -26,6 +26,8 @@ declare
   entry_id uuid;
   claimed record;
   claimed_count integer;
+  other_team_id uuid;
+  game_id uuid;
 begin
   insert into auth.users(id, instance_id, aud, role, email, encrypted_password, created_at, updated_at, raw_user_meta_data)
   values
@@ -87,6 +89,9 @@ begin
   set status = 'CALLED', position = null, called_at = now(), check_in_deadline = now() + interval '3 minutes'
   where id = entry_id;
 
+  if (select count(*) from public.line_notifications where kind = 'QUEUE_NEXT') <> 2 then
+    raise exception 'joining the queue at position 1 should notify every member once';
+  end if;
   if (select count(*) from public.line_notifications where kind = 'QUEUE_CALLED') <> 2 then
     raise exception 'every team member should get a queue-called notification';
   end if;
@@ -113,11 +118,11 @@ begin
       raise exception 'claim should count one attempt';
     end if;
   end loop;
-  if claimed_count <> 3 then
-    raise exception 'expected 3 claimable notifications, got %', claimed_count;
+  if claimed_count <> 4 then
+    raise exception 'expected 4 claimable notifications, got %', claimed_count;
   end if;
-  if (select status from public.line_notifications
-      where recipient_user_id = no_line_id) <> 'SKIPPED' then
+  if exists (select 1 from public.line_notifications
+      where recipient_user_id = no_line_id and status <> 'SKIPPED') then
     raise exception 'member without LINE identity should be skipped';
   end if;
   if (select status from public.line_notifications
@@ -157,6 +162,49 @@ begin
     (select id from public.line_notifications where kind = 'MAINTENANCE_STATUS'), 'RETRY', 'HTTP_500');
   if (select status from public.line_notifications where kind = 'MAINTENANCE_STATUS') <> 'FAILED' then
     raise exception 'notification should fail after three attempts';
+  end if;
+
+  -- Messages are plain text without emoji.
+  if exists (select 1 from public.line_notifications where message ~ '[🌀-🫿☀-➿]') then
+    raise exception 'LINE messages should not contain emoji';
+  end if;
+
+  -- Team invitation notifies the invitee.
+  insert into public.teams(name, format, captain_user_id)
+  values ('ทีมคู่แข่งไลน์', 'FIVE_X_FIVE', reporter_id)
+  returning id into other_team_id;
+  insert into public.team_memberships(team_id, user_id, role) values (other_team_id, reporter_id, 'CAPTAIN');
+  insert into public.team_invitations(team_id, invited_user_id, invited_by_user_id)
+  values (other_team_id, admin_id, reporter_id);
+  if not exists (
+    select 1 from public.line_notifications
+    where recipient_user_id = admin_id and kind = 'TEAM_INVITATION'
+      and message like 'Line Reporter เชิญคุณเข้าร่วมทีม ทีมคู่แข่งไลน์ (5x5)%' and link_path = '/teams'
+  ) then
+    raise exception 'invitee was not notified';
+  end if;
+
+  -- Completed game notifies every rostered player with their own result.
+  update public.queue_entries set status = 'CANCELLED', position = null, closed_at = now() where id = entry_id;
+  insert into public.games(court_id, team_a_id, team_b_id, target_score)
+  values ('5x5', team_id, other_team_id, 11)
+  returning id into game_id;
+  insert into public.game_roster_snapshots(game_id, team_id, user_id, display_name, is_captain)
+  values (game_id, team_id, player_id, 'Line Player', true),
+         (game_id, other_team_id, reporter_id, 'Line Reporter', true);
+  update public.games
+  set status = 'COMPLETED', winner_team_id = team_id, loser_team_id = other_team_id,
+      final_team_a_score = 11, final_team_b_score = 8, completed_at = now()
+  where id = game_id;
+  if not exists (
+    select 1 from public.line_notifications
+    where recipient_user_id = player_id and kind = 'GAME_RESULT'
+      and message like '%ทีมทดสอบไลน์ 11 - 8 ทีมคู่แข่งไลน์%' and message like '%ทีมของคุณชนะ'
+  ) or not exists (
+    select 1 from public.line_notifications
+    where recipient_user_id = reporter_id and kind = 'GAME_RESULT' and message like '%ทีมของคุณแพ้'
+  ) then
+    raise exception 'game result was not sent to both teams with the right outcome';
   end if;
 
   raise notice 'LINE_NOTIFICATION_TESTS_PASSED';
