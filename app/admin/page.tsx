@@ -1,19 +1,20 @@
 import { redirect } from "next/navigation";
 import { AdminSupabaseView } from "@/components/admin-supabase-view";
+import { AdminGamesSection } from "@/components/admin-games-section";
 import { AdminMaintenanceSection } from "@/components/admin-maintenance-section";
 import { createClient } from "@/lib/supabase/server";
-import { getSupabaseAdminData } from "@/lib/supabase-admin-repository";
+import { getAdminActiveGames, getSupabaseAdminData } from "@/lib/supabase-admin-repository";
 import { getAdminMaintenanceReports } from "@/lib/supabase-maintenance-repository";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage({ searchParams }: { searchParams: Promise<{ maintenance?: string }> }) {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ maintenance?: string; game?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/admin");
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
   if (profile?.role !== "ADMIN") redirect("/?notice=admin-only");
-  const [data, reports, query] = await Promise.all([getSupabaseAdminData(supabase, user.id), getAdminMaintenanceReports(supabase), searchParams]);
+  const [data, reports, games, query] = await Promise.all([getSupabaseAdminData(supabase, user.id), getAdminMaintenanceReports(supabase), getAdminActiveGames(supabase), searchParams]);
   const viewData = { ...data, newReportCount: reports.filter((report) => report.status === "NEW").length };
 
   return <>
@@ -24,6 +25,10 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       {query.maintenance === "error" ? <div className="team-error" role="alert">บันทึกสถานะไม่สำเร็จ กรุณาลองใหม่</div> : null}
       {query.maintenance === "deleted" ? <div className="queue-success" role="status">ลบรายการแจ้งซ่อมเรียบร้อยแล้ว</div> : null}
       {query.maintenance === "delete-error" ? <div className="team-error" role="alert">ลบรายการไม่สำเร็จ กรุณาลองใหม่</div> : null}
+      {query.game === "cancelled" ? <div className="queue-success" role="status">ยกเลิกเกมแล้ว สนามว่างสำหรับทีมถัดไป</div> : null}
+      {query.game === "resolved" ? <div className="queue-success" role="status">บันทึกผลการแข่งขันแล้ว</div> : null}
+      {query.game?.startsWith("error-") ? <div className="team-error" role="alert">จัดการเกมไม่สำเร็จ ({query.game.slice(6) === "TIED_SCORE" ? "คะแนนเสมอกันไม่ได้" : query.game.slice(6) === "INVALID_GAME_STATUS" ? "เกมจบหรือถูกยกเลิกไปแล้ว" : query.game.slice(6)})</div> : null}
+      <AdminGamesSection games={games}/>
       <AdminMaintenanceSection reports={reports.slice(0, 2)} totalCount={reports.length} showMoreHref="/admin/maintenance"/>
     </main>
   </>;

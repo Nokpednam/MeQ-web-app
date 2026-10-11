@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { submitTeamScoresAction } from "@/app/games/actions";
 import type { SupabaseGameData } from "@/lib/supabase-game-repository";
+import { ScoreDeadline } from "./score-deadline";
 
 export function SupabaseGameScores({ game }: { game: SupabaseGameData }) {
   const search = useSearchParams();
@@ -15,6 +16,7 @@ export function SupabaseGameScores({ game }: { game: SupabaseGameData }) {
     <header className="game-page-heading"><div><p className="section-label">SCORE SUBMISSION / SUPABASE</p><h1>บันทึกคะแนนหลังเกม</h1><p>กรอกคะแนนรายบุคคลของทีมคุณ ระบบจะคำนวณผลรวมให้</p></div><Link href={`/games/${game.id}`}>← กลับเกม</Link></header>
     {search.get("notice") ? <div className="queue-success" role="status">ส่งคะแนนแล้ว กำลังรออีกทีมส่งคะแนน</div> : null}
     {search.get("error") ? <div className="team-error" role="alert">คะแนนไม่ผ่านการตรวจสอบ: {search.get("error")?.replaceAll("_"," ")}</div> : null}
+    {game.scoreDeadline && ["END_REQUESTED", "AWAITING_SCORE", "INVALID_SCORE"].includes(game.status) ? <ScoreDeadline deadline={game.scoreDeadline}/> : null}
     {game.status === "INVALID_SCORE" ? <div className="team-error" role="alert">ผลคะแนนไม่ถูกต้อง: {game.invalidReason?.replaceAll("_"," ")}</div> : null}
     {team ? <form className="score-form" action={submitTeamScoresAction}>
       <input type="hidden" name="gameId" value={game.id}/>

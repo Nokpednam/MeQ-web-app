@@ -34,7 +34,7 @@ export async function getSupabaseGameResult(
   if (!gameData) return null;
   const teamIds = [gameData.team_a_id, gameData.team_b_id];
   const [{ data: teamsData }, { data: rosterData }, { data: scoresData }, { data: entriesData }] = await Promise.all([
-    supabase.from("teams").select("id,name,captain_user_id").in("id", teamIds),
+    supabase.from("teams").select("id,name,captain_user_id,game_delegate_user_id").in("id", teamIds),
     supabase.from("game_roster_snapshots").select("team_id,user_id,display_name").eq("game_id", gameId),
     supabase.from("player_scores").select("team_id,user_id,points").eq("game_id", gameId),
     supabase.from("queue_entries").select("team_id,status,decision_deadline,joined_at")
@@ -60,8 +60,8 @@ export async function getSupabaseGameResult(
     winnerQueueStatus: gameData.winner_team_id ? latestEntry.get(gameData.winner_team_id)?.status ?? null : null,
     loserQueueStatus: loserEntry?.status ?? null,
     loserDecisionDeadline: loserEntry?.decision_deadline ?? null,
-    isWinnerCaptain: winner?.captain_user_id === userId,
-    isLoserCaptain: loser?.captain_user_id === userId,
+    isWinnerCaptain: winner?.captain_user_id === userId || winner?.game_delegate_user_id === userId,
+    isLoserCaptain: loser?.captain_user_id === userId || loser?.game_delegate_user_id === userId,
     playerScores: (rosterData ?? []).map((member) => ({
       teamId: member.team_id,
       userId: member.user_id,

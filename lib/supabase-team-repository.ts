@@ -6,7 +6,7 @@ import type { Team, User } from "./team-types";
 
 type ProfileRow = { id: string; display_name: string; avatar_url: string | null; role?: "USER" | "ADMIN" };
 type MembershipRow = { team_id: string; user_id: string; role: "CAPTAIN" | "MEMBER"; joined_at: string };
-type TeamRow = { id: string; name: string; format: "THREE_X_THREE" | "FIVE_X_FIVE"; captain_user_id: string; created_at: string; dissolved_at: string | null };
+type TeamRow = { id: string; name: string; format: "THREE_X_THREE" | "FIVE_X_FIVE"; captain_user_id: string; game_delegate_user_id?: string | null; created_at: string; dissolved_at: string | null };
 type InvitationRow = { id: string; team_id: string; invited_user_id: string; invited_by_user_id: string; created_at: string };
 
 export type AuthTeamProfile = { id: string; displayName: string; initials: string; avatarUrl: string | null; role: "USER" | "ADMIN" };
@@ -36,7 +36,7 @@ export async function getTeamPageData(supabase: SupabaseClient, userId: string):
     supabase.from("profiles").select("id,display_name,avatar_url,role").eq("id", userId).single(),
     supabase.from("profiles").select("id,display_name,avatar_url").order("display_name"),
     supabase.from("team_memberships").select("team_id,user_id,role,joined_at").is("left_at", null),
-    supabase.from("teams").select("id,name,format,captain_user_id,created_at,dissolved_at").is("dissolved_at", null),
+    supabase.from("teams").select("id,name,format,captain_user_id,game_delegate_user_id,created_at,dissolved_at").is("dissolved_at", null),
     supabase.from("team_invitations").select("id,team_id,invited_user_id,invited_by_user_id,created_at").eq("status", "PENDING").order("created_at", { ascending: false }),
   ]);
 
@@ -60,6 +60,7 @@ export async function getTeamPageData(supabase: SupabaseClient, userId: string):
         name: team.name,
         type: team.format,
         captainUserId: team.captain_user_id,
+        gameDelegateUserId: team.game_delegate_user_id ?? null,
         createdAt: team.created_at,
         rosterLocked: Boolean(queueData?.length),
         members: teamMemberships.map((item) => ({ userId: item.user_id, role: item.role, joinedAt: item.joined_at })),

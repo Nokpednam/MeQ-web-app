@@ -129,3 +129,40 @@ export async function getSupabaseAdminData(
     newReportCount: reportsResult.count ?? 0,
   };
 }
+
+export type AdminActiveGame = {
+  id: string;
+  courtId: CourtId;
+  status: string;
+  targetScore: number;
+  startedAt: string;
+  scoreDeadline: string | null;
+  teamAName: string;
+  teamBName: string;
+};
+
+export async function getAdminActiveGames(supabase: SupabaseClient): Promise<AdminActiveGame[]> {
+  const { data, error } = await supabase.from("games")
+    .select("id,court_id,status,target_score,started_at,score_deadline,team_a_id,team_b_id")
+    .in("status", ["PLAYING", "END_REQUESTED", "AWAITING_SCORE", "VALIDATING_RESULT", "INVALID_SCORE"])
+    .order("started_at", { ascending: true });
+  if (error) {
+    // Older databases without score_deadline: show nothing rather than break the admin page.
+    if (error.code === "42703") return [];
+    throw new Error(`ADMIN_GAMES_FAILED: ${error.message}`);
+  }
+  const rows = data ?? [];
+  const teamIds = [...new Set(rows.flatMap((row) => [row.team_a_id, row.team_b_id]))];
+  const { data: teams } = teamIds.length ? await supabase.from("teams").select("id,name").in("id", teamIds) : { data: [] };
+  const nameById = new Map((teams ?? []).map((team) => [team.id, team.name as string]));
+  return rows.map((row) => ({
+    id: row.id,
+    courtId: row.court_id as CourtId,
+    status: row.status,
+    targetScore: row.target_score,
+    startedAt: row.started_at,
+    scoreDeadline: row.score_deadline,
+    teamAName: nameById.get(row.team_a_id) ?? "ทีม A",
+    teamBName: nameById.get(row.team_b_id) ?? "ทีม B",
+  }));
+}

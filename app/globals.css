@@ -1110,3 +1110,36 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .welcome-line p { margin: 4px 0 0; color: var(--neutral-700); font-size: 13px; line-height: 1.5; }
 .welcome-start { width: 100%; min-height: 50px; }
 @media (max-width: 599px) { .welcome-line { flex-direction: column; align-items: stretch; } .welcome-guide-body { padding: 22px 18px; } }
+
+/* Score deadline */
+.score-deadline { margin: 0 0 16px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; border: 1px solid #f0c27b; border-radius: 14px; background: #fff7e8; color: var(--neutral-950); }
+.score-deadline strong { min-width: 72px; font-size: 28px; font-weight: 950; font-variant-numeric: tabular-nums; }
+.score-deadline span { color: var(--neutral-700); font-size: 14px; line-height: 1.5; }
+.score-deadline.is-urgent { border-color: #f0a49a; background: #fff0ee; }
+.score-deadline.is-urgent strong { color: var(--danger); }
+.score-deadline.is-over { border-color: #f0a49a; background: #fff0ee; color: var(--danger); font-weight: 800; }
+
+/* Team game delegate */
+.team-delegate { margin: 16px 0; padding: 14px; border: 1px solid #e3d9cf; border-radius: 14px; background: #fffaf6; }
+.team-delegate h3 { margin: 0 0 4px; font-size: 16px; }
+.team-delegate p { margin: 0 0 10px; color: var(--neutral-700); font-size: 13px; line-height: 1.5; }
+.team-delegate form { display: flex; gap: 8px; }
+.team-delegate select { flex: 1; min-height: 44px; padding: 0 10px; border: 1px solid #d8d0c8; border-radius: 10px; background: white; font: inherit; }
+.delegate-badge { margin-left: auto; padding: 4px 10px; border-radius: 999px; background: #e8f0ec; color: var(--court-green); font-size: 12px; font-weight: 800; }
+
+/* Admin games */
+.admin-game-list { display: grid; gap: 12px; }
+.admin-game-list article { padding: 16px; border: 1px solid #ebe4dd; border-radius: 14px; background: #fffdfa; }
+.admin-game-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.admin-game-head small { color: var(--neutral-700); }
+.admin-game-status { padding: 4px 10px; border-radius: 999px; background: #e8f0ec; color: var(--court-green); font-size: 12px; font-weight: 800; }
+.admin-game-status.status-end_requested, .admin-game-status.status-awaiting_score { background: #fff3d7; color: #9b6700; }
+.admin-game-status.status-invalid_score { background: #fff0ee; color: var(--danger); }
+.admin-game-teams { margin: 8px 0 12px; font-weight: 800; }
+.admin-game-teams b { color: var(--neutral-700); font-weight: 600; }
+.admin-game-actions { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.admin-game-resolve { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+.admin-game-resolve label { display: grid; gap: 4px; font-size: 12px; color: var(--neutral-700); }
+.admin-game-resolve input { width: 92px; min-height: 44px; padding: 0 10px; border: 1px solid #d8d0c8; border-radius: 10px; font: inherit; }
+.admin-game-cancel { min-height: 44px; padding: 0 14px; border: 1px solid #f0a49a; border-radius: 10px; background: #fef2f0; color: var(--danger); font: inherit; font-weight: 800; cursor: pointer; }
+.admin-game-open { min-height: 44px; display: inline-flex; align-items: center; color: var(--court-green); font-weight: 800; }
