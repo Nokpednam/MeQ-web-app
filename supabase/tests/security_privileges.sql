@@ -1,6 +1,6 @@
 begin;
 
-select plan(38);
+select plan(40);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -133,6 +133,31 @@ select ok(
   and not has_function_privilege('anon', 'public.admin_list_maintenance_history(uuid[])', 'EXECUTE'),
   'maintenance status history is read only through the admin RPC'
 );
+
+select ok(
+  not has_column_privilege('authenticated', 'public.profiles', 'onboarding_completed_at', 'UPDATE')
+  and has_function_privilege('authenticated', 'public.complete_onboarding()', 'EXECUTE')
+  and not has_function_privilege('anon', 'public.complete_onboarding()', 'EXECUTE'),
+  'onboarding is completed only through the authenticated RPC'
+);
+
+select lives_ok($$
+  do $inner$
+  declare v_user uuid := '19000000-0000-0000-0000-000000000001';
+  begin
+    insert into auth.users(id, instance_id, aud, role, email, encrypted_password, created_at, updated_at, raw_user_meta_data)
+    values (v_user, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'onboarding@meq.test', '', now(), now(), '{"display_name":"Onboarding"}');
+    if (select onboarding_completed_at from public.profiles where id = v_user) is not null then
+      raise exception 'new profile should not be onboarded yet';
+    end if;
+    perform set_config('request.jwt.claim.sub', v_user::text, true);
+    perform public.complete_onboarding();
+    if (select onboarding_completed_at from public.profiles where id = v_user) is null then
+      raise exception 'complete_onboarding did not set the timestamp';
+    end if;
+  end
+  $inner$;
+$$, 'complete_onboarding marks only the caller as onboarded');
 
 select * from finish();
 
