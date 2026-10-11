@@ -1,0 +1,25 @@
+sequenceDiagram
+  autonumber
+  actor R as ผู้แจ้งซ่อม
+  participant W as Next.js (Vercel)
+  participant DB as PostgreSQL
+  participant O as line_notifications
+  participant C as pg_cron + pg_net
+  participant L as LINE Messaging API
+  actor A as Admin
+
+  R->>W: ส่งรายการแจ้งซ่อม
+  W->>DB: create_maintenance_report()
+  DB->>O: trigger: MAINTENANCE_NEW ถึงแอดมินทุกคน (PENDING)
+  W-->>R: แจ้งซ่อมสำเร็จ
+  W->>O: after(): claim_line_notifications()
+  O-->>W: แถวที่ SENDING + LINE user ID
+  W->>L: push (X-Line-Retry-Key = notification id)
+  L-->>A: ข้อความแจ้งซ่อมใหม่
+  W->>O: complete_line_notification(SENT / RETRY / FAILED)
+
+  Note over C,O: งานที่ไม่ได้เกิดจากการกดในเว็บ เช่น ระบบเรียกทีมถัดไปเมื่อหมดเวลาเช็กอิน
+  C->>W: POST /api/line/dispatch (Bearer secret จาก Vault) ทุก 1 นาทีเมื่อมีงานค้าง
+  W->>O: claim → push → complete
+
+  Note over O: ข้อความหมดอายุ (EXPIRED) ไม่ถูกส่ง · ผู้ใช้ไม่มี LINE identity → SKIPPED · RETRY สูงสุด 3 ครั้ง

@@ -1,6 +1,10 @@
 stateDiagram-v2
   [*] --> WAITING
   WAITING --> CALLED: callNextTeam (head only)
+  note right of CALLED
+    Trigger queues a LINE message for every team member,
+    expiring at the check-in deadline.
+  end note
   CALLED --> CHECKING_IN: beginTeamCheckIn
   CHECKING_IN --> CHECKING_IN: background roster location checks
   CHECKING_IN --> READY_TO_PLAY: captain confirms own team once

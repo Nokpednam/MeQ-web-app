@@ -18,11 +18,18 @@ erDiagram
   COURTS ||--o{ COURT_EVENT_COURTS : affected
   PROFILES ||--o{ MAINTENANCE_REPORTS : reports
   COURTS ||--o{ MAINTENANCE_REPORTS : concerns
+  MAINTENANCE_REPORTS ||--o| MAINTENANCE_ACTIVE_ISSUES : holds_slot
+  MAINTENANCE_REPORTS ||--o{ MAINTENANCE_STATUS_HISTORY : logs
+  PROFILES ||--o{ MAINTENANCE_STATUS_HISTORY : changes
+  PROFILES ||--o{ LINE_NOTIFICATIONS : receives
+  PROFILES ||--o{ LOCATION_VERIFICATIONS : verifies
+  COURTS ||--o{ LOCATION_VERIFICATIONS : near
 
   PROFILES {
     uuid id PK
     string display_name
     string role
+    datetime onboarding_completed_at
   }
   TEAMS {
     uuid id PK
@@ -71,4 +78,51 @@ erDiagram
     string format
     int points
     boolean won
+  }
+  TEAM_CHECK_INS {
+    uuid id PK
+    uuid queue_entry_id FK
+    string status
+    datetime deadline
+  }
+  LOCATION_VERIFICATIONS {
+    uuid id PK
+    uuid user_id FK
+    string court_id FK
+    numeric distance_metres
+    datetime expires_at
+  }
+  MAINTENANCE_REPORTS {
+    uuid id PK
+    uuid reporter_user_id FK
+    string court_id FK
+    string category
+    string status
+    string image_path
+  }
+  MAINTENANCE_ACTIVE_ISSUES {
+    string court_id PK
+    string category PK
+    uuid report_id FK
+  }
+  MAINTENANCE_STATUS_HISTORY {
+    bigint id PK
+    uuid report_id FK
+    string from_status
+    string to_status
+    uuid changed_by FK
+    datetime changed_at
+  }
+  LINE_NOTIFICATIONS {
+    uuid id PK
+    uuid recipient_user_id FK
+    string kind
+    string status
+    string dedupe_key
+    datetime expires_at
+  }
+  QUEUE_SETTINGS {
+    boolean singleton PK
+    int check_in_duration_seconds
+    int maintenance_reminder_days
   }

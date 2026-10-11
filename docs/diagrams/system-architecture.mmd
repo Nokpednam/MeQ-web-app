@@ -2,9 +2,15 @@ flowchart LR
   U[ผู้เล่น / หัวหน้าทีม / Admin] -->|HTTPS| W[Next.js Web App\nVercel]
   W -->|OAuth session| A[Supabase Auth]
   A -->|Custom OAuth provider| L[LINE Login]
-  W -->|RLS-protected reads| S[(Supabase PostgreSQL)]
+  W -->|RLS-protected reads\nauto-refresh ทุก 10 วินาที| S[(Supabase PostgreSQL)]
   W -->|Validated transactional RPCs| S
   W -->|Private evidence files| ST[Supabase Storage]
   S --> P[Column grants + RLS policies]
-  S -->|Expiry processing| C[PostgreSQL Scheduled Jobs]
+  S -->|Expiry processing| C[pg_cron Scheduled Jobs]
   C --> S
+  S -->|Triggers enqueue| O[(line_notifications outbox)]
+  C -->|pg_net ทุก 1 นาที| D["/api/line/dispatch<br/>service role"]
+  W -->|after server action| D
+  D -->|claim / complete RPC| O
+  D -->|Push message| M[LINE Messaging API]
+  M -->|แจ้งเตือน| U
