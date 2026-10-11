@@ -990,3 +990,31 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .team-location-status li>b{white-space:nowrap;font-size:.78rem}.team-location-status .is-ready{color:var(--success)}.team-location-status .is-pending{color:var(--warning)}
 .team-location-status .is-empty-slot{border:1px dashed var(--neutral-300);background:transparent}
 .team-location-manage{width:100%;text-align:center}
+.live-refresh { display: inline-flex; align-items: center; gap: 6px; }
+.live-refresh-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success, #2f8a57); animation: live-refresh-pulse 2s ease-in-out infinite; }
+@keyframes live-refresh-pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .live-refresh-dot { animation: none; } }
+.maintenance-stats-periods { width: min(100% - 32px, 1240px); margin: 18px auto 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.maintenance-stats-periods a { min-height: 40px; padding: 0 16px; display: inline-flex; align-items: center; border: 1px solid #d8d0c8; border-radius: 999px; background: white; color: var(--neutral-950); font-weight: 850; text-decoration: none; }
+.maintenance-stats-periods a.is-active { border-color: var(--court-green); background: var(--court-green); color: white; }
+.maintenance-stats-kpis small { display: block; margin-top: 4px; color: var(--neutral-700); font-size: 12px; }
+.maintenance-stats-bars { margin: 0; padding: 0; display: grid; gap: 12px; list-style: none; }
+.maintenance-stats-bars li { display: grid; grid-template-columns: minmax(110px, 30%) 1fr 40px; align-items: center; gap: 12px; font-size: 14px; }
+.maintenance-stats-bars li > div { height: 12px; border-radius: 999px; background: #f1eeeb; overflow: hidden; }
+.maintenance-stats-bars i { display: block; height: 100%; min-width: 2px; border-radius: 999px; background: var(--orange-600); }
+.maintenance-stats-bars strong { text-align: right; font-variant-numeric: tabular-nums; }
+.maintenance-stats-note { width: min(100% - 32px, 1240px); margin: 12px auto 0; color: var(--neutral-700); font-size: 12px; }
+.maintenance-admin-tabs { width: min(100% - 32px, 1240px); margin: 18px auto 0; padding: 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; border: 1px solid #e3d9cf; border-radius: 16px; background: white; box-shadow: 0 8px 22px rgba(31,36,48,.06); }
+.maintenance-admin-tabs a { min-height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; color: var(--neutral-700); font-size: 17px; font-weight: 900; text-decoration: none; transition: background .15s, color .15s; }
+.maintenance-admin-tabs a:hover { background: var(--orange-50); color: var(--orange-700); }
+.maintenance-admin-tabs a.is-active { background: var(--neutral-950); color: white; }
+.maintenance-admin-tabs b { min-width: 24px; height: 24px; padding: 0 7px; display: inline-grid; place-items: center; border-radius: 999px; background: var(--orange-600); color: white; font-size: 13px; }
+.maintenance-stats-strip { width: min(100% - 32px, 1240px); margin: 12px auto 0; padding: 14px 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; align-items: center; gap: 14px; border: 1px solid #f0a47b; border-radius: 16px; background: linear-gradient(135deg, #fff3eb, #fff); color: var(--neutral-950); text-decoration: none; }
+.maintenance-stats-strip:hover { box-shadow: 0 10px 24px rgba(230,106,44,.16); }
+.maintenance-stats-strip span { display: block; color: var(--neutral-700); font-size: 12px; }
+.maintenance-stats-strip strong { font-size: 22px; font-weight: 950; }
+.maintenance-stats-strip > b { color: var(--orange-700); font-weight: 900; white-space: nowrap; }
+.maintenance-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.maintenance-heading-actions a { min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; text-decoration: none; white-space: nowrap; }
+@media (max-width: 899px) { .maintenance-stats-strip { grid-template-columns: 1fr 1fr; } .maintenance-stats-strip > b { grid-column: 1 / -1; } .admin-section-heading { flex-wrap: wrap; } }
+@media (max-width: 599px) { .maintenance-admin-tabs, .maintenance-stats-strip { width: min(100% - 20px, 1240px); } .maintenance-admin-tabs a { font-size: 15px; } }

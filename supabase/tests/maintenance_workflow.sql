@@ -10,6 +10,7 @@ declare
   second_report public.maintenance_reports;
   third_report public.maintenance_reports;
   deleted_image_path text;
+  stats jsonb;
 begin
   insert into auth.users(id, instance_id, aud, role, email, encrypted_password, created_at, updated_at, raw_user_meta_data)
   values
@@ -116,6 +117,33 @@ begin
   perform set_config('request.jwt.claim.sub', second_reporter_id::text, true);
   if public.create_maintenance_report('5x5', 'HOOP', 'แป้นบาสหลวมจริง', null) is null then
     raise exception 'rejected issue did not allow a new report';
+  end if;
+
+  -- Statistics are admin-only and count the reports created above.
+  perform set_config('request.jwt.claim.sub', reporter_id::text, true);
+  begin
+    perform public.admin_maintenance_stats(30);
+    raise exception 'non-admin read maintenance statistics';
+  exception when insufficient_privilege then
+    if sqlerrm <> 'ADMIN_ONLY' then raise; end if;
+  end;
+
+  perform set_config('request.jwt.claim.sub', admin_id::text, true);
+  stats := public.admin_maintenance_stats(30);
+  if (stats ->> 'total')::integer < 4 then
+    raise exception 'statistics total is too low: %', stats ->> 'total';
+  end if;
+  if (stats -> 'byStatus' ->> 'REJECTED')::integer < 1 then
+    raise exception 'statistics should count rejected reports';
+  end if;
+  if (stats ->> 'resolvedCount')::integer < 1 or stats ->> 'avgResolutionHours' is null then
+    raise exception 'statistics should include resolution time for the resolved report';
+  end if;
+  if jsonb_array_length(stats -> 'byCourt') < 2 then
+    raise exception 'statistics should group reports by court';
+  end if;
+  if (public.admin_maintenance_stats(null) ->> 'total')::integer < (stats ->> 'total')::integer then
+    raise exception 'all-time total should include the 30-day total';
   end if;
 
   raise notice 'MAINTENANCE_WORKFLOW_TESTS_PASSED';

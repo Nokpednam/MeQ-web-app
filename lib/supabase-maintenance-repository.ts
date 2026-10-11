@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { MaintenanceStatus } from "./admin-types";
+import type { MaintenanceStats } from "./maintenance-stats";
 import type { CourtId } from "./queue-types";
 
 export type AdminMaintenanceRow = {
@@ -142,4 +143,25 @@ export async function deleteMaintenanceReport(
     // Best-effort – do not throw on storage errors.
     await supabase.storage.from("maintenance-evidence").remove([imagePath]);
   }
+}
+
+export async function getAdminMaintenanceStats(supabase: SupabaseClient, days: number | null): Promise<MaintenanceStats> {
+  const { data, error } = await supabase.rpc("admin_maintenance_stats", { p_days: days });
+  if (error) throw new Error(`MAINTENANCE_STATS_FAILED: ${error.message}`);
+  const raw = (data ?? {}) as Partial<MaintenanceStats>;
+  const toNumber = (value: unknown) => (value === null || value === undefined ? null : Number(value));
+  return {
+    periodDays: raw.periodDays ?? null,
+    total: Number(raw.total ?? 0),
+    open: Number(raw.open ?? 0),
+    byStatus: raw.byStatus ?? {},
+    byCourt: (raw.byCourt ?? []).map((bucket) => ({ key: bucket.key, total: Number(bucket.total) })),
+    byCategory: (raw.byCategory ?? []).map((bucket) => ({ key: bucket.key, total: Number(bucket.total) })),
+    avgResponseHours: toNumber(raw.avgResponseHours),
+    medianResponseHours: toNumber(raw.medianResponseHours),
+    avgResolutionHours: toNumber(raw.avgResolutionHours),
+    medianResolutionHours: toNumber(raw.medianResolutionHours),
+    resolvedCount: Number(raw.resolvedCount ?? 0),
+    oldestOpenHours: toNumber(raw.oldestOpenHours),
+  };
 }
