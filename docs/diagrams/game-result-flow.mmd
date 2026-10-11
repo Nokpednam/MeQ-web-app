@@ -1,5 +1,5 @@
 stateDiagram-v2
-  PLAYING --> END_REQUESTED: PostgreSQL validates captain request
+  PLAYING --> END_REQUESTED: captain or game delegate requests end (score deadline starts)
   END_REQUESTED --> PLAYING: requester cancels
   END_REQUESTED --> PLAYING: opponent rejects
   END_REQUESTED --> END_REQUESTED: requester submits own scores
@@ -9,6 +9,13 @@ stateDiagram-v2
   VALIDATING_RESULT --> INVALID_SCORE: validation fails
   INVALID_SCORE --> VALIDATING_RESULT: both teams resubmit
   VALIDATING_RESULT --> COMPLETED: valid final score
+  END_REQUESTED --> CANCELLED: score deadline passed (default 5 min)
+  AWAITING_SCORE --> CANCELLED: score deadline passed
+  INVALID_SCORE --> CANCELLED: score deadline passed
+  AWAITING_SCORE --> COMPLETED: admin decides final score
+  INVALID_SCORE --> COMPLETED: admin decides final score
+  PLAYING --> CANCELLED: admin cancels
+  CANCELLED --> LEFT_QUEUE: both teams leave queue, no player history
   COMPLETED --> CHECK_IN_CLOSED: close game check-in session
   COMPLETED --> ACTIVE_QUERY_CLEARED: active court query no longer returns gameId
   COMPLETED --> RECENT_RESULTS: query completed games by unique gameId

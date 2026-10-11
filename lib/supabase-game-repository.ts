@@ -10,6 +10,7 @@ export type SupabaseGameData = {
   status: "PLAYING" | "END_REQUESTED" | "AWAITING_SCORE" | "VALIDATING_RESULT" | "INVALID_SCORE" | "COMPLETED" | "CANCELLED";
   startedAt: string;
   invalidReason: string | null;
+  scoreDeadline: string | null;
   requestedByTeamId: string | null;
   requestedByUserId: string | null;
   currentUserId: string;
@@ -23,18 +24,23 @@ export type SupabaseGameTeam = {
   id: string;
   name: string;
   captainUserId: string;
+  gameDelegateUserId: string | null;
   members: { userId: string; displayName: string; points: number }[];
 };
 
+function isLeader(team: SupabaseGameTeam, userId: string) {
+  return team.captainUserId === userId || team.gameDelegateUserId === userId;
+}
+
 export async function getSupabaseGame(supabase: SupabaseClient, gameId: string, userId: string): Promise<SupabaseGameData | null> {
   const { data: game, error } = await supabase.from("games")
-    .select("id,court_id,team_a_id,team_b_id,target_score,status,started_at,invalid_reason,end_requested_by_team_id,end_requested_by_user_id")
+    .select("id,court_id,team_a_id,team_b_id,target_score,status,started_at,invalid_reason,score_deadline,end_requested_by_team_id,end_requested_by_user_id")
     .eq("id", gameId).maybeSingle();
   if (error) throw new Error(`GAME_LOAD_FAILED: ${error.message}`);
   if (!game) return null;
   const teamIds = [game.team_a_id, game.team_b_id];
   const [{ data: teams }, { data: roster }, { data: scores }, { data: submissions }] = await Promise.all([
-    supabase.from("teams").select("id,name,captain_user_id").in("id", teamIds),
+    supabase.from("teams").select("id,name,captain_user_id,game_delegate_user_id").in("id", teamIds),
     supabase.from("game_roster_snapshots").select("team_id,user_id,display_name").eq("game_id", gameId),
     supabase.from("player_scores").select("team_id,user_id,points").eq("game_id", gameId),
     supabase.from("score_submissions").select("team_id,status").eq("game_id", gameId),
@@ -47,6 +53,7 @@ export async function getSupabaseGame(supabase: SupabaseClient, gameId: string, 
       id: teamId,
       name: team?.name ?? "ไม่พบชื่อทีม",
       captainUserId: team?.captain_user_id ?? "",
+      gameDelegateUserId: team?.game_delegate_user_id ?? null,
       members: (roster ?? []).filter((member) => member.team_id === teamId).map((member) => ({
         userId: member.user_id,
         displayName: member.display_name,
@@ -63,10 +70,12 @@ export async function getSupabaseGame(supabase: SupabaseClient, gameId: string, 
     status: game.status,
     startedAt: game.started_at,
     invalidReason: game.invalid_reason,
+    scoreDeadline: game.score_deadline,
     requestedByTeamId: game.end_requested_by_team_id,
     requestedByUserId: game.end_requested_by_user_id,
     currentUserId: userId,
-    captainTeamId: teamA.captainUserId === userId ? teamA.id : teamB.captainUserId === userId ? teamB.id : null,
+    // Captain or game delegate: the database applies the same rule.
+    captainTeamId: isLeader(teamA, userId) ? teamA.id : isLeader(teamB, userId) ? teamB.id : null,
     teamA,
     teamB,
     submittedTeamIds: (submissions ?? []).filter((submission) => submission.status === "SUBMITTED").map((submission) => submission.team_id),

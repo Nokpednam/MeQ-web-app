@@ -122,3 +122,13 @@ export async function dissolveTeamAction(formData: FormData) {
   const { error } = await supabase.rpc("dissolve_team", { p_team_id: teamId }); refreshTeamViews();
   redirect(error ? `/teams/${teamId}?error=${rpcError(error)}` : "/teams?notice=team-dissolved");
 }
+
+export async function setTeamGameDelegateAction(formData: FormData) {
+  const teamId = String(formData.get("teamId") ?? "");
+  const rawUserId = String(formData.get("delegateUserId") ?? "");
+  if (!isUuid(teamId) || (rawUserId && !isUuid(rawUserId))) redirect("/teams?error=INVALID_REQUEST");
+  const supabase = await authenticatedClient();
+  const { error } = await supabase.rpc("set_team_game_delegate", { p_team_id: teamId, p_user_id: rawUserId || null });
+  refreshTeamViews();
+  redirect(`/teams/${teamId}${error ? `?error=${rpcError(error)}` : "?notice=delegate-saved"}`);
+}

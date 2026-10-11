@@ -1,6 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { dispatchLineNotificationsQuietly } from "@/lib/line-dispatcher";
 import { createClient } from "@/lib/supabase/server";
 async function adminClient() {
   const s = await createClient();
@@ -69,4 +71,29 @@ export async function cancelCourtEventAction(form: FormData) {
     p_event_id: String(form.get("eventId")),
   });
   refresh();
+}
+
+function gameRpcError(error: { message?: string } | null) {
+  return error?.message?.match(/[A-Z][A-Z_]+/)?.[0] ?? "UNKNOWN_ERROR";
+}
+
+export async function adminCancelGameAction(form: FormData) {
+  const s = await adminClient();
+  const { error } = await s.rpc("admin_cancel_game", { p_game_id: String(form.get("gameId")) });
+  refresh();
+  after(dispatchLineNotificationsQuietly);
+  redirect(`/admin?game=${error ? `error-${gameRpcError(error)}` : "cancelled"}#active-games`);
+}
+
+export async function adminResolveGameAction(form: FormData) {
+  const s = await adminClient();
+  const teamAScore = Number(form.get("teamAScore"));
+  const teamBScore = Number(form.get("teamBScore"));
+  if (!Number.isSafeInteger(teamAScore) || !Number.isSafeInteger(teamBScore) || teamAScore < 0 || teamBScore < 0) {
+    redirect("/admin?game=error-INVALID_SCORE_VALUE#active-games");
+  }
+  const { error } = await s.rpc("admin_resolve_game", { p_game_id: String(form.get("gameId")), p_team_a_score: teamAScore, p_team_b_score: teamBScore });
+  refresh();
+  after(dispatchLineNotificationsQuietly);
+  redirect(`/admin?game=${error ? `error-${gameRpcError(error)}` : "resolved"}#active-games`);
 }

@@ -20,6 +20,8 @@ export type Team = {
   name: string;
   type: TeamType;
   captainUserId: string;
+  /** Member allowed to run games for the captain. */
+  gameDelegateUserId?: string | null;
   members: TeamMember[];
   rosterLocked: boolean;
   createdAt: string;
