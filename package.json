@@ -13,8 +13,10 @@
     "test:team-location": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/team-location-rules.test.js",
     "test:production-surface": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/production-surface.test.js",
     "test:line-messaging": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/line-messaging.test.js",
+    "test:live-refresh": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/live-refresh.test.js",
+    "test:maintenance-stats": "tsc -p tsconfig.game-tests.json && node --test .next/meq-game-tests/tests/maintenance-stats.test.js",
     "test:db": "supabase test db",
-    "test:unit": "npm run test:game-lifecycle && npm run test:admin && npm run test:team-location && npm run test:production-surface && npm run test:line-messaging"
+    "test:unit": "npm run test:game-lifecycle && npm run test:admin && npm run test:team-location && npm run test:production-surface && npm run test:line-messaging && npm run test:live-refresh && npm run test:maintenance-stats"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
