@@ -18,5 +18,6 @@ Render เป็น SVG จาก root โปรเจกต์:
 - `database-auth-flow.mmd` — ขอบเขต Auth, RLS และ transactional RPC
 - `queue-flow.mmd` / `queue-checkin-flow.mmd` — วงจรคิวและเช็กอิน
 - `game-result-flow.mmd` — การส่งคะแนนและ finalize เกม
+- `maintenance-status-flow.md` — การรับรายงานซ่อม การแสดงสถานะ และการกันรายงานซ้ำ
 
 ไฟล์ใน `rendered/` เป็น snapshot ที่สร้างจาก source diagram ควร render ใหม่เมื่อแก้ `.mmd` หรือ `.dot`

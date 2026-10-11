@@ -1,6 +1,6 @@
 begin;
 
-select plan(37);
+select plan(38);
 
 select ok(
   not has_table_privilege('authenticated', 'public.' || lifecycle_table, 'INSERT')
@@ -34,8 +34,18 @@ select ok(
   'maintenance reports reject direct deletes'
 );
 select ok(
-  has_column_privilege('authenticated', 'public.maintenance_reports', 'reporter_user_id', 'INSERT'),
-  'authenticated can still create maintenance reports'
+  not has_table_privilege('authenticated', 'public.maintenance_reports', 'INSERT')
+  and has_function_privilege(
+    'authenticated',
+    'public.create_maintenance_report(text, public.maintenance_category, text, text)',
+    'EXECUTE'
+  )
+  and not has_function_privilege(
+    'anon',
+    'public.create_maintenance_report(text, public.maintenance_category, text, text)',
+    'EXECUTE'
+  ),
+  'maintenance reports are created only through the authenticated workflow RPC'
 );
 select ok(
   has_function_privilege(
@@ -115,6 +125,13 @@ select ok(
   and not has_function_privilege('anon','public.decline_team_invitation(uuid)','EXECUTE')
   and not has_function_privilege('anon','public.cancel_team_invitation(uuid)','EXECUTE'),
   'team invitation RPCs are authenticated only'
+);
+
+select ok(
+  not has_table_privilege('authenticated', 'public.maintenance_status_history', 'SELECT')
+  and not has_table_privilege('authenticated', 'public.maintenance_status_history', 'INSERT')
+  and not has_function_privilege('anon', 'public.admin_list_maintenance_history(uuid[])', 'EXECUTE'),
+  'maintenance status history is read only through the admin RPC'
 );
 
 select * from finish();

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 
 const root = resolve(__dirname, "../../..");
 
@@ -61,4 +61,19 @@ test("team membership requires an invitation acceptance", () => {
   assert.doesNotMatch(actions, /\.rpc\("add_team_member"/);
   assert.match(views, /acceptTeamInvitationAction/);
   assert.match(views, /declineTeamInvitationAction/);
+});
+
+test("source files have no UTF-8 byte order mark", () => {
+  // A BOM before `:root` in globals.css silently dropped every CSS variable.
+  const sourceFiles: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(resolve(root, dir), { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (/\.(tsx?|css)$/.test(entry.name)) sourceFiles.push(path);
+    }
+  };
+  ["app", "components", "lib"].forEach(walk);
+  const withBom = sourceFiles.filter((path) => readFileSync(resolve(root, path))[0] === 0xef);
+  assert.deepEqual(withBom, []);
 });
