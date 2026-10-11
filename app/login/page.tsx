@@ -32,7 +32,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             เข้าสู่ระบบด้วย LINE
           </button>
         </form>
-        <p className="auth-privacy-note">เข้าสู่ระบบครั้งเดียวด้วย LINE<br />MeQ ใช้เพียงชื่อและรูปโปรไฟล์สำหรับบัญชีผู้เล่น</p>
+        <p className="auth-privacy-note">เข้าสู่ระบบครั้งเดียวด้วย LINE<br />MeQ ใช้ชื่อ รูปโปรไฟล์ และ LINE ID สำหรับบัญชีผู้เล่นและการแจ้งเตือน<br /><a href="/privacy">นโยบายความเป็นส่วนตัว</a> · <a href="/terms">ข้อกำหนดการใช้งาน</a></p>
         {process.env.NODE_ENV !== "production" ? <details className="auth-development">
           <summary>Development: เข้าสู่ระบบด้วยอีเมล</summary>
           <form className="auth-form">

@@ -84,6 +84,7 @@
 3. **หน้าคิวอัปเดตเอง** — โค้ดเสร็จ 2026-10-11 (branch `feat/live-queue-and-maintenance-stats`): หน้า `/courts/*` และ `/games/*` รีเฟรชข้อมูลจาก server ทุก 10 วินาที หยุดเมื่อแท็บซ่อน/ออฟไลน์/กำลังพิมพ์ แสดง "อัปเดตอัตโนมัติ · N วินาทีที่แล้ว" (`components/live-refresh.tsx`) เลือก polling แทน Realtime เพราะไม่ต้องเปิด RLS ให้ client อ่านตารางคิวโดยตรง
    - **หน้าสถิติแจ้งซ่อม** `/admin/maintenance/stats` — โค้ดเสร็จ: จำนวนรายงาน, ค้างอยู่, เวลาตอบรับ/ซ่อมเสร็จ (มัธยฐาน + เฉลี่ย), แยกตามสนาม/ประเภท/สถานะ, เลือกช่วง 7/30/90 วัน/ทั้งหมด (RPC `admin_maintenance_stats`)
    - **ค้าง:** push migration `20261011120000_admin_maintenance_stats.sql` แล้วเปิด PR
+   - **ปุ่มเพิ่มเพื่อน LINE + หน้ากฎหมาย** — โค้ดเสร็จ 2026-10-11 (branch `feat/line-friend-and-legal` ต่อจาก `feat/live-queue-and-maintenance-stats`): การ์ด "รับแจ้งเตือนผ่าน LINE" ในหน้าโปรไฟล์ลิงก์ไป `@205hzelz` (`lib/line-official-account.ts`), หน้า `/privacy` และ `/terms` ลิงก์จากหน้าล็อกอินและโปรไฟล์ ใส่ลิงก์สองหน้านี้ใน LINE Developers ได้
 4. **เตรียมส่งโปรเจกต์จบ**
    - อัปเดต diagram ใน `docs/diagrams/` ให้ตรงกับระบบล่าสุด
    - เก็บผลทดสอบ (unit, db, ทดสอบที่สนามจริง) ไว้ใช้ในเล่มรายงาน
