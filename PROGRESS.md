@@ -35,8 +35,8 @@
 | เกม / ส่งคะแนน / ผลการแข่ง | ✅ เสร็จ | มีเป้าคะแนน, คำขอจบเกม, ตัดสินผู้ชนะ |
 | สถิติผู้เล่น | ✅ มีแล้ว | แสดงในหน้าโปรไฟล์ |
 | ปฏิทินสนาม | ✅ มีแล้ว | |
-| แจ้งซ่อมอุปกรณ์ | 🟡 โค้ดเสร็จ รอขึ้นระบบจริง | อยู่ใน branch `feat/maintenance-workflow` (ดูด้านล่าง) |
-| แจ้งเตือนทาง LINE | 🟡 โค้ดเสร็จ รอตั้งค่า LINE | branch `feat/line-notifications` ดู `docs/architecture/line-notifications.md` |
+| แจ้งซ่อมอุปกรณ์ | ✅ ใช้งานบนเว็บจริงแล้ว | PR #2 merge 2026-10-11 |
+| แจ้งเตือนทาง LINE | ✅ ใช้งานบนเว็บจริงแล้ว | PR #3 merge 2026-10-11 ดู `docs/architecture/line-notifications.md` |
 | อัปเดตคิวแบบ realtime | ❌ ยังไม่มี | ยังไม่ได้ใช้ Supabase Realtime ต้องรีเฟรชหน้าเอง |
 
 ## ระบบแจ้งซ่อม (branch `feat/maintenance-workflow`, commit แล้ว ยังไม่ push)
@@ -77,7 +77,8 @@
    - **ทำต่อจากตรงนี้ (2026-10-11):** รอเจ้าของสร้าง OA + ผูก + ใส่ env แล้วทดสอบส่งจริงบน localhost; merge PR แจ้งซ่อมก่อน แล้วค่อย push/PR `feat/line-notifications`
    - 2026-10-11: push migration `20261011090000` ขึ้น Supabase จริงแล้ว, ใส่ env 3 ตัวใน `.env.local` แล้ว, เจ้าของเพิ่มเพื่อน OA (@205hzelz) แล้ว
    - 2026-10-11: ทดสอบบน localhost สำเร็จ แจ้งซ่อมใหม่ → แอดมินได้ LINE, เปลี่ยนสถานะ → ผู้แจ้งได้ LINE (outbox = SENT, 1 attempt) ระหว่างทางแก้ LINE Login เสีย (Channel secret ใน Supabase ไม่ตรง + ใส่ Issuer URL `https://access.line.me`)
-   - ⚠️ Supabase secret key ที่ใช้ใน `.env.local` เคยถูกส่งในแชต เจ้าของเลือกยังไม่เปลี่ยน ควรสร้างใหม่และลบตัวเดิม (ขึ้นต้น `sb_secret_WRz1J`) ก่อนใส่ใน Vercel
+   - 2026-10-11: ขึ้นเว็บจริงครบ: Vercel env 4 ตัว (`NEXT_PUBLIC_APP_URL` ต้องเป็น type Config), Vault 2 ค่า, ทดสอบ cron → `/api/line/dispatch` → LINE ส่งสำเร็จ (เคย 401 เพราะใส่ secret ผิดตัวใน Vault)
+   - ⚠️ Supabase secret key ที่ใช้ใน `.env.local` เคยถูกส่งในแชต เจ้าของเลือกยังไม่เปลี่ยน ควรสร้างใหม่และลบตัวเดิม (ขึ้นต้น `sb_secret_WRz1J`) (ตอนนี้ใส่ใน Vercel แล้วด้วย ถ้าเปลี่ยนต้องอัปเดตทั้ง `.env.local` และ Vercel)
    - ยังไม่มี: ปุ่มเพิ่มเพื่อน OA ในหน้าโปรไฟล์ สำหรับคนที่กดข้ามตอนล็อกอิน (ต้องใช้ลิงก์ OA)
 3. **ให้หน้าคิวอัปเดตเอง** ใช้ Supabase Realtime หรือ polling ทุกไม่กี่วินาที เพื่อแก้ปัญหา "คนมาใหม่ไม่รู้ว่าถึงคิวใคร" ได้จริง
 4. **เตรียมส่งโปรเจกต์จบ**
