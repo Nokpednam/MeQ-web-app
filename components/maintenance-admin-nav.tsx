@@ -5,10 +5,10 @@ import { formatMaintenanceHours, type MaintenanceStats } from "@/lib/maintenance
 export function MaintenanceAdminTabs({ active, openCount }: { active: "list" | "stats"; openCount?: number }) {
   return <nav className="maintenance-admin-tabs" aria-label="งานแจ้งซ่อม">
     <Link className={active === "list" ? "is-active" : ""} aria-current={active === "list" ? "page" : undefined} href="/admin/maintenance">
-      <span aria-hidden="true">📋</span>รายการแจ้งซ่อม{openCount ? <b>{openCount}</b> : null}
+      รายการแจ้งซ่อม{openCount ? <b>{openCount}</b> : null}
     </Link>
     <Link className={active === "stats" ? "is-active" : ""} aria-current={active === "stats" ? "page" : undefined} href="/admin/maintenance/stats">
-      <span aria-hidden="true">📊</span>สถิติ
+      สถิติ
     </Link>
   </nav>;
 }

@@ -7,7 +7,7 @@ import type { AdminMaintenanceRow } from "@/lib/supabase-maintenance-repository"
 export function AdminMaintenanceSection({ reports, totalCount, showMoreHref, returnTo = "/admin" }: { reports: AdminMaintenanceRow[]; totalCount?: number; showMoreHref?: string; returnTo?: "/admin" | "/admin/maintenance" }) {
   const count = totalCount ?? reports.length;
   return <section className="admin-section" id="maintenance-reports">
-    <div className="admin-section-heading"><div><p className="section-label">MAINTENANCE</p><h2>รายการแจ้งซ่อม</h2><p>ตรวจสอบรายงาน โทรแจ้งผู้ดูแลสนาม แล้วอัปเดตสถานะให้ผู้ใช้ทราบ</p></div>{returnTo === "/admin" ? <div className="maintenance-heading-actions"><Link className="queue-secondary-button" href="/admin/maintenance">📋 ดูทั้งหมด</Link><Link className="queue-primary-button" href="/admin/maintenance/stats">📊 ดูสถิติ</Link></div> : null}</div>
+    <div className="admin-section-heading"><div><p className="section-label">MAINTENANCE</p><h2>รายการแจ้งซ่อม</h2><p>ตรวจสอบรายงาน โทรแจ้งผู้ดูแลสนาม แล้วอัปเดตสถานะให้ผู้ใช้ทราบ</p></div>{returnTo === "/admin" ? <div className="maintenance-heading-actions"><Link className="queue-secondary-button" href="/admin/maintenance">ดูทั้งหมด</Link><Link className="queue-primary-button" href="/admin/maintenance/stats">ดูสถิติ</Link></div> : null}</div>
     {reports.length === 0 ? <p className="admin-empty">ยังไม่มีรายการแจ้งซ่อม</p> : <div className="admin-report-list">{reports.map((report) => <article className={report.status === "NEW" ? "is-new" : report.status === "REJECTED" ? "is-rejected" : ""} key={report.id}>
       <div><strong>{maintenanceCourtName(report.courtId)}</strong><span>{maintenanceCategoryLabel(report.category)}</span><time>{new Date(report.createdAt).toLocaleString("th-TH")}</time></div>
       <div className="admin-report-detail">
@@ -26,7 +26,7 @@ export function AdminMaintenanceSection({ reports, totalCount, showMoreHref, ret
       <div className="admin-report-actions">
         <form action={updateMaintenanceStatusAction}><input type="hidden" name="reportId" value={report.id}/><input type="hidden" name="returnTo" value={returnTo}/><select name="status" defaultValue={report.status} aria-label={`สถานะ ${maintenanceCourtName(report.courtId)}`}>{maintenanceAdminStatusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select><input className="admin-entry" name="adminNote" defaultValue={report.adminNote ?? ""} placeholder="หมายเหตุ เช่น โทรแจ้งผู้ดูแลแล้ว"/><button className="queue-primary-button">บันทึกสถานะ</button></form>
         <details className="admin-delete-confirm">
-          <summary className="admin-delete-trigger" aria-label={`ลบรายการแจ้งซ่อม ${maintenanceCourtName(report.courtId)}`}>🗑</summary>
+          <summary className="admin-delete-trigger" aria-label={`ลบรายการแจ้งซ่อม ${maintenanceCourtName(report.courtId)}`}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></summary>
           <div className="admin-delete-popover">
             <p>ลบถาวรและลบรูปด้วย ถ้าเป็นรายงานป่วน แนะนำให้เลือก &quot;ไม่รับเรื่อง&quot; แทน เพื่อเก็บไว้เป็นประวัติ</p>
             <form action={deleteMaintenanceReportAction}>
