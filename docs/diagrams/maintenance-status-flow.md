@@ -25,6 +25,9 @@ flowchart LR
     A -->|"ลบถาวร"| DEL["admin_delete_maintenance_report RPC"]
     DEL -->|"ปลดล็อกรายงานประเภทเดิม"| D
     DEL -->|"คืน image_path ให้ server ลบรูป"| S
+    T -->|"trigger"| N1["LINE ถึงแอดมินทุกคน"]
+    H -->|"trigger เมื่อสถานะเปลี่ยน"| N2["LINE ถึงผู้แจ้ง"]
+    W -->|"ค้างเกินกำหนด เตือนทุกวัน 09:00"| N1
 ```
 
 `NEW` is visible only to the reporter and administrators. The public feed starts after an administrator accepts the report and intentionally excludes reporter identity and private image paths. The active-issue registry prevents concurrent duplicate reports for the same court and category until all matching reports are closed (`RESOLVED` or `REJECTED`) or deleted.
