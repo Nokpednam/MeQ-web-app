@@ -2,10 +2,11 @@ flowchart TD
   GAME["PLAYING"] --> END["END_REQUESTED"] --> SCORE["AWAITING_SCORE"] --> COMPLETE["COMPLETED"]
   COMPLETE --> WIN_DECIDE["DECIDING_CONTINUE"]
   WIN_DECIDE -->|Continue| HOLD["HOLDING_COURT"]
-  WIN_DECIDE -->|Stop| LEFT
+  WIN_DECIDE -->|Stop / 3-minute timeout| LEFT
   COMPLETE --> DECIDE["DECIDING_REQUEUE"]
   COMPLETE --> CLOSE_CHECKIN["Remove active check-in game and PLAYING sessions"]
-  HOLD --> REST["RESTING after second win"] --> RETURN["RETURNING_CHAMPION"]
+  HOLD -->|First ready challenger| GAME
+  COMPLETE --> REST["RESTING after second win"] -->|Rest game ends| HEAD["WAITING at queue head"]
   DECIDE -->|Requeue| WAIT["WAITING"]
   DECIDE -->|Leave / timeout| LEFT["LEFT_QUEUE"]
   A[สร้างทีม] --> B{สมาชิกครบหรือไม่}
@@ -18,7 +19,7 @@ flowchart TD
   TARGET --> K
   E -- ไม่ผ่าน --> F[ปฏิเสธการเข้าคิว พร้อมเหตุผล]
   E -- ผ่าน --> G[เข้าคิวของสนามที่เลือก]
-  G --> H[ระบบเรียกเมื่อถึงคิว]
+  G --> H[ระบบเรียกอัตโนมัติทุก 30 วินาที เมื่อมีทีมพอเล่น]
   H --> I{เช็กอินครบในเวลาหรือไม่}
   I -- ไม่ครบ --> J[พลาดคิวและเรียกทีมถัดไป]
   I -- ครบ --> K[เริ่มเกม]
@@ -28,10 +29,10 @@ flowchart TD
   N --> L
   M -- ได้ --> O[คำนวณผู้ชนะและบันทึกสถิติ]
   O --> P{ทีมชนะครบ 2 เกมหรือยัง}
-  P -- ยัง --> Q[ทีมชนะเล่นต่อ]
+  P -- ยัง --> Q[ทีมชนะเลือกเล่นต่อภายใน 3 นาที เจอทีมแรกที่พร้อม]
   P -- ครบ --> R[ทีมชนะพัก 1 เกม]
   R --> S[สองทีมจากคิวขึ้นเล่น]
-  S --> T[แชมป์กลับมาเป็นทีมถัดไป]
+  S --> T[แชมป์กลับมาเป็นคิวแรก]
   O --> U[ทีมแพ้ตัดสินใจ 3 นาที]
   U --> V{เลือกต่อท้ายคิวหรือไม่}
   V -- ใช่ --> W[ต่อท้ายคิวเดิม]

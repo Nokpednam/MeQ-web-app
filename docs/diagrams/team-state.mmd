@@ -1,13 +1,13 @@
 stateDiagram-v2
   PLAYING --> DECIDING_CONTINUE: first consecutive win
   DECIDING_CONTINUE --> HOLDING_COURT: winner continues
-  DECIDING_CONTINUE --> LEFT_QUEUE: winner stops
+  DECIDING_CONTINUE --> LEFT_QUEUE: winner stops or 3-minute timeout
+  HOLDING_COURT --> PLAYING: challenger ready
   PLAYING --> RESTING: second consecutive win
   PLAYING --> DECIDING_REQUEUE: loss
   DECIDING_REQUEUE --> WAITING: requeue
   DECIDING_REQUEUE --> LEFT_QUEUE: leave or timeout
-  RESTING --> RETURNING_CHAMPION: rest game completed
-  RETURNING_CHAMPION --> PLAYING
+  RESTING --> WAITING: rest game completed (queue head)
   [*] --> INCOMPLETE: สร้างทีม
   INCOMPLETE --> READY: สมาชิกครบ
   READY --> INCOMPLETE: ลบสมาชิก
@@ -22,8 +22,7 @@ stateDiagram-v2
   SUBMITTING_SCORE --> LEFT_QUEUE: แพ้และออก/หมดเวลา
   SUBMITTING_SCORE --> PLAYING: ชนะครั้งแรกและเล่นต่อ
   SUBMITTING_SCORE --> RESTING: ชนะครบ 2 เกม
-  RESTING --> RETURNING_CHAMPION: สนามเดิมเล่นครบ 1 เกม
-  RETURNING_CHAMPION --> PLAYING: กลับมาเล่นทันที
+  RESTING --> WAITING: สนามเดิมเล่นครบ 1 เกม กลับมาเป็นคิวแรก
   MISSED_QUEUE --> LEFT_QUEUE
   WAITING --> LEFT_QUEUE: ออกจากคิว
   LEFT_QUEUE --> READY: สมาชิกยังครบ
