@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useMeqLanguage } from "./use-meq-language";
 import { queueTranslations } from "@/lib/dashboard-translations";
 import { getTeamStatus } from "@/lib/team-rules";
+import { queueStatusLabel } from "@/lib/game-status-copy";
 import type {
   SupabaseQueueData,
   TeamLocationStatus,
@@ -242,6 +243,8 @@ export function SupabaseCourtDetailView({
   const queue = data.entries
     .filter((e) => e.courtId === courtId && e.status === "WAITING")
     .sort((a, b) => a.position - b.position);
+  // Teams playing, deciding, holding, or resting on this court.
+  const onCourt = data.entries.filter((e) => e.courtId === courtId && e.status !== "WAITING");
   const err = errorCopy(search.get("error"), language);
   return (
     <div className="court-page court-detail-page">
@@ -296,6 +299,23 @@ export function SupabaseCourtDetailView({
       </section>
       <div className="court-queue-grid">
         <section className="queue-panel">
+          {onCourt.length ? (
+            <ul className="court-status-list" aria-label="สถานะบนสนาม">
+              {onCourt.map((e) => {
+                const t = data.teams.find((x) => x.id === e.teamId);
+                return (
+                  <li key={e.id}>
+                    <strong>
+                      {t?.name ?? "Unknown"}
+                      {team?.id === e.teamId ? <small> · {c.yourTeam}</small> : null}
+                    </strong>
+                    <span>{queueStatusLabel(e.status)}</span>
+                    {t?.consecutiveWins ? <b>ชนะติด {t.consecutiveWins}</b> : null}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
           <div className="panel-heading">
             <div>
               <p className="section-label">
@@ -360,9 +380,11 @@ export function SupabaseCourtDetailView({
           ) : active ? (
             <>
               <p>
-                {active.courtId === courtId
-                  ? `${c.alreadyInQueue} · ${c.position} ${active.position}`
-                  : c.activeOtherCourt}
+                {active.courtId !== courtId
+                  ? c.activeOtherCourt
+                  : active.status === "WAITING"
+                    ? `${c.alreadyInQueue} · ${c.position} ${active.position}`
+                    : queueStatusLabel(active.status)}
               </p>
               {active.courtId === courtId && active.status === "WAITING" ? (
                 <form action={leaveCourtQueueAction}>

@@ -10,7 +10,7 @@ type CourtRow = { id: CourtId; name: Court["name"]; court_group_id: string; requ
 type GroupRow = { id: string; format: Court["type"]; allowed_target_scores: number[]; default_target_score: number };
 type ScoreRow = { court_group_id: string; target_score: number; business_date: string };
 type EntryRow = { id: string; court_id: CourtId; team_id: string; position: number | null; status: QueueEntry["status"]; joined_at: string; called_at: string | null; check_in_deadline: string | null };
-type TeamRow = { id: string; name: string; format: Court["type"]; captain_user_id: string };
+type TeamRow = { id: string; name: string; format: Court["type"]; captain_user_id: string; consecutive_wins: number };
 type CheckInRow = { id:string; queue_entry_id:string; team_id:string; court_id:CourtId; status:"ACTIVE"|"READY"; captain_confirmed_by:string|null; captain_confirmed_at:string|null; deadline:string; created_at:string };
 type TargetProposalRow = { id:string;court_id:CourtId;proposer_check_in_id:string;opponent_check_in_id:string;proposed_by_team_id:string;target_score:number;status:"PENDING"|"CONFIRMED" };
 
@@ -34,7 +34,7 @@ export async function getSupabaseQueueData(supabase: SupabaseClient, userId: str
     supabase.from("court_groups").select("id,format,allowed_target_scores,default_target_score"),
     supabase.from("daily_score_settings").select("court_group_id,target_score,business_date").order("business_date", { ascending: false }),
     supabase.from("queue_entries").select("id,court_id,team_id,position,status,joined_at,called_at,check_in_deadline").in("status", activeStatuses),
-    supabase.from("teams").select("id,name,format,captain_user_id").is("dissolved_at", null),
+    supabase.from("teams").select("id,name,format,captain_user_id,consecutive_wins").is("dissolved_at", null),
     supabase.from("team_check_ins").select("id,queue_entry_id,team_id,court_id,status,captain_confirmed_by,captain_confirmed_at,deadline,created_at").in("status",["ACTIVE","READY"]),
     supabase.from("game_target_score_proposals").select("id,court_id,proposer_check_in_id,opponent_check_in_id,proposed_by_team_id,target_score,status").in("status",["PENDING","CONFIRMED"]),
   ]);
@@ -43,7 +43,7 @@ export async function getSupabaseQueueData(supabase: SupabaseClient, userId: str
   for (const score of scores) if (!latestScore.has(score.court_group_id)) latestScore.set(score.court_group_id, score.target_score);
   const courts = ((courtsResult.data ?? []) as CourtRow[]).map((row) => { const group = groupById.get(row.court_group_id); if (!group) throw new Error("COURT_GROUP_NOT_FOUND"); return { id: row.id, name: row.name, type: group.format, requiredMembers: row.required_members, image: row.image_path ?? `/courts/${row.id}.svg`, isOpen: row.is_open, opensAt: openingTime(row.opens_at), closesAt: closingTime(row.closes_at), targetScore: latestScore.get(group.id) ?? group.default_target_score, allowedTargetScores: group.allowed_target_scores }; });
   const entries = ((entriesResult.data ?? []) as EntryRow[]).map((row) => ({ id: row.id, courtId: row.court_id, teamId: row.team_id, position: row.position ?? 0, status: row.status, joinedAt: row.joined_at, ...(row.called_at ? { calledAt: row.called_at } : {}), ...(row.check_in_deadline ? { checkInDeadline: row.check_in_deadline } : {}) }));
-  const teams = ((teamsResult.data ?? []) as TeamRow[]).map((team) => { const members = teamData.users.filter((user) => user.currentTeamId === team.id).map((user) => ({ id: user.id, displayName: user.displayName, initials: user.initials })); return { id: team.id, name: team.name, type: team.format, captainUserId: team.captain_user_id, memberCount: members.length, members }; });
+  const teams = ((teamsResult.data ?? []) as TeamRow[]).map((team) => { const members = teamData.users.filter((user) => user.currentTeamId === team.id).map((user) => ({ id: user.id, displayName: user.displayName, initials: user.initials })); return { id: team.id, name: team.name, type: team.format, captainUserId: team.captain_user_id, consecutiveWins: team.consecutive_wins, memberCount: members.length, members }; });
   return { teamData, courts, entries, teams,checkIns:(checkInsResult.data??[]) as CheckInRow[],targetProposals:(proposalsResult.data??[]) as TargetProposalRow[],isAdmin:teamData.currentUser.role==="ADMIN" };
 }
 
