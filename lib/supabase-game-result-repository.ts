@@ -14,6 +14,7 @@ export type SupabaseGameResultData = {
   winnerTeamId: string | null;
   loserTeamId: string | null;
   winnerQueueStatus: string | null;
+  winnerDecisionDeadline: string | null;
   loserQueueStatus: string | null;
   loserDecisionDeadline: string | null;
   isWinnerCaptain: boolean;
@@ -47,6 +48,7 @@ export async function getSupabaseGameResult(
   const winner = gameData.winner_team_id ? teams.get(gameData.winner_team_id) : null;
   const loser = gameData.loser_team_id ? teams.get(gameData.loser_team_id) : null;
   const loserEntry = gameData.loser_team_id ? latestEntry.get(gameData.loser_team_id) : null;
+  const winnerEntry = gameData.winner_team_id ? latestEntry.get(gameData.winner_team_id) : null;
   return {
     id: gameData.id,
     courtId: gameData.court_id as CourtId,
@@ -57,7 +59,8 @@ export async function getSupabaseGameResult(
     teamB: { id: gameData.team_b_id, name: teams.get(gameData.team_b_id)?.name ?? "ทีม B", score: gameData.final_team_b_score },
     winnerTeamId: gameData.winner_team_id,
     loserTeamId: gameData.loser_team_id,
-    winnerQueueStatus: gameData.winner_team_id ? latestEntry.get(gameData.winner_team_id)?.status ?? null : null,
+    winnerQueueStatus: winnerEntry?.status ?? null,
+    winnerDecisionDeadline: winnerEntry?.decision_deadline ?? null,
     loserQueueStatus: loserEntry?.status ?? null,
     loserDecisionDeadline: loserEntry?.decision_deadline ?? null,
     isWinnerCaptain: winner?.captain_user_id === userId || winner?.game_delegate_user_id === userId,

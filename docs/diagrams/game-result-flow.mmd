@@ -7,7 +7,7 @@ stateDiagram-v2
   AWAITING_SCORE --> VALIDATING_RESULT: both teams submit
   AWAITING_SCORE --> AWAITING_SCORE: first team submitted (persist and wait)
   VALIDATING_RESULT --> INVALID_SCORE: validation fails
-  INVALID_SCORE --> VALIDATING_RESULT: both teams resubmit
+  INVALID_SCORE --> AWAITING_SCORE: submissions reset, first team resubmits
   VALIDATING_RESULT --> COMPLETED: valid final score
   END_REQUESTED --> CANCELLED: score deadline passed (default 5 min)
   AWAITING_SCORE --> CANCELLED: score deadline passed
@@ -21,10 +21,10 @@ stateDiagram-v2
   COMPLETED --> RECENT_RESULTS: query completed games by unique gameId
   COMPLETED --> DECIDING_CONTINUE: first consecutive win
   DECIDING_CONTINUE --> HOLDING_COURT: winner chooses to continue
-  DECIDING_CONTINUE --> LEFT_QUEUE: winner chooses not to continue
+  DECIDING_CONTINUE --> LEFT_QUEUE: winner chooses not to continue or 180-second deadline passes
+  HOLDING_COURT --> PLAYING: first ready challenger (no new check-in, roster locked)
   COMPLETED --> RESTING: second consecutive win
   COMPLETED --> DECIDING_REQUEUE: losing team (180 seconds)
   DECIDING_REQUEUE --> WAITING: captain chooses requeue
   DECIDING_REQUEUE --> LEFT_QUEUE: leave or PostgreSQL deadline timeout
-  RESTING --> RETURNING_CHAMPION: one rest game completed
-  RETURNING_CHAMPION --> PLAYING: champion returns on same court
+  RESTING --> WAITING: rest game on same court ends, returns at queue head

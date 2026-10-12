@@ -1,6 +1,6 @@
 stateDiagram-v2
   [*] --> WAITING
-  WAITING --> CALLED: callNextTeam (head only)
+  WAITING --> CALLED: cron every 30 s fills challenger slots (1 if a winner holds, else 2); admin can call by hand
   note right of CALLED
     Trigger queues a LINE message for every team member,
     expiring at the check-in deadline.
@@ -12,7 +12,7 @@ stateDiagram-v2
   SCORE_PROPOSED --> CHECKING_IN: opposing captain confirms target
   CALLED --> MISSED_QUEUE: deadline expired
   CHECKING_IN --> MISSED_QUEUE: deadline expired
-  READY_TO_PLAY --> PLAYING: two teams ready + startMockGame
+  READY_TO_PLAY --> PLAYING: holder + one ready team, or two ready teams
   MISSED_QUEUE --> WAITING: team joins again manually
 
   note right of CHECKING_IN
