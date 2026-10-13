@@ -76,7 +76,7 @@ begin
     raise exception 'waiting reminder should be queued exactly once per admin per day';
   end if;
 
-  -- Calling a team notifies every current member.
+  -- Calling a team notifies only the team leaders.
   insert into public.teams(name, format, captain_user_id)
   values ('ทีมทดสอบไลน์', 'FIVE_X_FIVE', player_id)
   returning id into team_id;
@@ -89,11 +89,14 @@ begin
   set status = 'CALLED', position = null, called_at = now(), check_in_deadline = now() + interval '3 minutes'
   where id = entry_id;
 
-  if (select count(*) from public.line_notifications where kind = 'QUEUE_NEXT') <> 2 then
-    raise exception 'joining the queue at position 1 should notify every member once';
+  if (select count(*) from public.line_notifications where kind = 'QUEUE_NEXT') <> 1 then
+    raise exception 'joining the queue at position 1 should notify the captain once';
   end if;
-  if (select count(*) from public.line_notifications where kind = 'QUEUE_CALLED') <> 2 then
-    raise exception 'every team member should get a queue-called notification';
+  if (select count(*) from public.line_notifications where kind = 'QUEUE_CALLED') <> 1 then
+    raise exception 'only the captain should get a queue-called notification';
+  end if;
+  if exists (select 1 from public.line_notifications where recipient_user_id = no_line_id) then
+    raise exception 'a member who is not a team leader should not be notified';
   end if;
   if not exists (
     select 1 from public.line_notifications
@@ -120,10 +123,6 @@ begin
   end loop;
   if claimed_count <> 4 then
     raise exception 'expected 4 claimable notifications, got %', claimed_count;
-  end if;
-  if exists (select 1 from public.line_notifications
-      where recipient_user_id = no_line_id and status <> 'SKIPPED') then
-    raise exception 'member without LINE identity should be skipped';
   end if;
   if (select status from public.line_notifications
       where kind = 'MAINTENANCE_WAITING_REMINDER') <> 'EXPIRED' then
@@ -184,7 +183,14 @@ begin
     raise exception 'invitee was not notified';
   end if;
 
-  -- Completed game notifies every rostered player with their own result.
+  -- A team that returns to the head of the queue on the same entry hears again.
+  update public.queue_entries set status = 'WAITING', position = 1, joined_at = now() + interval '1 second'
+  where id = entry_id;
+  if (select count(*) from public.line_notifications where kind = 'QUEUE_NEXT') <> 2 then
+    raise exception 'requeued team should get a new next-in-line notification';
+  end if;
+
+  -- A completed game sends no result message.
   update public.queue_entries set status = 'CANCELLED', position = null, closed_at = now() where id = entry_id;
   insert into public.games(court_id, team_a_id, team_b_id, target_score)
   values ('5x5', team_id, other_team_id, 11)
@@ -196,15 +202,8 @@ begin
   set status = 'COMPLETED', winner_team_id = team_id, loser_team_id = other_team_id,
       final_team_a_score = 11, final_team_b_score = 8, completed_at = now()
   where id = game_id;
-  if not exists (
-    select 1 from public.line_notifications
-    where recipient_user_id = player_id and kind = 'GAME_RESULT'
-      and message like '%ทีมทดสอบไลน์ 11 - 8 ทีมคู่แข่งไลน์%' and message like '%ทีมของคุณชนะ'
-  ) or not exists (
-    select 1 from public.line_notifications
-    where recipient_user_id = reporter_id and kind = 'GAME_RESULT' and message like '%ทีมของคุณแพ้'
-  ) then
-    raise exception 'game result was not sent to both teams with the right outcome';
+  if exists (select 1 from public.line_notifications where kind = 'GAME_RESULT') then
+    raise exception 'game results should not be sent over LINE';
   end if;
 
   raise notice 'LINE_NOTIFICATION_TESTS_PASSED';

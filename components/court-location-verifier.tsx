@@ -103,7 +103,7 @@ export function CourtLocationVerifier({ courtId }: { courtId: CourtId }) {
   }
 
   return <div className="court-location-verifier">
-    <p>สมาชิกแต่ละคนต้องยืนยันตำแหน่งก่อนเข้าคิว การยืนยันมีอายุ 10 นาที</p>
+    <p>สมาชิกแต่ละคนต้องยืนยันตำแหน่งก่อนเข้าคิว การยืนยันมีอายุ 30 นาที</p>
     <details className="location-permission-guide" open={status.kind === "error"}>
       <summary>{deviceGuide === "ios" ? "วิธีเปิดตำแหน่งบน iPhone / iPad" : deviceGuide === "android" ? "วิธีเปิดตำแหน่งบน Android" : "วิธีอนุญาตตำแหน่ง"}</summary>
       {deviceGuide === "ios" ? <><ol>

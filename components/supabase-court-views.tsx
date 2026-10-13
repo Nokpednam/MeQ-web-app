@@ -114,7 +114,7 @@ function errorCopy(code: string | null, language: "th" | "en") {
     ADMIN_ONLY: "เฉพาะผู้ดูแลสนามเท่านั้นที่เรียกทีมได้",
     OUT_OF_RANGE: "คุณอยู่นอกพื้นที่ทดสอบ 300 เมตร",
     LOCATION_VERIFICATION_REQUIRED:
-      "สมาชิกทุกคนต้องยืนยันตำแหน่งภายใน 10 นาทีก่อนเข้าคิว",
+      "สมาชิกทุกคนต้องยืนยันตำแหน่งภายใน 30 นาทีก่อนเข้าคิว",
     COURT_CLOSED: "สนามปิดอยู่",
     CANNOT_LEAVE_ACTIVE_STATE: "ออกจากคิวไม่ได้ในสถานะปัจจุบัน",
     NO_WAITING_TEAM: "ไม่มีทีมรออยู่ในคิว",
@@ -386,7 +386,7 @@ export function SupabaseCourtDetailView({
                     ? `${c.alreadyInQueue} · ${c.position} ${active.position}`
                     : queueStatusLabel(active.status)}
               </p>
-              {active.courtId === courtId && active.status === "WAITING" ? (
+              {active.courtId === courtId && (active.status === "WAITING" || active.status === "HOLDING_COURT") ? (
                 <form action={leaveCourtQueueAction}>
                   <input type="hidden" name="courtId" value={courtId} />
                   <input type="hidden" name="entryId" value={active.id} />

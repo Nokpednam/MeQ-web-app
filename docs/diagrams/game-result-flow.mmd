@@ -23,6 +23,7 @@ stateDiagram-v2
   DECIDING_CONTINUE --> HOLDING_COURT: winner chooses to continue
   DECIDING_CONTINUE --> LEFT_QUEUE: winner chooses not to continue or 180-second deadline passes
   HOLDING_COURT --> PLAYING: first ready challenger (no new check-in, roster locked)
+  HOLDING_COURT --> LEFT_QUEUE: captain leaves (streak resets)
   COMPLETED --> RESTING: second consecutive win
   COMPLETED --> DECIDING_REQUEUE: losing team (180 seconds)
   DECIDING_REQUEUE --> WAITING: captain chooses requeue

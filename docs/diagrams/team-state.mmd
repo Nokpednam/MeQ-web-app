@@ -3,6 +3,7 @@ stateDiagram-v2
   DECIDING_CONTINUE --> HOLDING_COURT: winner continues
   DECIDING_CONTINUE --> LEFT_QUEUE: winner stops or 3-minute timeout
   HOLDING_COURT --> PLAYING: challenger ready
+  HOLDING_COURT --> LEFT_QUEUE: captain leaves (streak resets)
   PLAYING --> RESTING: second consecutive win
   PLAYING --> DECIDING_REQUEUE: loss
   DECIDING_REQUEUE --> WAITING: requeue
