@@ -7,11 +7,14 @@ function game(id: string, courtId: GameLifecycle["courtId"], status: GameLifecyc
   return { id, courtId, status, startedAt } as GameLifecycle;
 }
 
-test("a game is active until it is completed", () => {
+test("a game is active until it is completed or cancelled", () => {
   assert.equal(isGameActive(game("g1", "3x3-a", "PLAYING", "2026-10-13T10:00:00.000Z")), true);
   assert.equal(isGameActive(game("g1", "3x3-a", "END_REQUESTED", "2026-10-13T10:00:00.000Z")), true);
   assert.equal(isGameActive(game("g1", "3x3-a", "AWAITING_SCORE", "2026-10-13T10:00:00.000Z")), true);
+  assert.equal(isGameActive(game("g1", "3x3-a", "VALIDATING_RESULT", "2026-10-13T10:00:00.000Z")), true);
+  assert.equal(isGameActive(game("g1", "3x3-a", "INVALID_SCORE", "2026-10-13T10:00:00.000Z")), true);
   assert.equal(isGameActive(game("g1", "3x3-a", "COMPLETED", "2026-10-13T10:00:00.000Z")), false);
+  assert.equal(isGameActive(game("g1", "3x3-a", "CANCELLED", "2026-10-13T10:00:00.000Z")), false);
 });
 
 test("the active game for a court is the latest active game on that court", () => {
