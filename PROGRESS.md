@@ -110,7 +110,7 @@
        - ตรวจ: `test:db` ✅ 90/90 `typecheck` ✅ `lint` ✅ `test:unit` ✅ `build` ✅ อัปเดต diagram + PNG `team-state`, `queue-checkin-flow`
      - ยืนยันสาเหตุบนเว็บจริงแล้ว: `cron.job_run_details` ล้มด้วย duplicate key เมื่อ 2026-10-12 16:48:33 หลังทีมแพ้ต่อคิว 16:48:20 แล้วหัวหน้าทีมแพ้กดออกคิวเอง 16:48:56 (`leave_court_queue` ไม่บันทึก audit log)
      - PR #10 merge เข้า `main` 2026-10-13 (CI + Vercel ผ่าน)
-     - **ตรวจทุกฟีเจอร์ก่อนทดสอบจริง (2026-10-13, branch `fix/feature-audit`, migration `20261013120000_court_advance_safety.sql` ยังไม่ push):**
+     - **ตรวจทุกฟีเจอร์ก่อนทดสอบจริง (2026-10-13, branch `fix/feature-audit`, migration `20261013120000_court_advance_safety.sql` push แล้ว 2026-10-13, `migration list` ตรงกันครบ 37 ไฟล์):**
        - ทีมชนะ 2 เกมติดไม่ได้พักจริง: cron ดึงทีมที่พักกลับมาทันทีถ้าทีมแพ้ยังไม่ตัดสินใจ แก้ให้รอทีมแพ้ตัดสินใจก่อน
        - หน้าเช็กอินขึ้น "ยืนยันแล้ว" (ยอม 300 ม.) แต่กดพร้อมเช็ก 50 ม. แก้ให้ใช้ `courts.location_radius_metres` ทั้งสองจุด, ยืนยันหมดอายุแจ้ง `LOCATION_VERIFICATION_REQUIRED`
        - cron แยก subtransaction ทีละสนาม สนามที่ error ถูก rollback และบันทึก `QUEUE_ADVANCE_FAILED` ใน `audit_logs` สนามอื่นเดินต่อ
