@@ -17,7 +17,7 @@ export function CourtCard({ court, copy, activeGame, queueCount }: { court: Cour
       <div className="court-body">
         <div className="court-heading"><div><p className="section-label">{copy.basketballCourt}</p><h3>{court.name}</h3></div><div className="target-score"><span>{copy.target}</span><strong>{court.targetScore}</strong></div></div>
         <div className="court-match">
-          <span>{activeGame?.status === "AWAITING_SCORE" ? copy.awaitingScore : copy.nowPlaying}</span>
+          <span>{activeGame?.status === "AWAITING_SCORE" || activeGame?.status === "VALIDATING_RESULT" || activeGame?.status === "INVALID_SCORE" ? copy.awaitingScore : copy.nowPlaying}</span>
           {activeGame ? <strong>{activeGame.teamA.teamName} <b className="match-versus">VS</b> {activeGame.teamB.teamName}</strong> : <strong className="muted-match">{copy.noMatch}</strong>}
         </div>
         <div className="court-footer"><span><b>{queueCount}</b> {copy.teamsInQueue}</span><Link href={`/courts/${court.id}`}>{copy.viewDetails}<b>→</b></Link></div>
