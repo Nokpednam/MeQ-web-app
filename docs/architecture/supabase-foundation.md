@@ -30,7 +30,7 @@ The browser obtains coordinates from the device and sends them to a Next.js serv
 
 This verifies distance from the submitted coordinates, but it does not prove that a device has not spoofed its location. GPS checks should therefore be treated as an admission control for normal users, not as tamper-proof evidence.
 
-The current browser verification accepts the configured court radius, while team-ready confirmation applies a stricter database distance check. These values must be reviewed together before changing production behavior.
+Browser verification and team-ready confirmation both accept the configured court radius (`courts.location_radius_metres`). A missing or expired verification at team-ready reports `LOCATION_VERIFICATION_REQUIRED`.
 
 ## Business date and time
 

@@ -112,9 +112,9 @@ function errorCopy(code: string | null, language: "th" | "en") {
     ACTIVE_ON_OTHER_COURT: "ทีมอยู่ในคิวหรือกำลังเล่นที่สนามอื่น",
     CAPTAIN_ONLY: "เฉพาะหัวหน้าทีมเท่านั้น",
     ADMIN_ONLY: "เฉพาะผู้ดูแลสนามเท่านั้นที่เรียกทีมได้",
-    OUT_OF_RANGE: "คุณอยู่นอกพื้นที่ทดสอบ 300 เมตร",
+    OUT_OF_RANGE: "คุณอยู่นอกพื้นที่สนาม",
     LOCATION_VERIFICATION_REQUIRED:
-      "สมาชิกทุกคนต้องยืนยันตำแหน่งภายใน 30 นาทีก่อนเข้าคิว",
+      "สมาชิกทุกคนต้องยืนยันตำแหน่งที่สนาม (การยืนยันมีอายุ 30 นาที)",
     COURT_CLOSED: "สนามปิดอยู่",
     CANNOT_LEAVE_ACTIVE_STATE: "ออกจากคิวไม่ได้ในสถานะปัจจุบัน",
     NO_WAITING_TEAM: "ไม่มีทีมรออยู่ในคิว",

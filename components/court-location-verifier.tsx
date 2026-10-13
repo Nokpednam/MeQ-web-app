@@ -22,7 +22,7 @@ function browserError(error: GeolocationPositionError) {
 
 function serverError(code: string, accuracyMetres: number) {
   const copy: Record<string, string> = {
-    OUT_OF_RANGE: "คุณอยู่นอกพื้นที่ทดสอบ 300 เมตรจากคณะ",
+    OUT_OF_RANGE: "คุณอยู่นอกพื้นที่สนาม",
     LOCATION_ACCURACY_TOO_LOW: `โทรศัพท์รายงานความคลาดเคลื่อนประมาณ ±${Math.round(accuracyMetres)} เมตร ให้เปลี่ยนสิทธิ์ตำแหน่งเป็น “แน่นอน” แล้วลองอีกครั้ง`,
     INVALID_COORDINATES: "ข้อมูลตำแหน่งไม่ถูกต้อง กรุณาลองใหม่",
     COURT_LOCATION_NOT_CONFIGURED: "สนามนี้ยังไม่ได้ตั้งค่าตำแหน่ง",
