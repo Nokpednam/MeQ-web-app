@@ -14,9 +14,10 @@ select lives_ok(
 select is((select count(*)::integer from public.location_verifications
   where user_id = '40000000-0000-0000-0000-000000000001' and court_id = '3x3-a'), 1,
   'verification is stored for the authenticated user');
-select ok((select expires_at > now() + interval '9 minutes' from public.location_verifications
+select ok((select expires_at between now() + interval '29 minutes' and now() + interval '31 minutes'
+  from public.location_verifications
   where user_id = '40000000-0000-0000-0000-000000000001' and court_id = '3x3-a'),
-  'verification lasts approximately ten minutes');
+  'verification lasts thirty minutes');
 select throws_ok(
   $$select public.verify_court_location('3x3-a', 16.7521898, 100.1934578, 10)$$,
   '23514', 'OUT_OF_RANGE', 'out-of-range coordinates are rejected'

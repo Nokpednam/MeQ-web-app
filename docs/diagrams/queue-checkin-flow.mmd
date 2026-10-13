@@ -2,10 +2,11 @@ stateDiagram-v2
   [*] --> WAITING
   WAITING --> CALLED: cron every 30 s fills challenger slots (1 if a winner holds, else 2); admin can call by hand
   note right of CALLED
-    Trigger queues a LINE message for every team member,
+    Trigger queues a LINE message for the captain and game delegate,
     expiring at the check-in deadline.
   end note
   CALLED --> CHECKING_IN: beginTeamCheckIn
+  CALLED --> WAITING: holding winner leaves and nobody else waits (back to queue head)
   CHECKING_IN --> CHECKING_IN: background roster location checks
   CHECKING_IN --> READY_TO_PLAY: captain confirms own team once
   CHECKING_IN --> SCORE_PROPOSED: captain proposes allowed target

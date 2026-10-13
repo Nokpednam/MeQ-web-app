@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { decideLoserRequeueAction, decideWinnerContinuationAction } from "@/app/games/actions";
+import { queueStatusLabel } from "@/lib/game-status-copy";
 import type { SupabaseGameResultData } from "@/lib/supabase-game-result-repository";
 
 function DecisionTimer({ deadline }: { deadline: string }) {
@@ -26,6 +27,9 @@ export function SupabaseGameResult({ game }: { game: SupabaseGameResultData }) {
     <section className="final-result"><span>ทีมชนะ</span><h2>{winner.name}</h2><div><strong>{game.teamA.name}</strong><b>{game.teamA.score} : {game.teamB.score}</b><strong>{game.teamB.name}</strong></div></section>
     {game.winnerQueueStatus === "DECIDING_CONTINUE" ? <section className="loser-decision winner-decision"><div><h2>ทีมชนะจะเล่นต่อหรือไม่</h2>{game.winnerDecisionDeadline ? <DecisionTimer deadline={game.winnerDecisionDeadline}/> : null}<p>หัวหน้าทีมชนะเลือกได้หนึ่งครั้ง หากหมดเวลา ระบบจะนำทีมออกจากคิวอัตโนมัติ</p></div>{game.isWinnerCaptain ? <div><form action={decideWinnerContinuationAction}><input type="hidden" name="gameId" value={game.id}/><input type="hidden" name="decision" value="true"/><button>เล่นต่อ</button></form><form action={decideWinnerContinuationAction}><input type="hidden" name="gameId" value={game.id}/><input type="hidden" name="decision" value="false"/><button>ออกจากคิว</button></form></div> : <p>รอหัวหน้าทีมชนะตัดสินใจ</p>}</section> : null}
     {loserDeciding ? <section className="loser-decision"><div><h2>การตัดสินใจของทีมแพ้</h2><DecisionTimer deadline={game.loserDecisionDeadline!}/><p>หากหมดเวลา ระบบจะนำทีมออกจากคิวอัตโนมัติ</p></div>{game.isLoserCaptain ? <div><form action={decideLoserRequeueAction}><input type="hidden" name="gameId" value={game.id}/><input type="hidden" name="decision" value="true"/><button>ต่อท้ายคิว</button></form><form action={decideLoserRequeueAction}><input type="hidden" name="gameId" value={game.id}/><input type="hidden" name="decision" value="false"/><button>ออกจากคิว</button></form></div> : <p>รอหัวหน้าทีมแพ้ตัดสินใจ</p>}</section> : null}
+    {[{ id: game.winnerTeamId, status: game.winnerQueueStatus, deciding: "DECIDING_CONTINUE" }, { id: game.loserTeamId, status: game.loserQueueStatus, deciding: "DECIDING_REQUEUE" }]
+      .filter((item) => item.status && item.status !== item.deciding)
+      .map((item) => <p className="queue-success" role="status" key={item.id}>{(item.id === game.teamA.id ? game.teamA : game.teamB).name}: {queueStatusLabel(item.status!)}{item.status === "WAITING" || item.status === "CALLED" ? <> · <Link href={`/courts/${game.courtId}`}>ไปหน้าสนาม</Link></> : null}</p>)}
     <section className="individual-results"><h2>คะแนนรายบุคคล</h2>{[game.teamA,game.teamB].map(team=><article key={team.id}><strong>{team.name}</strong>{game.playerScores.filter(score=>score.teamId===team.id).map(score=><p key={score.userId}><span>{score.displayName}</span><b>{score.points}</b></p>)}</article>)}</section>
   </div>;
 }

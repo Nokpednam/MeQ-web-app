@@ -36,6 +36,8 @@ export type QueueTeamSnapshot = {
   name: string;
   type: TeamType;
   captainUserId?: string;
+  /** Wins in a row on the current court; the database resets it after a loss or rest. */
+  consecutiveWins?: number;
   memberCount: number;
   members: QueueMemberSnapshot[];
 };

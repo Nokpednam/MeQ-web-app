@@ -93,8 +93,8 @@ begin
   if exists (select 1 from public.player_game_history where game_id = game.id) then
     raise exception 'a cancelled game must not count in player history';
   end if;
-  if (select count(*) from public.line_notifications where kind = 'GAME_CANCELLED') <> 5 then
-    raise exception 'every rostered player should hear that the game has no result';
+  if (select count(*) from public.line_notifications where kind = 'GAME_CANCELLED') <> 3 then
+    raise exception 'both captains and the delegate should hear that the game has no result';
   end if;
 
   -- Admin decides a second game.

@@ -22,10 +22,13 @@ flowchart LR
 | New maintenance report | every `ADMIN` | 24 h |
 | Report status changed | reporter | 24 h |
 | Report `WAITING_FOR_CARETAKER` longer than `queue_settings.maintenance_reminder_days` (default 2) | every `ADMIN`, once per day | 12 h |
-| Team becomes first in the waiting line | every current team member, once per queue entry | 30 min |
-| Team called to check in | every current team member | check-in deadline |
+| Team becomes first in the waiting line | captain and game delegate, once each time the team joins or requeues | 30 min |
+| Team called to check in | captain and game delegate | check-in deadline |
 | Invited to a team | invitee | 24 h |
-| Game completed | every rostered player, with their own win or loss | 6 h |
+| Game end requested | captain and game delegate of both teams | score deadline |
+| Game ends without a result | captain and game delegate of both teams | 2 h |
+
+Game results are not sent over LINE; players see them on the game result page.
 
 Messages are plain Thai text without emoji; the triggers in the latest migration that redefines `private.notify_*` hold the exact wording. Court caretakers are never messaged. Admins phone them and track progress in the admin maintenance page.
 
