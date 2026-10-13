@@ -100,15 +100,16 @@
      - หน้าใส่คะแนน: แสดงเป้าหมาย, ส่งแล้วล็อกฟอร์ม "รออีกทีม", เหตุผลคะแนนไม่ผ่านเป็นภาษาไทย (`lib/game-status-copy.ts`), ปุ่มกันกดซ้ำ
      - หน้าสนามแสดงทีมทุกสถานะ (ครองสนาม/ตัดสินใจ/พัก) + ชนะติดกี่เกม (`teams.consecutive_wins`)
      - แถบแจ้งเตือนทุกหน้า: เกมที่ทีมกำลังเล่น, คำเชิญเข้าทีม; หน้าต่างเด้งให้หัวหน้า/ผู้ช่วยไปใส่คะแนน (`components/user-alerts.tsx` ใน root layout)
-     - **แก้แล้ว 2026-10-13 (ยังไม่ commit, migration ยังไม่ push):** ทีมแพ้ต่อคิวแล้วไม่ถูกเรียกเช็กอินรอบสอง สาเหตุ: ต่อคิวใหม่ใช้ `queue_entries` แถวเดิม แต่ `team_check_ins.queue_entry_id` เป็น UNIQUE การเรียกรอบสองจึง error duplicate key และ cron ทั้งรอบ rollback (ทุกสนามไม่เดิน) ทีมชนะที่พักแล้วกลับมาก็โดนเหมือนกัน แก้ใน migration `20261013090000_repeat_check_in_per_queue_entry.sql` ให้ unique เฉพาะ check-in ที่ยังเปิด (ACTIVE/READY) test: `supabase/tests/requeue_check_in.sql` `test:db` ✅ 84/84
-     - **migration รอบถัดไป เสร็จ 2026-10-13 (ยังไม่ commit, ยังไม่ push):** `20261013100000_leader_notifications_and_holder_leave.sql`
+     - **แก้แล้ว 2026-10-13 (commit `7c1da0a`, migration push แล้ว 2026-10-13):** ทีมแพ้ต่อคิวแล้วไม่ถูกเรียกเช็กอินรอบสอง สาเหตุ: ต่อคิวใหม่ใช้ `queue_entries` แถวเดิม แต่ `team_check_ins.queue_entry_id` เป็น UNIQUE การเรียกรอบสองจึง error duplicate key และ cron ทั้งรอบ rollback (ทุกสนามไม่เดิน) ทีมชนะที่พักแล้วกลับมาก็โดนเหมือนกัน แก้ใน migration `20261013090000_repeat_check_in_per_queue_entry.sql` ให้ unique เฉพาะ check-in ที่ยังเปิด (ACTIVE/READY) test: `supabase/tests/requeue_check_in.sql` `test:db` ✅ 84/84
+     - **migration รอบถัดไป เสร็จ 2026-10-13 (commit `7c1da0a`, migration push แล้ว 2026-10-13, `migration list` ตรงกันครบ 36 ไฟล์):** `20261013100000_leader_notifications_and_holder_leave.sql`
        - LINE คิวถัดไป / ถึงคิว / เกมไม่มีผล ส่งถึงหัวหน้า+ผู้ช่วยเท่านั้น (`private.team_leader_user_ids`), ตัด LINE ผลการแข่งขัน
        - dedupe key "คิวถัดไป" ใส่ `joined_at` ทีมต่อคิวใหม่ได้ข้อความอีกครั้ง
        - GPS ยืนยันมีอายุ 30 นาที (เดิม 10)
        - ทีมครองสนามกดออกจากคิวได้ (ปุ่มในหน้าสนาม) จำนวนชนะติดเริ่มนับใหม่
        - ถ้าทีมครองสนามออกตอนผู้ท้าชิงถูกเรียกแล้วและไม่มีทีมอื่นรอ ผู้ท้าชิงกลับไปเป็นคิวแรก (ได้ LINE คิวถัดไปอีกครั้ง) แทนการรอจนหมดเวลาแล้วหลุดคิว
        - ตรวจ: `test:db` ✅ 90/90 `typecheck` ✅ `lint` ✅ `test:unit` ✅ `build` ✅ อัปเดต diagram + PNG `team-state`, `queue-checkin-flow`
-     - **ยังค้าง:** ทดสอบบนมือถือจริง, push migration `20261013090000` และ `20261013100000` ขึ้น Supabase จริง (รอเจ้าของอนุญาต)
+     - ยืนยันสาเหตุบนเว็บจริงแล้ว: `cron.job_run_details` ล้มด้วย duplicate key เมื่อ 2026-10-12 16:48:33 หลังทีมแพ้ต่อคิว 16:48:20 แล้วหัวหน้าทีมแพ้กดออกคิวเอง 16:48:56 (`leave_court_queue` ไม่บันทึก audit log)
+     - **ยังค้าง:** ทดสอบบนมือถือจริง, push branch + เปิด PR เข้า `main` ให้โค้ดหน้าเว็บขึ้นเว็บจริง
 4. **เตรียมส่งโปรเจกต์จบ**
    - อัปเดต diagram ใน `docs/diagrams/` ให้ตรงกับระบบล่าสุด
    - เก็บผลทดสอบ (unit, db, ทดสอบที่สนามจริง) ไว้ใช้ในเล่มรายงาน
