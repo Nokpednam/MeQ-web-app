@@ -61,7 +61,7 @@ Domain details that span files:
 - Court IDs are `3x3-a`, `3x3-b`, and `5x5`. Both 3x3 courts belong to one `court_group`, and the daily target score is stored per court group and business date. Queue entries are stored per court.
 - The business date uses `Asia/Bangkok` and rolls over at 05:00. Courts are open 05:00–00:00.
 - Games snapshot the roster and target score, so later changes do not rewrite past results.
-- GPS check-in: the browser sends coordinates to a server action, and the database computes the distance and stores an expiring verification. Never accept a client-side "in range" flag. Team-ready confirmation applies a stricter distance check than browser verification, so review the two together.
+- GPS check-in: the browser sends coordinates to a server action, and the database computes the distance and stores an expiring verification. Never accept a client-side "in range" flag. Browser verification and team-ready confirmation both use `courts.location_radius_metres`; change the radius there, not in either function.
 - Maintenance images go to the private Storage bucket `maintenance-evidence` at `<userId>/<uuid>.<ext>`. Only the object path is stored in the database.
 - Admin is `profiles.role = 'ADMIN'`, and every admin RPC checks it again.
 
