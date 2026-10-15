@@ -131,7 +131,7 @@
      - บั๊กจากการทดสอบ KPI-4: ช่องหมายเหตุของแอดมินหายบนมือถือ (ใช้ class `admin-entry` ซ้ำกับลิงก์แอดมินที่ถูกซ่อน) แก้แล้วใน worktree `../meq-admin-note` branch `fix/admin-note-field` + test ใน production-surface ผ่าน typecheck/lint/test:unit/build ยังไม่ commit/push
      - 2026-10-15: PR #13 (Next.js 16.3.8) และ #14 (ช่องหมายเหตุแอดมิน) merge แล้ว, ZAP baseline เว็บจริง: 0 High, 4 Medium (ขาด security headers: CSP, X-Frame-Options ฯลฯ) KPI-7 ผ่าน รายงานใน `docs/report/evidence/`
      - ยังขาด: KPI-1/KPI-5 (load test), KPI-6 (SUS ผู้ใช้จริง), ภาพหน้าจอ 8 รูป (หน้าเช็กอิน/ส่งคะแนน/ผลเกม ให้เพื่อนช่วยวันที่ 16 ต.ค.), บทคัดย่อและบทสรุปส่วนที่เหลือ
-     - ทำได้ต่อ: เพิ่ม security headers ใน next.config (ปิด Medium ของ ZAP ส่วนใหญ่)
+     - ✅ 2026-10-16: security headers (PR #15 merge แล้ว) สแกน ZAP ซ้ำ: 0 High, ผ่าน 60 กฎ, คำเตือน 11 → 7 (ที่เหลือ: CSP unsafe-inline, static ของ Vercel, anti-CSRF หน้าล็อกอิน, COEP) ตาราง 4.7 แบบก่อน/หลัง
 
 ## งานจุกจิก
 
