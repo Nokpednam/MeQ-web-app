@@ -1,0 +1,42 @@
+erDiagram
+  direction TB
+  PROFILES ||--o{ TEAM_MEMBERSHIPS : "belongs"
+  TEAMS ||--o{ TEAM_MEMBERSHIPS : "has"
+  TEAMS ||--o{ QUEUE_ENTRIES : "enters"
+  COURTS ||--o{ QUEUE_ENTRIES : "queues"
+  COURTS ||--o{ GAMES : "hosts"
+  GAMES ||--o{ PLAYER_GAME_HISTORY : "records"
+  PROFILES ||--o{ PLAYER_GAME_HISTORY : "plays"
+  PROFILES { uuid id PK
+    text display_name
+    app_role role }
+  TEAM_MEMBERSHIPS { uuid team_id FK
+    uuid user_id FK
+    member_role role
+    timestamptz left_at }
+  TEAMS { uuid id PK
+    text name
+    team_format format
+    uuid captain_user_id FK
+    uuid game_delegate_user_id FK
+    int consecutive_wins }
+  COURTS { text id PK
+    bool is_open
+    int location_radius_metres }
+  QUEUE_ENTRIES { uuid id PK
+    text court_id FK
+    uuid team_id FK
+    bigint position
+    queue_status status
+    timestamptz check_in_deadline }
+  GAMES { uuid id PK
+    text court_id FK
+    uuid team_a_id FK
+    uuid team_b_id FK
+    int target_score
+    game_status status
+    timestamptz score_deadline }
+  PLAYER_GAME_HISTORY { uuid game_id PK
+    uuid user_id PK
+    int points
+    bool won }

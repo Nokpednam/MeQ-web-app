@@ -1,0 +1,27 @@
+flowchart LR
+  subgraph IN["Problem context"]
+    I1["Word-of-mouth queuing<br/>at NU basketball courts"]
+    I2["Equipment damage reported<br/>late to staff"]
+  end
+  subgraph IV["Independent variable: MeQ"]
+    V1["Database-enforced queue rules<br/>(transactional RPCs, pg_cron)"]
+    V2["Location-verified check-in<br/>(GPS, server-side distance)"]
+    V3["Maintenance workflow<br/>with status history"]
+    V4["LINE notifications<br/>(transactional outbox)"]
+  end
+  subgraph DV["Dependent variables (KPIs)"]
+    D1["Queue correctness<br/>KPI-1, KPI-2"]
+    D2["Notification timeliness<br/>KPI-3"]
+    D3["Maintenance responsiveness<br/>KPI-4"]
+    D4["Performance under load<br/>KPI-5"]
+    D5["Usability<br/>KPI-6"]
+    D6["Security<br/>KPI-7"]
+  end
+  IN --> IV
+  V1 --> D1
+  V1 --> D4
+  V2 --> D1
+  V4 --> D2
+  V3 --> D3
+  IV --> D5
+  IV --> D6
