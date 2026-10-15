@@ -1,0 +1,25 @@
+                  invariant                   | violations 
+----------------------------------------------+------------
+ I1 team in more than one active queue        |          0
+ I2 player in more than one active queue      |          0
+ I3 duplicate position on a court             |          0
+ I4 waiting entry without a position          |          0
+ I9 more than two teams called on a court     |          0
+ I5 waiting order differs from joining order  |          0
+ I6 active entry missing a player reservation |          0
+ I7 reservation for a closed or missing entry |          0
+ I8 team on a court of the wrong format       |          0
+(9 rows)
+
+    status    | count 
+--------------+-------
+ LEFT_QUEUE   |    45
+ MISSED_QUEUE |     6
+ CALLED       |     6
+(3 rows)
+
+ joined | left_queue | called | advance_failed 
+--------+------------+--------+----------------
+     57 |         45 |      0 |              0
+(1 row)
+

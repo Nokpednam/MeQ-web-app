@@ -82,7 +82,11 @@ def front_matter(doc):
           "were fixed before measurement. All 98 database tests and 30 unit tests of the business rules passed, and a field "
           "test with six players on real phones exposed nine defects, among them a queue that stopped advancing after a team "
           "requeued, all of which were corrected and covered by new tests. "
-          "{{Summarize here the results of KPI-1 and KPI-3 to KPI-7 after the final evaluation (Chapter 4).}}")
+          "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
+          "the 95th percentile, with no failed request once failures caused by the load generator's container were "
+          "traced and removed. Twenty-nine of 30 LINE "
+          "notifications arrived within a minute, the maintenance workflow passed every step of a scripted scenario, and "
+          "a security scan found no High-risk alert. {{Add the SUS result.}}")
 
     doc.toc("Table of Contents", r'TOC \o "1-3" \h \z \u')
     doc.page_break()
@@ -557,18 +561,28 @@ def chapter3(doc):
     doc.h(3, "Evaluation Objects and Participants")
     doc.lead("Automated tests (KPI-2).", "Thirteen pgTAP files that exercise the database functions as different users, and "
              "seven unit-test suites for the rules in TypeScript.")
-    doc.lead("Load test environment (KPI-1, KPI-5).", "{{A separate Supabase project or the local Supabase stack with 50 test "
-             "accounts in teams of 3 and 5, so that production data are not affected.}}")
+    doc.lead("Load test environment (KPI-1, KPI-5).", "The local Supabase stack, with all 37 migrations and its scheduled "
+             "jobs, and a production build of the application, on one laptop (AMD Ryzen 7 7840HS, 8 cores, 16 GB RAM, "
+             "Docker Desktop), so that production data were not affected. Fifty test accounts formed ten 3x3 teams and four "
+             "5x5 teams, every member's location was recorded as verified, and the courts were opened all day.")
     doc.lead("Maintenance scenario (KPI-4).", "Five report attempts, each marked as a test in its description, filed on the "
              "deployed system at the 5x5 court, where no real report was open, by the author acting as player and as "
              "administrator on the author's own phone (Table 3.8).")
     doc.lead("Field evaluation (KPI-3, KPI-6).", "{{Number}} players recruited at the courts by convenience sampling "
              "over {{period}}, using the deployed system on their own phones.")
     doc.h(3, "Instruments")
-    doc.lead("Invariant queries (KPI-1).", "SQL queries run after each load run that count teams or players in more than one "
-                                           "active queue, duplicate or missing positions, and positions out of joining order.")
-    doc.lead("k6 load script (KPI-1, KPI-5).", "Drives a fixed journey: sign in, open the court page, join a queue, refresh "
-                                              "the queue page as the live refresh does, and leave. {{Final journey to be fixed before the run.}}")
+    doc.lead("Invariant queries (KPI-1).", "Nine SQL queries run after each load run that count teams or players in more "
+                                           "than one active queue, duplicate or missing positions of waiting teams, waiting "
+                                           "teams out of joining order, more than two teams called on a court, player "
+                                           "reservations that do not match the active entries, and teams on a court of the "
+                                           "wrong format.")
+    doc.lead("k6 load script (KPI-1, KPI-5).", "Fifty virtual users arrive over 30 seconds and stay for three minutes. Each "
+                                              "of the 14 captains signs in, opens the court page, tries to join two queues "
+                                              "at the same moment (the two 3x3 courts, or the 5x5 court twice), refreshes "
+                                              "the court page every 10 seconds as the live refresh does, and leaves. The 36 "
+                                              "members open their court page every 10 seconds. The scheduler of the "
+                                              "database keeps calling teams during the run. Refusals by a queue rule are "
+                                              "expected answers and are not counted as failed requests.")
     doc.lead("Outbox records (KPI-3).", "The creation and delivery time, status, and attempts of every notification.")
     doc.lead("Maintenance scenario (KPI-4).", "The scripted steps in Table 3.8, with the status history and the outbox "
                                               "records of the test reports as evidence.")
@@ -586,8 +600,18 @@ def chapter3(doc):
                                               "other test files; an OWASP Top 10 matrix [25]; `npm audit` of the production dependencies; and an OWASP ZAP baseline scan of the deployed site [28], which crawls "
                                               "the public pages and checks their responses without submitting forms.")
     doc.h(3, "Data Collection Procedures")
-    doc.p("{{Describe, after the evaluation: the dates, the number of runs, how participants were briefed and consented, "
-          "the tasks they performed before the SUS questionnaire, and how the records were exported.}}")
+    doc.p("The load test was run in two sets of three runs on 16 October 2026: set A with k6 inside a Docker container "
+          "and set B with the same k6 version running directly on the laptop. Set B was added after set A, to find the "
+          "cause of its failed requests (Section 4.1.7); everything else, including the application build, was the same. "
+          "Before each run the local database was reset and the "
+          "accounts and teams were created again, so the runs are independent; after each run the invariant queries were "
+          "executed and the k6 summary was exported. A first set of three runs exposed two errors in the instruments "
+          "themselves: the script counted the empty success response of the leave function (HTTP 204) as a failure, and "
+          "two invariant queries treated the cleared position of a called team, which the design intends, as a violation. "
+          "Both were corrected and the runs of set A were repeated; the results below come from the repeated runs, and the "
+          "discarded first attempt is kept with the evidence. The scripts and results are in `docs/report/evidence/load-test/`. "
+          "{{Describe the field evaluation: dates, participants, briefing and consent, tasks before the SUS questionnaire, "
+          "and export of the responses.}}")
     doc.h(3, "Data Analysis")
     doc.p("All KPIs are criterion-referenced: a hypothesis is supported only if every criterion of its KPIs is met. For "
           "KPI-3, the delay of each notification is its delivery time minus its creation time, and the share delivered within "
@@ -604,11 +628,11 @@ def chapter4(doc):
     doc.h(2, "Results")
     doc.h(3, "Summary of Results")
     doc.table("Results for the seven KPIs", ["KPI", "Pass threshold", "Result", "Verdict"], [
-        ["KPI-1 Queue integrity", "0 violations", "{{ }}", "{{ }}"],
+        ["KPI-1 Queue integrity", "0 violations", "0 violations in 6 runs; 0 of 533 simultaneous double joins accepted", "Pass"],
         ["KPI-2 Rule conformance", "All tests pass", "98 of 98 database tests; 30 of 30 unit tests", "Pass"],
         ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "29 of 30 (96.7%) within 60 s; median 1.7 s; no duplicates (11–12 Oct)", "Pass"],
         ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
-        ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "{{ }}", "{{ }}"],
+        ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "Set B: p95 88–94 ms, 0 failed in 3 runs (set A: up to 1.46% failed, traced to the load generator)", "Pass"],
         ["KPI-6 Usability", "Mean SUS ≥ 68", "{{ }}", "{{ }}"],
         ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; npm audit: 0 production vulnerabilities after upgrade; ZAP baseline: 0 High; warnings 11 → 7 after security headers", "Pass"],
     ], [3, 3, 4, 1.5])
@@ -635,10 +659,23 @@ def chapter4(doc):
           "showed that a single faulty court could stop every court, which is why each court now advances independently.")
 
     doc.h(3, "KPI-1: Queue Integrity Under Load")
-    doc.p("{{Report the three runs: number of operations, rule violations found by the invariant queries (expected 0), and "
-          "any errors. Add a table and, if useful, a figure.}}")
+    doc.p("No run of either set produced a rule violation (Table 4.3). In each run the captains attempted about 180 joins, half of them "
+          "as the second of two simultaneous requests for the same team. The database never accepted both requests of a "
+          "pair: when the team was free it accepted one and refused the other, and when the team was still called from "
+          "an earlier join it refused both. Meanwhile the scheduler "
+          "called 10 to 12 teams per run, so joins, leaves, and calls competed for the same queues. Leaving was refused only "
+          "for teams that the scheduler had already called, as the rules require.")
+    doc.table("Queue integrity under load (KPI-1), 16 October 2026",
+              ["Run", "Joins tried", "Joined", "Both of a pair accepted", "Left", "Leaves refused", "Teams called", "Violations"], [
+        ["A1", "182", "58", "0 of 91", "46", "12", "12", "0"],
+        ["A2", "172", "55", "0 of 86", "45", "10", "10", "0"],
+        ["A3", "172", "53", "0 of 86", "43", "8", "10", "0"],
+        ["B1", "178", "56", "0 of 89", "44", "12", "12", "0"],
+        ["B2", "182", "58", "0 of 91", "46", "12", "12", "0"],
+        ["B3", "180", "57", "0 of 90", "45", "12", "12", "0"],
+    ], [1, 1.4, 1.6, 1.8, 1.1, 1.5, 1.4, 1.9])
     doc.h(3, "KPI-2: Rule Conformance")
-    doc.p("All 98 assertions in the thirteen database test files and all 30 unit tests passed on the final build (Table 4.3). "
+    doc.p("All 98 assertions in the thirteen database test files and all 30 unit tests passed on the final build (Table 4.4). "
           "The database tests run each function as specific users, including users who must be refused, so they verify the "
           "rules and the permissions together.")
     doc.table("Automated test results", ["Test file", "Area", "Assertions", "Result"], [
@@ -654,7 +691,7 @@ def chapter4(doc):
     ], [3.2, 5, 1.9, 1.2])
     doc.h(3, "KPI-3: Notification Timeliness")
     doc.p("The outbox recorded 30 notifications on the production system between 11 and 12 October 2026, during the "
-          "preliminary test and the formative field test (Table 4.4). All 30 were sent on the first attempt, none was sent "
+          "preliminary test and the formative field test (Table 4.5). All 30 were sent on the first attempt, none was sent "
           "twice, and none failed or expired. Twenty-nine (96.7%) were delivered within 60 seconds of the change that "
           "caused them, which meets the threshold of 95%. The median delay was 1.7 seconds and the mean 25.6 seconds.")
     doc.table("Delivery delay of LINE notifications by event, 11–12 October 2026",
@@ -679,7 +716,7 @@ def chapter4(doc):
     doc.p("The scenario of Table 3.8 was run on the deployed system on 15 October 2026 between 19:15 and 19:40, on the "
           "author's phone, with five report attempts at the 5x5 court. Step S4 was carried out after S6 by mistake; the "
           "order does not affect its outcome, because R1 had already been resolved. Every step behaved as specified "
-          "(Table 4.5).")
+          "(Table 4.6).")
     doc.table("Results of the maintenance scenario, 15 October 2026", ["Step", "Observed behavior", "Result"], [
         ["S1", "R1 saved as NEW with its photo; administrator notified 1.2 s later", "Pass"],
         ["S2", "R2 refused with the duplicate message; no report saved", "Pass"],
@@ -699,14 +736,35 @@ def chapter4(doc):
           "hidden with it. The field was given its own style, and a source test now guards against the regression.")
     fig(doc, SHOT + "admin-stats.png", "The maintenance statistics page after the scenario (30 days), including the test reports", 90)
     doc.h(3, "KPI-5: Responsiveness Under Load")
-    doc.p("{{Report p95 and the failure rate of each run, and a figure of response time per step.}}")
+    doc.p("Response times stayed far below the threshold in every run of both sets (Table 4.7): the 95th percentile of "
+          "all requests was 88 to 94 milliseconds and no request took longer than 227 milliseconds. Court pages, rendered on the server "
+          "with their queue, accounted for almost all of this time, while the queue functions in the database answered in "
+          "under 8 milliseconds at the 95th percentile.")
+    doc.table("Responsiveness under load (KPI-5), 16 October 2026",
+              ["Run", "Requests", "Pages p95 (ms)", "Functions p95 (ms)", "All p95 (ms)", "Max (ms)", "Failed"], [
+        ["A1", "1,336", "100.9", "7.6", "91.1", "183.5", "9 (0.67%)"],
+        ["A2", "1,317", "101.0", "7.6", "93.6", "178.2", "10 (0.76%)"],
+        ["A3", "1,304", "107.9", "7.3", "91.9", "159.0", "19 (1.46%)"],
+        ["B1", "1,351", "109.5", "7.8", "94.2", "226.4", "0 (0%)"],
+        ["B2", "1,366", "97.0", "7.4", "88.2", "174.6", "0 (0%)"],
+        ["B3", "1,356", "92.8", "7.8", "88.6", "172.4", "0 (0%)"],
+    ], [1, 1.7, 1.7, 1.9, 1.6, 1.4, 2.1])
+    doc.p("In set A the failure rate met the threshold in the first two runs but not in the third (1.46%). The failed "
+          "requests were not slow answers: they came in short bursts, mostly as connections from the load generator that "
+          "timed out before reaching the server (15 of 19 in run A3), and only page requests failed, which in set A "
+          "crossed from the Docker container to the laptop, while requests to the database through a port published by "
+          "Docker never failed. To test whether the container's networking caused the failures, set B ran the same k6 "
+          "version directly on the laptop against the same build. No request failed in any of its three runs, and the "
+          "response times did not change. The failures of set A are therefore attributed to the load generator's "
+          "network path rather than to MeQ, and KPI-5 is met on set B. Both sets are reported so that the reader can "
+          "judge this attribution.")
     doc.h(3, "KPI-6: Usability")
     doc.p("{{Report n, how often the participants play at the courts and how many acted as team leaders, then the mean "
           "SUS score, the standard deviation, and the 95% confidence interval, with a figure against the benchmark of 68.}}")
     doc.h(3, "KPI-7: Security")
     doc.p("All 40 privilege assertions passed: anonymous users cannot call any queue, game, or administrator function; "
           "signed-in users cannot write to lifecycle tables directly; only the service role can claim notifications; and "
-          "administrator functions refuse other users. Table 4.6 maps the controls of MeQ to the OWASP Top 10 [25].")
+          "administrator functions refuse other users. Table 4.8 maps the controls of MeQ to the OWASP Top 10 [25].")
     doc.table("Controls of MeQ against the OWASP Top 10:2021", ["Risk", "Control in MeQ", "Evidence"], [
         ["A01 Broken Access Control", "Row-level security on every table; lifecycle tables are written only by functions that check `auth.uid()` and the role; administrator functions check the role again; each user's photos are kept in their own folder of a private bucket",
          "40 privilege assertions; role checks in the other test files"],
@@ -717,7 +775,7 @@ def chapter4(doc):
         ["A04 Insecure Design", "Rules, timers, and positions are decided in database transactions; the distance to the court is computed on the server; browser timers are for display only",
          "pgTAP rule tests; field test"],
         ["A05 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table; security headers including a Content Security Policy",
-         "Privilege tests; ZAP baseline (Table 4.7)"],
+         "Privilege tests; ZAP baseline (Table 4.9)"],
         ["A06 Vulnerable and Outdated Components", "Dependencies are pinned by the lockfile and audited with `npm audit`. Known vulnerabilities found in Next.js 16.3.3 (critical), sharp, and source-map-js were removed by upgrading to Next.js 16.3.8",
          "npm audit before and after the upgrade"],
         ["A07 Identification and Authentication Failures", "Sign-in with LINE Login through OpenID Connect [17]; sessions are kept in cookies managed by Supabase Auth and refreshed on every request",
@@ -739,7 +797,7 @@ def chapter4(doc):
           "2026 after the Next.js upgrade, passed 56 rules and raised no High-risk alert, which already meets the "
           "criterion of KPI-7, but it reported missing security headers. The headers were then added to the Next.js "
           "configuration, and the second scan, early on 16 October, passed 60 rules with no High-risk alert and seven "
-          "warnings instead of eleven (Table 4.7). Neither scan was signed in, so both covered only the public pages (the "
+          "warnings instead of eleven (Table 4.9). Neither scan was signed in, so both covered only the public pages (the "
           "sign-in, privacy, and terms pages and the static files); the pages behind sign-in are protected by the "
           "privilege tests instead.")
     doc.table("Alerts of the ZAP baseline scans before and after the security headers",
@@ -765,7 +823,9 @@ def chapter4(doc):
           "and each correction applied to every page at once. The same centralization made a single failing court stop every "
           "court until each court was isolated in its own sub-transaction. Enforcement in the database is therefore "
           "necessary for a fair queue [2], [5], but a scheduler that serves several courts must also contain each court's "
-          "failures. {{Relate to the KPI-1 result.}}")
+          "failures. The load test supports this from the other side: with 50 users and the scheduler acting on the same "
+          "queues, the row locks and unique indexes of the database let only one of two simultaneous joins succeed, and "
+          "no run left a single inconsistency.")
     doc.h(3, "Notifications Turn an Uncertain Wait into a Known One")
     doc.p("Maister's observation that uncertain waits feel longer [3] motivated the notifications. The field test added a "
           "practical refinement: messages to every member were perceived as noise, and limiting them to team leaders kept "
@@ -784,7 +844,13 @@ def chapter4(doc):
           "and that a report reaches the administrator about a second after it is filed. What remains unmeasured is the "
           "human part of the cycle, the time an administrator and a caretaker take to act, which only regular use can show.")
     doc.h(3, "Practicality")
-    doc.p("{{Discuss KPI-5 and KPI-6, and the choice of polling instead of WebSockets.}}")
+    doc.p("The load test suggests that the expected evening crowd is far from the limits of the design. Refreshing every "
+          "court page every 10 seconds instead of keeping a WebSocket open costs a full page render per refresh, yet 50 "
+          "users kept the 95th percentile under a tenth of a second on a laptop. Polling also keeps the queue tables closed "
+          "to the browser, which subscriptions would have required opening. The failures of the first set of runs are a "
+          "reminder that a load test measures its own environment as well: only by changing the load generator's path, "
+          "and nothing else, could they be separated from the application. "
+          "{{Discuss KPI-6 after the SUS results.}}")
 
 
 # =====================================================================
@@ -795,20 +861,26 @@ def chapter5(doc):
           "at the basketball courts of Naresuan University and gives players a channel for reporting damaged equipment.")
     doc.lead("Objective 1: the queue.", "MeQ shows the queue of every court and enforces the court rules in the database. "
              "All automated rule tests passed, and the defects found in the field test were corrected and covered by tests. "
-             "{{Conclusion on KPI-1 and H1.}}")
+             "Under 50 simultaneous users the queues stayed consistent in all three runs, and no team "
+             "could hold two places at once, so H1 is supported.")
     doc.lead("Objective 2: presence.", "Check-in requires every member to be within the court's radius, computed on the "
              "server, before a team can play.")
     doc.lead("Objective 3: maintenance.", "Players report damage with a photo, a second report of an open problem is "
              "refused, and every status change is recorded. In a scripted scenario on the deployed "
              "system, every step behaved as specified and all ten notifications arrived within 1.3 seconds, so H3 is "
              "supported; one defect, a note field hidden on phones, was found and corrected.")
-    doc.lead("Objective 4: notifications and evaluation.", "{{Conclusions on KPI-3, KPI-5, KPI-6, and KPI-7.}}")
+    doc.lead("Objective 4: notifications and evaluation.", "Of 30 notifications, 29 arrived within a minute and none twice "
+             "(KPI-3, H2 supported). Pages answered within a tenth of a second at the 95th percentile under 50 users, with "
+             "no failed request once the load generator ran outside Docker (KPI-5). No High-risk alert or vulnerable "
+             "production dependency remained after the upgrade and the security headers (KPI-7). {{Conclusion on KPI-6 "
+             "and H4.}}")
     doc.h(2, "Limitations")
     doc.ol([
         "A falsified browser location cannot be detected; the radius check only confirms what the phone reports.",
         "Scores are entered by the teams; the system checks that they are consistent, not that they are true.",
         "Notifications reach only users who have added the LINE Official Account as a friend.",
         "The evaluation took place at one facility, on free-tier infrastructure, with a small convenience sample.",
+        "The load test ran on one laptop that hosted the application, the database, and the load generator together, so its response times are not those of the hosted services; the failures of its first set were traced to the load generator's network path by a second set, not by a test from a separate machine.",
         "The time administrators take to respond to real faults was not measured, because faults could not be scheduled during the evaluation; the statistics page records it for later study.",
         "The author built and evaluated the system with AI assistance; automated tests and fixed criteria reduce, but do not remove, this bias.",
     ])

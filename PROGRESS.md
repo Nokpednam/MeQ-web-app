@@ -130,7 +130,8 @@
      - KPI-3 ใส่ในเล่มแล้ว (ข้อมูลจริงจาก outbox 11–12 ต.ค.: 29/30 ภายใน 60 วิ, median 1.7 วิ, ไม่ซ้ำ) KPI-4 เปลี่ยนนิยามแล้ว (2026-10-15) จาก "เวลาตอบรับ ≤ 12 ชม." (ต้องรอของพังจริง) เป็น scenario test ของขั้นตอนแจ้งซ่อม S1–S7 (Table 3.8) ขั้นตอนอยู่ใน `docs/report/kpi4-maintenance-test.md` ทดสอบบนเว็บจริงแล้ว 2026-10-15 19:15–19:40: ผ่านทั้ง 7 ขั้น, LINE 10/10 ภายใน 1.3 วิ ใส่ผลในเล่มแล้ว (Table 4.5)
      - บั๊กจากการทดสอบ KPI-4: ช่องหมายเหตุของแอดมินหายบนมือถือ (ใช้ class `admin-entry` ซ้ำกับลิงก์แอดมินที่ถูกซ่อน) แก้แล้วใน worktree `../meq-admin-note` branch `fix/admin-note-field` + test ใน production-surface ผ่าน typecheck/lint/test:unit/build ยังไม่ commit/push
      - 2026-10-15: PR #13 (Next.js 16.3.8) และ #14 (ช่องหมายเหตุแอดมิน) merge แล้ว, ZAP baseline เว็บจริง: 0 High, 4 Medium (ขาด security headers: CSP, X-Frame-Options ฯลฯ) KPI-7 ผ่าน รายงานใน `docs/report/evidence/`
-     - ยังขาด: KPI-1/KPI-5 (load test), KPI-6 (SUS ผู้ใช้จริง), ภาพหน้าจอ 8 รูป (หน้าเช็กอิน/ส่งคะแนน/ผลเกม ให้เพื่อนช่วยวันที่ 16 ต.ค.), บทคัดย่อและบทสรุปส่วนที่เหลือ
+     - ✅ 2026-10-16 load test (k6 ใน Docker, Supabase + production build ในเครื่อง, 50 VU, 3 รอบ) KPI-1 ผ่าน: invariant 9 ข้อ = 0 ทุกรอบ, ลงคิวพร้อมกัน 263 คู่ไม่มีคู่ไหนสำเร็จทั้งสอง; KPI-5: ชุด A (k6 ใน Docker) ล้มเหลว 0.67/0.76/1.46%; ชุด B (k6 v2.3.0 ตัวเดียวกันรันตรงบน Windows) ล้มเหลว 0% ทั้ง 3 รอบ p95 88–94 ms → สาเหตุคือเครือข่าย Docker→host ไม่ใช่ MeQ, KPI-5 ผ่าน (รายงานทั้งสองชุดในเล่ม) หลักฐานใน `docs/report/evidence/load-test/`
+     - ยังขาด: KPI-6 (SUS ผู้ใช้จริง), ภาพหน้าจอ 8 รูป (หน้าเช็กอิน/ส่งคะแนน/ผลเกม ให้เพื่อนช่วยวันที่ 16 ต.ค.), บทคัดย่อและบทสรุปส่วนที่เหลือ
      - ✅ 2026-10-16: security headers (PR #15 merge แล้ว) สแกน ZAP ซ้ำ: 0 High, ผ่าน 60 กฎ, คำเตือน 11 → 7 (ที่เหลือ: CSP unsafe-inline, static ของ Vercel, anti-CSRF หน้าล็อกอิน, COEP) ตาราง 4.7 แบบก่อน/หลัง
 
 ## งานจุกจิก
