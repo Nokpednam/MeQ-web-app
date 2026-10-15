@@ -583,7 +583,8 @@ def chapter3(doc):
     ], [1, 5.5, 5.5])
     doc.lead("System Usability Scale (KPI-6).", "The standard ten-item questionnaire [22], administered in Thai through Google Forms (Appendix C).")
     doc.lead("Security instruments (KPI-7).", "The privilege tests in `security_privileges.sql` and the role checks in the "
-                                              "other test files; an OWASP Top 10 matrix [25]; `npm audit` of the production dependencies; and {{an OWASP ZAP baseline scan}}.")
+                                              "other test files; an OWASP Top 10 matrix [25]; `npm audit` of the production dependencies; and an OWASP ZAP baseline scan of the deployed site [28], which crawls "
+                                              "the public pages and checks their responses without submitting forms.")
     doc.h(3, "Data Collection Procedures")
     doc.p("{{Describe, after the evaluation: the dates, the number of runs, how participants were briefed and consented, "
           "the tasks they performed before the SUS questionnaire, and how the records were exported.}}")
@@ -609,7 +610,7 @@ def chapter4(doc):
         ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
         ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "{{ }}", "{{ }}"],
         ["KPI-6 Usability", "Mean SUS ≥ 68", "{{ }}", "{{ }}"],
-        ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; npm audit: 0 production vulnerabilities after upgrade; {{ZAP}}", "{{ }}"],
+        ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; npm audit: 0 production vulnerabilities after upgrade; ZAP baseline: 0 High, 4 Medium", "Pass"],
     ], [3, 3, 4, 1.5])
 
     doc.h(3, "Formative Field Test")
@@ -716,7 +717,7 @@ def chapter4(doc):
         ["A04 Insecure Design", "Rules, timers, and positions are decided in database transactions; the distance to the court is computed on the server; browser timers are for display only",
          "pgTAP rule tests; field test"],
         ["A05 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table",
-         "Privilege tests; {{ZAP baseline}}"],
+         "Privilege tests; ZAP baseline (Table 4.7)"],
         ["A06 Vulnerable and Outdated Components", "Dependencies are pinned by the lockfile and audited with `npm audit`. Known vulnerabilities found in Next.js 16.3.3 (critical), sharp, and source-map-js were removed by upgrading to Next.js 16.3.8",
          "npm audit before and after the upgrade"],
         ["A07 Identification and Authentication Failures", "Sign-in with LINE Login through OpenID Connect [17]; sessions are kept in cookies managed by Supabase Auth and refreshed on every request",
@@ -733,7 +734,24 @@ def chapter4(doc):
           "uses for LINE profile pictures, and high-severity advisories in sharp and source-map-js. After the upgrade to "
           "Next.js 16.3.8, the audit of the production dependencies reported no vulnerabilities, and the type check, lint, "
           "unit tests, and production build all passed. Five high-severity advisories remain in the lint toolchain, a "
-          "development dependency that is not deployed. {{Report the ZAP baseline result.}}")
+          "development dependency that is not deployed.")
+    doc.p("The ZAP baseline scan of the deployed site on 15 October 2026, after the upgrade, passed 56 of its rules and "
+          "raised no High-risk alert, which meets the criterion of KPI-7. It raised the warnings in Table 4.7. The scan "
+          "was not signed in, so it covered only the public pages (the sign-in, privacy, and terms pages and the static "
+          "files); the pages behind sign-in are protected by the privilege tests instead.")
+    doc.table("Alerts of the ZAP baseline scan, 15 October 2026", ["Risk", "Alert", "Assessment"], [
+        ["Medium", "Content Security Policy header not set", "Valid; a policy limits where scripts and images may load from"],
+        ["Medium", "Missing anti-clickjacking header", "Valid; pages can be framed by another site"],
+        ["Medium", "Cross-domain misconfiguration", "Static files are served to any origin by the host; they contain no user data"],
+        ["Medium", "Absence of anti-CSRF tokens", "On the sign-in form, which only starts LINE Login; Next.js Server Actions check the request origin instead of a token"],
+        ["Low", "Missing X-Content-Type-Options, Permissions-Policy, and cross-origin isolation headers", "Valid; set by response headers"],
+        ["Low", "X-Powered-By header reveals the framework", "Valid; can be switched off in the Next.js configuration"],
+        ["Informational", "Caching and modern web application notes", "No action needed"],
+    ], [2, 4.5, 5.5])
+    doc.p("Most warnings concern security headers, which the application does not yet set. They are not exploitable "
+          "flaws in themselves but remove layers of defense against clickjacking and injected scripts, and adding them in "
+          "the Next.js configuration is the first item of further hardening. The full report is kept with the project "
+          "(`docs/report/evidence/zap-baseline-2026-10-15.html`).")
 
     doc.h(2, "Discussion")
     doc.h(3, "Rules in the Database, Not in the Interface")
@@ -836,6 +854,7 @@ REFS = [
     "OWASP Foundation, “OWASP Top 10:2021,” 2021. [Online]. Available: https://owasp.org/Top10/",
     "“Personal Data Protection Act, B.E. 2562 (2019),” *Royal Thai Government Gazette*, vol. 136, part 69 Kor, May 27, 2019.",
     "L. Wroblewski, *Mobile First*. New York, NY, USA: A Book Apart, 2011.",
+    "ZAP Dev Team, “ZAP – Baseline scan.” [Online]. Available: https://www.zaproxy.org/docs/docker/baseline-scan/ (accessed Oct. 15, 2026).",
 ]
 
 
