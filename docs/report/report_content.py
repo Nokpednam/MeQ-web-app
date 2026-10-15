@@ -535,7 +535,7 @@ def chapter3(doc):
           "main pages; Appendix B gives a step-by-step guide.")
     fig(doc, SHOT + "login.png", "The sign-in page", 45)
     fig(doc, SHOT + "home.png", "The home page with the status of every court", 45)
-    fig(doc, SHOT + "court-queue.png", "A court page with the current game and the queue", 45)
+    fig(doc, SHOT + "court-queue.png", "A court page with its opening hours, target score, and queue", 45)
     fig(doc, SHOT + "check-in.png", "Check-in of a called team with each member's location status", 45)
     fig(doc, SHOT + "maintenance-form.png", "The maintenance reporting form", 45)
     fig(doc, SHOT + "admin-maintenance.png", "The administrator's maintenance page with a report, its photo, and the status control", 45)
@@ -885,9 +885,9 @@ def appendices(doc):
     for shot, cap, steps in [
         ("welcome-guide.png", "The welcome guide shown after the first sign-in",
          ["Choose Sign in with LINE and allow MeQ in LINE.", "Add MeQ as a friend when LINE asks, so that you are notified when your team is called.", "Read the four steps in the welcome guide and choose Start."]),
-        ("team.png", "A team page with members and the game delegate",
+        ("team.png", "A team page with the format, roster count, and status",
          ["Open Teams and create a team (3x3 or 5x5), or accept an invitation.", "As captain, invite members until the roster is full.", "Optionally choose a game delegate who can act for you in games."]),
-        ("court-queue.png", "Joining the queue of a court",
+        ("court-queue.png", "A court page, where the captain joins the queue",
          ["Open Courts and choose a court.", "As captain or delegate, choose Join queue. Your position appears in the list."]),
         ("check-in.png", "Check-in after the team is called",
          ["When LINE tells you that your team is called, open the court page.", "Every member allows location access so that MeQ can confirm they are at the court.", "The captain or delegate confirms the team ready before the deadline."]),
