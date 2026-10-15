@@ -77,3 +77,10 @@ test("source files have no UTF-8 byte order mark", () => {
   const withBom = sourceFiles.filter((path) => readFileSync(resolve(root, path))[0] === 0xef);
   assert.deepEqual(withBom, []);
 });
+
+test("admin maintenance note field is not hidden with the header admin link on phones", () => {
+  const section = readFileSync(resolve(root, "components/admin-maintenance-section.tsx"), "utf8");
+  // .admin-entry is the header link, which phones hide; the note input once reused it and vanished on mobile.
+  assert.doesNotMatch(section, /className="admin-entry"[^>]*name="adminNote"/);
+  assert.match(section, /className="admin-report-note" name="adminNote"/);
+});
