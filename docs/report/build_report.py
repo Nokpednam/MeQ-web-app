@@ -30,10 +30,16 @@ CELL_RPR = '<w:sz w:val="22"/><w:szCs w:val="22"/>'
 
 
 # ---------------------------------------------------------------- inline text
+THAI_FONT = "TH SarabunPSK"
+THAI_TEXT_PT = 16
+THAI_HEADING_PT = 18
+THAI = re.compile("[฀-๿]")
+# A stretch of Thai text, including the spaces and zero-width word breaks between Thai words.
+THAI_SPAN = re.compile("([฀-๿​]+(?:[ ​]+[฀-๿​]+)*)")
 TOKEN = re.compile(r"(\*\*.+?\*\*|\*[^*\s][^*]*?\*|`[^`]+`|\{\{.+?\}\})")
 
 
-def runs(text, base_rpr=""):
+def runs(text, base_rpr="", thai_pt=THAI_TEXT_PT):
     """Render inline markup: **bold**, *italic*, `code`, {{TODO highlight}}."""
     out = []
     for part in TOKEN.split(text):
@@ -48,7 +54,25 @@ def runs(text, base_rpr=""):
             part, rpr = part[1:-1], rpr + '<w:rFonts w:ascii="Consolas" w:hAnsi="Consolas" w:cs="Consolas"/><w:sz w:val="22"/>'
         elif part.startswith("*"):
             part, rpr = part[1:-1], rpr + "<w:i/><w:iCs/>"
-        out.append(f'<w:r><w:rPr><w:rFonts w:cs="Arial"/>{rpr}</w:rPr><w:t xml:space="preserve">{escape(part)}</w:t></w:r>')
+        # Arial has no Thai glyphs, so Thai stretches get their own runs in TH SarabunPSK; the rest stays Arial.
+        # Sarabun is small for its point size: Thai text is 16 pt and Thai in headings 18 pt, as in Thai documents.
+        for seg in THAI_SPAN.split(part):
+            if not seg:
+                continue
+            fonts, seg_rpr = '<w:rFonts w:cs="Arial"/>', rpr
+            if THAI.search(seg):
+                fonts = f'<w:rFonts w:ascii="{THAI_FONT}" w:hAnsi="{THAI_FONT}" w:cs="{THAI_FONT}" w:hint="cs"/>'
+                half_points = thai_pt * 2
+                size = f'<w:sz w:val="{half_points}"/><w:szCs w:val="{half_points}"/>'
+                seg_rpr = re.sub(r'<w:szCs? w:val="\d+"/>', "", rpr)
+                if "<w:highlight" in seg_rpr:  # rPr children must stay in schema order: sz before highlight
+                    seg_rpr = seg_rpr.replace("<w:highlight", size + "<w:highlight", 1)
+                else:
+                    seg_rpr += size
+                seg_rpr += '<w:lang w:bidi="th-TH"/>'
+            if "Consolas" in rpr:
+                fonts = ""
+            out.append(f'<w:r><w:rPr>{fonts}{seg_rpr}</w:rPr><w:t xml:space="preserve">{escape(seg)}</w:t></w:r>')
     return "".join(out)
 
 
@@ -77,7 +101,7 @@ class Doc:
         self.parts.append(
             # The template numbers chapters with list 26 (restart) for Chapter 1 and list 3 after it.
             f'<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="{26 if self.chapter == 1 else 3}"/></w:numPr>'
-            '<w:ind w:left="0" w:hanging="0"/></w:pPr><w:r><w:br/></w:r>' + runs(title) + "</w:p>")
+            '<w:ind w:left="0" w:hanging="0"/></w:pPr><w:r><w:br/></w:r>' + runs(title, thai_pt=THAI_HEADING_PT) + "</w:p>")
 
     def plain_heading(self, title, appendix=None):
         if appendix:
@@ -85,14 +109,14 @@ class Doc:
             self.fig = self.tbl = 0
         self.parts.append(
             '<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="0"/></w:numPr>'
-            '<w:ind w:left="0" w:hanging="0"/></w:pPr>' + runs(title) + "</w:p>")
+            '<w:ind w:left="0" w:hanging="0"/></w:pPr>' + runs(title, thai_pt=THAI_HEADING_PT) + "</w:p>")
 
     def h(self, level, title, numbered=True):
         style = {2: "Heading2", 3: "Heading3"}[level]
         ilvl = level - 1
         num = (f'<w:keepNext/><w:numPr><w:ilvl w:val="{ilvl}"/><w:numId w:val="3"/></w:numPr><w:ind w:left="0" w:hanging="0"/><w:jc w:val="left"/>'
                if numbered else '<w:keepNext/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="0"/></w:numPr><w:ind w:left="0" w:hanging="0"/>')
-        self.parts.append(f'<w:p><w:pPr><w:pStyle w:val="{style}"/>{num}</w:pPr>{runs(title)}</w:p>')
+        self.parts.append(f'<w:p><w:pPr><w:pStyle w:val="{style}"/>{num}</w:pPr>{runs(title, thai_pt=THAI_HEADING_PT)}</w:p>')
 
     # text
     def p(self, text):
@@ -100,6 +124,10 @@ class Doc:
 
     def pni(self, text):
         self.parts.append(para("NormalNoIndent", text))
+
+    def pleft(self, text):
+        """Unindented, left-aligned paragraph (Thai text has no spaces between words to justify on)."""
+        self.parts.append(para("NormalNoIndent", text, '<w:jc w:val="left"/>'))
 
     def lead(self, label, text):
         """Paragraph that starts with a bold label, like 'Client side.'"""
@@ -290,6 +318,11 @@ def build(template, output):
         styles = styles.replace("</w:styles>",
             '<w:style w:type="paragraph" w:customStyle="1" w:styleId="TableCaption"><w:name w:val="Table Caption"/>'
             '<w:basedOn w:val="Caption1"/><w:qFormat/><w:pPr><w:keepNext/><w:jc w:val="left"/></w:pPr></w:style></w:styles>')
+
+    # The template's complex-script fonts come from the theme (Cordia New, Angsana New), which overrides the
+    # font set on Thai runs. Use the Thai font directly instead.
+    styles = re.sub(r'w:cs="(?:Cordia New|Angsana New)"( w:asciiTheme="minorHAnsi")? w:cstheme="(?:minor|major)Bidi"',
+                    rf'w:cs="{THAI_FONT}"\1', styles)
 
     settings = zin.read("word/settings.xml").decode("utf-8")
     if "w:updateFields" not in settings:

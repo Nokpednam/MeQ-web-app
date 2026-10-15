@@ -123,6 +123,13 @@
    - อัปเดต diagram ใน `docs/diagrams/` ให้ตรงกับระบบล่าสุด
    - เก็บผลทดสอบ (unit, db, ทดสอบที่สนามจริง) ไว้ใช้ในเล่มรายงาน
    - ทดสอบบนมือถือ เพราะผู้ใช้จริงจะใช้ที่สนาม
+   - **เล่มรายงาน** (branch `docs/thesis-report`): แก้ข้อความที่ `docs/report/report_content.py` แล้ว build ใหม่ (ดู `docs/report/README.md`)
+     - 2026-10-15: เพิ่มภาคผนวก C (แบบสอบถาม SUS ภาษาไทย + ข้อความขอความยินยอม + งานที่ให้ทำก่อนตอบ + วิธีคิดคะแนน), ตาราง OWASP Top 10 (Table 4.4), อ้างอิง QueQ/Traffy Fondue ตรวจ URL แล้ว, ข้อความไทยในเล่มใช้ฟอนต์ Tahoma (template เดิมทำให้ไทยตัวเล็กมาก)
+     - แบบสอบถาม SUS ใช้ Google Form (สร้างแล้ว 2026-10-15 จาก `docs/report/sus-google-form.gs` + เพิ่มส่วนข้อมูลผู้ตอบเอง, ภาพ `screenshots/sus-form.png` ใส่ในเล่มแล้ว) ยังไม่ได้เก็บคำตอบจริง: สนามหลักปิดปรับปรุง ต้องเก็บจากผู้เล่นจริงที่สนามที่เปิด หรือรายงานตามจำนวนที่ได้ / ตัด KPI-6
+     - ⚠️ `npm audit` 2026-10-15: Next.js 16.3.3 มีช่องโหว่ critical + sharp, source-map-js → อัปเกรดเป็น next 16.3.8 ใน worktree `../meq-next-upgrade` branch `chore/next-security-upgrade` (จาก origin/main, ยังไม่ commit/push) audit production = 0, typecheck/lint/test:unit/build ผ่าน เหลือ 5 high ใน eslint (dev only)
+     - KPI-3 ใส่ในเล่มแล้ว (ข้อมูลจริงจาก outbox 11–12 ต.ค.: 29/30 ภายใน 60 วิ, median 1.7 วิ, ไม่ซ้ำ) KPI-4 เปลี่ยนนิยามแล้ว (2026-10-15) จาก "เวลาตอบรับ ≤ 12 ชม." (ต้องรอของพังจริง) เป็น scenario test ของขั้นตอนแจ้งซ่อม S1–S7 (Table 3.8) ขั้นตอนอยู่ใน `docs/report/kpi4-maintenance-test.md` ทดสอบบนเว็บจริงแล้ว 2026-10-15 19:15–19:40: ผ่านทั้ง 7 ขั้น, LINE 10/10 ภายใน 1.3 วิ ใส่ผลในเล่มแล้ว (Table 4.5)
+     - บั๊กจากการทดสอบ KPI-4: ช่องหมายเหตุของแอดมินหายบนมือถือ (ใช้ class `admin-entry` ซ้ำกับลิงก์แอดมินที่ถูกซ่อน) แก้แล้วใน worktree `../meq-admin-note` branch `fix/admin-note-field` + test ใน production-surface ผ่าน typecheck/lint/test:unit/build ยังไม่ commit/push
+     - ยังขาด: ผลประเมิน KPI-1, 3, 4, 5, 6, ZAP scan, ภาพหน้าจอ 12 รูปใน `docs/report/screenshots/`, ตารางเวลาโครงงาน, วันประเมินและจำนวนผู้เข้าร่วม
 
 ## งานจุกจิก
 

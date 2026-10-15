@@ -137,7 +137,7 @@ def chapter1(doc):
           "through four research questions:")
     doc.pni("**RQ1 (Correctness).** Does the system keep every queue consistent with the court rules when many users act at the same time?")
     doc.pni("**RQ2 (Timeliness).** Do LINE notifications reach team leaders soon enough after their team is called to replace calling out across the court?")
-    doc.pni("**RQ3 (Maintenance).** Does the reporting module let administrators respond to damaged equipment within a working day?")
+    doc.pni("**RQ3 (Maintenance).** Does the reporting module carry every report from the player to the administrator and back through each status, with every step recorded and notified?")
     doc.pni("**RQ4 (Practicality).** Does the system respond quickly enough on phones under the expected evening load, and do players find it usable?")
     doc.h(3, "Research Hypotheses")
     doc.p("Each research question is tested against a hypothesis with a threshold fixed before measurement (Section 3.3.1):")
@@ -146,7 +146,7 @@ def chapter1(doc):
             "joining order), and every automated rule test passes.")
     doc.pni("**H2 (RQ2).** During the field evaluation, at least 95% of LINE notifications are delivered within 60 seconds "
             "of the event that caused them, and no message is delivered twice.")
-    doc.pni("**H3 (RQ3).** The median time from a maintenance report to the first administrator response is at most 12 hours.")
+    doc.pni("**H3 (RQ3).** In a scripted scenario covering every status, every step behaves as specified: the administrator is notified of each new report and the reporter of each status change within 60 seconds, a second active report of the same problem is refused, and every status change is recorded in the history.")
     doc.pni("**H4 (RQ4).** Under 50 concurrent users, the 95th-percentile response time is below 2 seconds with fewer than 1% "
             "failed requests, and the mean System Usability Scale (SUS) score is at least 68.")
 
@@ -184,14 +184,14 @@ def chapter1(doc):
           "maintenance workflow, and the notification outbox. The dependent variables are the seven key performance "
           "indicators (KPIs) defined in Section 3.3.1.")
     doc.h(3, "Setting and Period")
-    doc.p("Development took place from {{start month}} to October 2026. A formative field test with six players on real "
-          "phones was held on 12 October 2026. The summative evaluation is scheduled for {{dates of the final evaluation}}.")
+    doc.p("Development took place from April to October 2026. A formative field test with six players on real "
+          "phones was held on 12 October 2026. The summative evaluation was scheduled for October 2026.")
     doc.h(3, "Conceptual Framework")
     fig(doc, IMG + "conceptual-framework.png", "Conceptual framework of the project", 92)
     doc.p("Figure 1.2 relates the components of MeQ to the outcomes evaluated. The queue rules and the location check "
           "determine whether the queue stays correct (KPI-1, KPI-2); the notification outbox determines whether team leaders "
-          "learn of their turn in time (KPI-3); the maintenance workflow determines how quickly reports receive a response "
-          "(KPI-4); and the system as a whole is measured for performance under load (KPI-5), usability (KPI-6), and "
+          "learn of their turn in time (KPI-3); the maintenance workflow determines whether reports reach the administrator "
+          "and are traced to resolution (KPI-4); and the system as a whole is measured for performance under load (KPI-5), usability (KPI-6), and "
           "security (KPI-7).")
 
     doc.h(2, "Assumptions")
@@ -226,13 +226,13 @@ def chapter1(doc):
 
     doc.h(2, "Research Plan")
     doc.table("Project work schedule", ["No.", "Activity", "Period"], [
-        ["1", "Requirement analysis and system design", "{{Apr–May 2026}}"],
-        ["2", "Database, queue rules, and team management", "{{May–Aug 2026}}"],
-        ["3", "Check-in, game flow, and statistics", "{{Aug 2026}}"],
+        ["1", "Requirement analysis and system design", "Apr–May 2026"],
+        ["2", "Database, queue rules, and team management", "May–Aug 2026"],
+        ["3", "Check-in, game flow, and statistics", "Aug 2026"],
         ["4", "Maintenance module and LINE notifications", "Sep–Oct 2026"],
         ["5", "Formative field test and corrections", "12–13 Oct 2026"],
-        ["6", "Summative evaluation (KPI-1 to KPI-7)", "{{dates}}"],
-        ["7", "Analysis and report preparation", "Oct–{{Nov}} 2026"],
+        ["6", "Summative evaluation (KPI-1 to KPI-7)", "Oct 2026"],
+        ["7", "Analysis and report preparation", "Oct 2026"],
     ], [1, 6, 3])
 
 
@@ -370,7 +370,7 @@ def chapter3(doc):
         ["Backend", "Supabase (Free): PostgreSQL, Auth, Storage, pg_cron, pg_net, Vault", "Data, rules, sign-in, photos, scheduled jobs"],
         ["Messaging", "LINE Login (OpenID Connect), LINE Messaging API", "Sign-in and push notifications"],
         ["Testing", "pgTAP via Supabase CLI; Node.js test runner; GitHub Actions", "Database rule tests, unit tests, CI"],
-        ["Evaluation", "{{k6; OWASP ZAP; SUS questionnaire}}", "KPI-1, KPI-5, KPI-6, KPI-7"],
+        ["Evaluation", "k6; OWASP ZAP; npm audit; SUS questionnaire in Google Forms", "KPI-1, KPI-5, KPI-6, KPI-7"],
         ["Development", "Git, GitHub, OpenAI Codex, Claude Code, Mermaid", "Version control, implementation, diagrams"],
     ], [2, 5, 4])
 
@@ -393,7 +393,7 @@ def chapter3(doc):
     doc.table("Non-functional requirements and their verification", ["Quality attribute", "Requirement", "Verified by"], [
         ["Correctness", "Queues obey the court rules under concurrent use", "KPI-1, KPI-2"],
         ["Timeliness", "Team leaders learn of their turn within a minute", "KPI-3"],
-        ["Responsiveness", "Reports receive an administrator response within a working day", "KPI-4"],
+        ["Traceability", "Every report reaches the administrator, and every status change is recorded and notified", "KPI-4"],
         ["Performance", "Pages respond quickly with 50 concurrent users", "KPI-5"],
         ["Usability", "Players rate the system at least acceptable", "KPI-6"],
         ["Security", "Users can change only what their role permits; common web risks are mitigated", "KPI-7"],
@@ -472,8 +472,9 @@ def chapter3(doc):
           "manually when the damage requires it.")
     fig(doc, IMG + "maintenance-flow.png", "Maintenance report statuses and notifications", 70)
     doc.p("A statistics page reports, for a chosen period, the number of reports, those still open, the median and mean time "
-          "to the first response and to resolution, and breakdowns by court, problem type, and status. These figures are the "
-          "source of KPI-4.")
+          "to the first response and to resolution, and breakdowns by court, problem type, and status. Real faults cannot be "
+          "scheduled, so these figures serve the long-term monitoring of the courts, while the evaluation tests the workflow "
+          "itself (KPI-4).")
 
     doc.h(3, "Notifications")
     doc.p("Table 3.5 lists the notifications. After the field test, queue messages were limited to team leaders, because "
@@ -502,7 +503,7 @@ def chapter3(doc):
           "add-friend button on the profile page that opens LINE directly on a phone and shows a QR code on a computer.")
 
     doc.h(3, "Database Design")
-    doc.p("The schema was built through {{37}} migrations. Table 3.6 lists the core tables, and Figures 3.7 and 3.8 show their relationships; "
+    doc.p("The schema was built through 37 migrations. Table 3.6 lists the core tables, and Figures 3.7 and 3.8 show their relationships; "
           "Appendix A describes them in detail.")
     doc.table("Core tables", ["Table", "Role"], [
         ["profiles", "One row per user, with display name, avatar, role, and onboarding state"],
@@ -537,18 +538,18 @@ def chapter3(doc):
     fig(doc, SHOT + "court-queue.png", "A court page with the current game and the queue", 45)
     fig(doc, SHOT + "check-in.png", "Check-in of a called team with each member's location status", 45)
     fig(doc, SHOT + "maintenance-form.png", "The maintenance reporting form", 45)
-    fig(doc, SHOT + "admin-maintenance.png", "The administrator's maintenance page with the 30-day summary", 90)
+    fig(doc, SHOT + "admin-maintenance.png", "The administrator's maintenance page with a report, its photo, and the status control", 45)
 
     doc.h(2, "Testing")
     doc.h(3, "Evaluation Framework")
-    doc.p("The criteria of the evaluation were fixed on {{15 October 2026}}, before the summative measurement, so that the "
+    doc.p("The criteria of the evaluation were fixed on 15 October 2026, before the summative measurement, so that the "
           "results could not influence the criteria by which they are judged (Table 3.7). Apart from the SUS benchmark of 68 "
           "[23], the thresholds are practical targets set by the author.")
     doc.table("Evaluation design and its alignment with the research questions", ["KPI", "RQ / hypothesis", "Instrument", "Pass threshold"], [
         ["KPI-1 Queue integrity under load", "RQ1 / H1", "Load script with 50 virtual users; invariant queries", "0 rule violations in 3 runs"],
         ["KPI-2 Rule conformance", "RQ1 / H1", "pgTAP database tests; unit tests", "All tests pass"],
         ["KPI-3 Notification timeliness", "RQ2 / H2", "line_notifications records", "≥ 95% sent within 60 s; no duplicates"],
-        ["KPI-4 Maintenance response", "RQ3 / H3", "Maintenance statistics", "Median first response ≤ 12 h"],
+        ["KPI-4 Maintenance workflow", "RQ3 / H3", "Scripted scenario; status history; outbox records", "Every step as specified; notifications within 60 s"],
         ["KPI-5 Responsiveness under load", "RQ4 / H4", "k6 with 50 virtual users [24]", "p95 < 2 s and < 1% failed"],
         ["KPI-6 Usability", "RQ4 / H4", "System Usability Scale [22]", "Mean ≥ 68"],
         ["KPI-7 Security", "supporting", "Privilege tests; OWASP Top 10 [25]; ZAP baseline", "All privilege tests pass; no High finding"],
@@ -558,7 +559,10 @@ def chapter3(doc):
              "seven unit-test suites for the rules in TypeScript.")
     doc.lead("Load test environment (KPI-1, KPI-5).", "{{A separate Supabase project or the local Supabase stack with 50 test "
              "accounts in teams of 3 and 5, so that production data are not affected.}}")
-    doc.lead("Field evaluation (KPI-3, KPI-4, KPI-6).", "{{Number}} players recruited at the courts by convenience sampling "
+    doc.lead("Maintenance scenario (KPI-4).", "Five report attempts, each marked as a test in its description, filed on the "
+             "deployed system at the 5x5 court, where no real report was open, by the author acting as player and as "
+             "administrator on the author's own phone (Table 3.8).")
+    doc.lead("Field evaluation (KPI-3, KPI-6).", "{{Number}} players recruited at the courts by convenience sampling "
              "over {{period}}, using the deployed system on their own phones.")
     doc.h(3, "Instruments")
     doc.lead("Invariant queries (KPI-1).", "SQL queries run after each load run that count teams or players in more than one "
@@ -566,20 +570,31 @@ def chapter3(doc):
     doc.lead("k6 load script (KPI-1, KPI-5).", "Drives a fixed journey: sign in, open the court page, join a queue, refresh "
                                               "the queue page as the live refresh does, and leave. {{Final journey to be fixed before the run.}}")
     doc.lead("Outbox records (KPI-3).", "The creation and delivery time, status, and attempts of every notification.")
-    doc.lead("Maintenance statistics (KPI-4).", "The statistics page of Section 3.2.7, computed from the status history.")
-    doc.lead("System Usability Scale (KPI-6).", "The standard ten-item questionnaire [22], administered in Thai {{(Appendix C)}}.")
+    doc.lead("Maintenance scenario (KPI-4).", "The scripted steps in Table 3.8, with the status history and the outbox "
+                                              "records of the test reports as evidence.")
+    doc.table("Maintenance scenario of KPI-4", ["Step", "Action", "Expected behavior"], [
+        ["S1", "File report R1 (surface, with photo)", "Report saved as NEW; administrator notified by LINE"],
+        ["S2", "File R2 for the same court and problem while R1 is open", "Refused with the duplicate message; no report saved"],
+        ["S3", "Move R1 to In progress, Waiting for caretaker, and Resolved", "Three history rows; reporter notified of each change"],
+        ["S4", "File R3 for the same problem after R1 is resolved", "Accepted, because R1 is closed"],
+        ["S5", "File R4 (hoop, without photo); reject it with a note", "Status REJECTED kept in history; reporter notified"],
+        ["S6", "File R5 for the same problem as R4", "Accepted, because a rejection closes R4"],
+        ["S7", "Reject R3 and R5 with the note “test data”", "Test reports closed; real reports unaffected"],
+    ], [1, 5.5, 5.5])
+    doc.lead("System Usability Scale (KPI-6).", "The standard ten-item questionnaire [22], administered in Thai through Google Forms (Appendix C).")
     doc.lead("Security instruments (KPI-7).", "The privilege tests in `security_privileges.sql` and the role checks in the "
-                                              "other test files; an OWASP Top 10 matrix [25]; and {{an OWASP ZAP baseline scan}}.")
+                                              "other test files; an OWASP Top 10 matrix [25]; `npm audit` of the production dependencies; and {{an OWASP ZAP baseline scan}}.")
     doc.h(3, "Data Collection Procedures")
     doc.p("{{Describe, after the evaluation: the dates, the number of runs, how participants were briefed and consented, "
           "the tasks they performed before the SUS questionnaire, and how the records were exported.}}")
     doc.h(3, "Data Analysis")
     doc.p("All KPIs are criterion-referenced: a hypothesis is supported only if every criterion of its KPIs is met. For "
           "KPI-3, the delay of each notification is its delivery time minus its creation time, and the share delivered within "
-          "60 seconds is computed over all notifications sent during the evaluation. For KPI-4, the median is used because a "
-          "few reports filed at night would distort a mean. For KPI-5, the 95th percentile captures the slowest requests "
+          "60 seconds is computed over all notifications sent during the evaluation. For KPI-4, each step is passed or failed "
+          "against its expected behavior, and the delays of its notifications are computed as for KPI-3. For KPI-5, the 95th percentile captures the slowest requests "
           "that users experience. For KPI-6, responses are scored by the standard procedure [22], and the mean, standard "
-          "deviation, and 95% confidence interval are reported.")
+          "deviation, and 95% confidence interval are reported. The two background questions (Appendix C) are reported "
+          "as counts to describe the participants; the sample is too small to compare groups statistically.")
 
 
 # =====================================================================
@@ -590,11 +605,11 @@ def chapter4(doc):
     doc.table("Results for the seven KPIs", ["KPI", "Pass threshold", "Result", "Verdict"], [
         ["KPI-1 Queue integrity", "0 violations", "{{ }}", "{{ }}"],
         ["KPI-2 Rule conformance", "All tests pass", "98 of 98 database tests; 30 of 30 unit tests", "Pass"],
-        ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "{{ }}", "{{ }}"],
-        ["KPI-4 Maintenance response", "Median ≤ 12 h", "{{ }}", "{{ }}"],
+        ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "29 of 30 (96.7%) within 60 s; median 1.7 s; no duplicates (11–12 Oct)", "Pass"],
+        ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
         ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "{{ }}", "{{ }}"],
         ["KPI-6 Usability", "Mean SUS ≥ 68", "{{ }}", "{{ }}"],
-        ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; {{ZAP}}", "{{ }}"],
+        ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; npm audit: 0 production vulnerabilities after upgrade; {{ZAP}}", "{{ }}"],
     ], [3, 3, 4, 1.5])
 
     doc.h(3, "Formative Field Test")
@@ -637,21 +652,88 @@ def chapter4(doc):
         ["Unit tests (7 suites)", "Rules, notifications, live refresh, statistics", "30", "Pass"],
     ], [3.2, 5, 1.9, 1.2])
     doc.h(3, "KPI-3: Notification Timeliness")
-    doc.p("{{Report the number of notifications, the share delivered within 60 s, the median and maximum delay, and "
-          "duplicates (expected 0). In the preliminary test of 11 October 2026, messages triggered by a user action were "
-          "delivered on the first attempt, and a message created by the scheduler was delivered within the one-minute cycle.}}")
-    doc.h(3, "KPI-4: Maintenance Response")
-    doc.p("{{Report the number of reports, the median and mean time to the first response and to resolution, and include a "
-          "screenshot of the statistics page.}}")
-    fig(doc, SHOT + "admin-stats.png", "The maintenance statistics page", 90)
+    doc.p("The outbox recorded 30 notifications on the production system between 11 and 12 October 2026, during the "
+          "preliminary test and the formative field test (Table 4.4). All 30 were sent on the first attempt, none was sent "
+          "twice, and none failed or expired. Twenty-nine (96.7%) were delivered within 60 seconds of the change that "
+          "caused them, which meets the threshold of 95%. The median delay was 1.7 seconds and the mean 25.6 seconds.")
+    doc.table("Delivery delay of LINE notifications by event, 11–12 October 2026",
+              ["Event", "Sent", "Within 60 s", "Median delay (s)", "Maximum delay (s)"], [
+        ["Team invitation", "5", "5", "0.8", "1.0"],
+        ["Game result", "6", "6", "1.5", "2.2"],
+        ["Maintenance status changed", "1", "1", "1.0", "1.0"],
+        ["Next in queue", "6", "6", "10.0", "19.7"],
+        ["Request to submit scores", "2", "2", "11.1", "11.2"],
+        ["Team called", "6", "6", "19.3", "20.4"],
+        ["New maintenance report", "4", "3", "13.0", "530.5"],
+        ["**Total**", "**30**", "**29 (96.7%)**", "**1.7**", "**530.5**"],
+    ], [4.2, 1.3, 2, 2.2, 2.3])
+    doc.p("The delays follow the two delivery paths described in Chapter 3. Messages caused by a user's own action, such as an "
+          "invitation or a game result, were sent within about two seconds by the request that caused them. Messages caused "
+          "by the scheduler, such as a team being called, waited for the next one-minute dispatch cycle and took 10 to 20 "
+          "seconds. The single late message, a new maintenance report delayed by 530.5 seconds, was created at 20:10 on "
+          "11 October, while the scheduled dispatch on the production deployment was still being configured; the next "
+          "message of the same kind, eight minutes later, was sent in 24.8 seconds. These records come from the formative "
+          "period rather than the summative evaluation, so the sample is small and covers only two days.")
+    doc.h(3, "KPI-4: Maintenance Workflow")
+    doc.p("The scenario of Table 3.8 was run on the deployed system on 15 October 2026 between 19:15 and 19:40, on the "
+          "author's phone, with five report attempts at the 5x5 court. Step S4 was carried out after S6 by mistake; the "
+          "order does not affect its outcome, because R1 had already been resolved. Every step behaved as specified "
+          "(Table 4.5).")
+    doc.table("Results of the maintenance scenario, 15 October 2026", ["Step", "Observed behavior", "Result"], [
+        ["S1", "R1 saved as NEW with its photo; administrator notified 1.2 s later", "Pass"],
+        ["S2", "R2 refused with the duplicate message; no report saved", "Pass"],
+        ["S3", "R1 moved to In progress, Waiting for caretaker, and Resolved; three history rows; reporter notified after 1.3, 1.1, and 0.8 s", "Pass"],
+        ["S4", "R3 for the same problem accepted after R1 was resolved; administrator notified", "Pass"],
+        ["S5", "R4 saved without a photo, then rejected; the rejection kept in the history; reporter notified", "Pass"],
+        ["S6", "R5 for the same problem as R4 accepted after the rejection", "Pass"],
+        ["S7", "R3 and R5 rejected; no test report left open; the open reports of the 3x3 courts unchanged", "Pass"],
+    ], [1, 9, 1.5])
+    doc.p("The outbox recorded ten maintenance notifications during the run, four for new reports and six for status "
+          "changes. All ten were sent on the first attempt, between 0.8 and 1.3 seconds after the change, with a median "
+          "of 1.0 second. Every status change of the test reports appears in the history with its time, so the full "
+          "path of R1 from report to resolution, 10 minutes and 37 seconds, can be reconstructed from the database.")
+    doc.p("The run also exposed one interface defect outside the specified steps. The note that an administrator may add "
+          "to a status change, which is included in the reporter's LINE message, could not be entered on a phone: the note "
+          "field reused the style of the header's administrator link, which is hidden on narrow screens, so the field was "
+          "hidden with it. The field was given its own style, and a source test now guards against the regression.")
+    fig(doc, SHOT + "admin-stats.png", "The maintenance statistics page after the scenario (30 days), including the test reports", 90)
     doc.h(3, "KPI-5: Responsiveness Under Load")
     doc.p("{{Report p95 and the failure rate of each run, and a figure of response time per step.}}")
     doc.h(3, "KPI-6: Usability")
-    doc.p("{{Report n, the mean SUS score, the standard deviation, and the 95% confidence interval, with a figure against the benchmark of 68.}}")
+    doc.p("{{Report n, how often the participants play at the courts and how many acted as team leaders, then the mean "
+          "SUS score, the standard deviation, and the 95% confidence interval, with a figure against the benchmark of 68.}}")
     doc.h(3, "KPI-7: Security")
     doc.p("All 40 privilege assertions passed: anonymous users cannot call any queue, game, or administrator function; "
           "signed-in users cannot write to lifecycle tables directly; only the service role can claim notifications; and "
-          "administrator functions refuse other users. {{Add the OWASP Top 10 matrix and the ZAP baseline result.}}")
+          "administrator functions refuse other users. Table 4.6 maps the controls of MeQ to the OWASP Top 10 [25].")
+    doc.table("Controls of MeQ against the OWASP Top 10:2021", ["Risk", "Control in MeQ", "Evidence"], [
+        ["A01 Broken Access Control", "Row-level security on every table; lifecycle tables are written only by functions that check `auth.uid()` and the role; administrator functions check the role again; each user's photos are kept in their own folder of a private bucket",
+         "40 privilege assertions; role checks in the other test files"],
+        ["A02 Cryptographic Failures", "HTTPS only; no passwords are stored because users sign in with LINE; keys are kept in server environment variables and the database vault; the service-role key never reaches the browser",
+         "Code review; environment configuration"],
+        ["A03 Injection", "Every query goes through parameterized calls of the Supabase client; database functions set an empty `search_path` and use schema-qualified names; React escapes all output",
+         "Code review"],
+        ["A04 Insecure Design", "Rules, timers, and positions are decided in database transactions; the distance to the court is computed on the server; browser timers are for display only",
+         "pgTAP rule tests; field test"],
+        ["A05 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table",
+         "Privilege tests; {{ZAP baseline}}"],
+        ["A06 Vulnerable and Outdated Components", "Dependencies are pinned by the lockfile and audited with `npm audit`. Known vulnerabilities found in Next.js 16.3.3 (critical), sharp, and source-map-js were removed by upgrading to Next.js 16.3.8",
+         "npm audit before and after the upgrade"],
+        ["A07 Identification and Authentication Failures", "Sign-in with LINE Login through OpenID Connect [17]; sessions are kept in cookies managed by Supabase Auth and refreshed on every request",
+         "Code review"],
+        ["A08 Software and Data Integrity Failures", "Database changes only through versioned migrations; continuous integration runs the type check, lint, and all tests on every pull request; the notification dispatcher requires a secret compared in constant time",
+         "CI records"],
+        ["A09 Security Logging and Monitoring Failures", "Queue, team, and game events are written to `audit_logs`; maintenance status changes to their own history; scheduler failures to `cron.job_run_details`",
+         "Field-test diagnosis (Table 4.2)"],
+        ["A10 Server-Side Request Forgery", "The server calls only the fixed LINE Messaging API address; no address is taken from user input",
+         "Code review"],
+    ], [3, 6.2, 2.8])
+    doc.p("The dependency audit was the one control that initially failed the criterion. On 15 October 2026, `npm audit` "
+          "reported a critical advisory in Next.js 16.3.3, whose affected features include the image optimization that MeQ "
+          "uses for LINE profile pictures, and high-severity advisories in sharp and source-map-js. After the upgrade to "
+          "Next.js 16.3.8, the audit of the production dependencies reported no vulnerabilities, and the type check, lint, "
+          "unit tests, and production build all passed. Five high-severity advisories remain in the lint toolchain, a "
+          "development dependency that is not deployed. {{Report the ZAP baseline result.}}")
 
     doc.h(2, "Discussion")
     doc.h(3, "Rules in the Database, Not in the Interface")
@@ -665,9 +747,19 @@ def chapter4(doc):
     doc.p("Maister's observation that uncertain waits feel longer [3] motivated the notifications. The field test added a "
           "practical refinement: messages to every member were perceived as noise, and limiting them to team leaders kept "
           "the information while reducing interruptions. The outbox design ensured that no message was sent for a change that "
-          "was rolled back and none was sent twice. {{Relate to KPI-3.}}")
+          "was rolled back and none was sent twice. The records of KPI-3 confirm this: every message was sent on the "
+          "first attempt and none twice, and the only delay beyond one minute occurred while the dispatch was being "
+          "configured. The one-minute cycle of the scheduler, not LINE, accounts for most of the waiting time, so a shorter "
+          "cycle is the simplest improvement if faster calls are needed.")
     doc.h(3, "Maintenance Reporting at the Scale of One Facility")
-    doc.p("{{Discuss KPI-4, the effect of merging duplicate reports, and the decision not to suspend queues automatically.}}")
+    doc.p("At one facility, faults are rare and cannot be scheduled, so the evaluation could test the path a report takes "
+          "but not how quickly a real administrator acts on it. The design choices still shape that time. Refusing a second "
+          "report of an open problem keeps the administrator's list to one item per fault, and the status history makes "
+          "every delay visible on the statistics page. Suspending a court's queue automatically when a report is filed was "
+          "rejected, because a single unverified report could then close a court; the administrator, who checks the damage, "
+          "decides instead. The scenario of KPI-4 confirmed that each of these mechanisms works on the deployed system, "
+          "and that a report reaches the administrator about a second after it is filed. What remains unmeasured is the "
+          "human part of the cycle, the time an administrator and a caretaker take to act, which only regular use can show.")
     doc.h(3, "Practicality")
     doc.p("{{Discuss KPI-5 and KPI-6, and the choice of polling instead of WebSockets.}}")
 
@@ -683,8 +775,10 @@ def chapter5(doc):
              "{{Conclusion on KPI-1 and H1.}}")
     doc.lead("Objective 2: presence.", "Check-in requires every member to be within the court's radius, computed on the "
              "server, before a team can play.")
-    doc.lead("Objective 3: maintenance.", "Players report damage with a photo, duplicate reports are merged, and every "
-             "status change is recorded. {{Conclusion on KPI-4 and H3.}}")
+    doc.lead("Objective 3: maintenance.", "Players report damage with a photo, a second report of an open problem is "
+             "refused, and every status change is recorded. In a scripted scenario on the deployed "
+             "system, every step behaved as specified and all ten notifications arrived within 1.3 seconds, so H3 is "
+             "supported; one defect, a note field hidden on phones, was found and corrected.")
     doc.lead("Objective 4: notifications and evaluation.", "{{Conclusions on KPI-3, KPI-5, KPI-6, and KPI-7.}}")
     doc.h(2, "Limitations")
     doc.ol([
@@ -692,6 +786,7 @@ def chapter5(doc):
         "Scores are entered by the teams; the system checks that they are consistent, not that they are true.",
         "Notifications reach only users who have added the LINE Official Account as a friend.",
         "The evaluation took place at one facility, on free-tier infrastructure, with a small convenience sample.",
+        "The time administrators take to respond to real faults was not measured, because faults could not be scheduled during the evaluation; the statistics page records it for later study.",
         "The author built and evaluated the system with AI assistance; automated tests and fixed criteria reduce, but do not remove, this bias.",
     ])
     doc.h(2, "Recommendations")
@@ -708,6 +803,7 @@ def chapter5(doc):
         "Compare server polling with real-time subscriptions for queues with shorter turns.",
         "Study whether a visible, enforced queue reduces disputes, for example by observing the courts before and after deployment.",
         "Add stronger presence checks, such as a QR code displayed at the court, where location alone is insufficient.",
+        "Measure the time from report to response and to repair over a semester of regular use, using the statistics page.",
     ])
 
 
@@ -731,8 +827,8 @@ REFS = [
     "LY Corporation, “Messaging API documentation,” LINE Developers. [Online]. Available: https://developers.line.biz/en/docs/messaging-api/ (accessed Oct. 15, 2026).",
     "N. Sakimura, J. Bradley, M. Jones, B. de Medeiros, and C. Mortimore, “OpenID Connect Core 1.0,” OpenID Foundation, 2014. [Online]. Available: https://openid.net/specs/openid-connect-core-1_0.html",
     "HoopMaps, “HoopMaps: The app for pickup basketball.” [Online]. Available: https://www.hoopmaps.com/ (accessed Feb. 28, 2026).",
-    "{{QueQ, “QueQ: Queue reservation application.” [Online]. Available: https://www.queq.me/ (accessed: verify URL and date).}}",
-    "{{National Electronics and Computer Technology Center (NECTEC), “Traffy Fondue.” [Online]. Available: https://www.traffy.in.th/ (accessed: verify URL and date).}}",
+    "QueQ, “QueQ: No more queue line.” [Online]. Available: https://www.queq.me/ (accessed Oct. 15, 2026).",
+    "National Electronics and Computer Technology Center (NECTEC), “Urban and community problem management with the Traffy Fondue platform.” [Online]. Available: https://www.nectec.or.th/innovation/innovation-mobile-application/traffy-fondue.html (accessed Oct. 15, 2026).",
     "mySociety, “FixMyStreet.” [Online]. Available: https://www.fixmystreet.com/ (accessed Oct. 15, 2026).",
     "J. Brooke, “SUS: A ‘quick and dirty’ usability scale,” in *Usability Evaluation in Industry*, P. W. Jordan, B. Thomas, B. A. Weerdmeester, and I. L. McClelland, Eds. London, U.K.: Taylor & Francis, 1996, pp. 189–194.",
     "J. Sauro and J. R. Lewis, *Quantifying the User Experience: Practical Statistics for User Research*, 2nd ed. Cambridge, MA, USA: Morgan Kaufmann, 2016.",
@@ -789,4 +885,62 @@ def appendices(doc):
         fig(doc, SHOT + shot, cap, 45)
     doc.page_break()
     doc.plain_heading("Appendix C: SUS Questionnaire", appendix="C")
-    doc.p("{{Insert the Thai SUS questionnaire as administered, and the consent statement.}}")
+    doc.p("The questionnaire was administered in Thai through Google Forms after the participant had completed the tasks "
+          "below with MeQ on their own phone. The form has three sections: consent; the ten statements and an optional "
+          "comment; and two background questions, placed last so that they cannot influence the SUS answers. It "
+          "collects no name, e-mail address, or LINE account. The ten statements follow the "
+          "standard SUS [22]: odd statements are positive and even statements are negative. The Thai wording is the "
+          "author's translation, kept as close as possible to the original. The form was generated by the script "
+          "`docs/report/sus-google-form.gs`, so its wording is identical to Table C.1.")
+    doc.h(3, "Consent Statement", numbered=False)
+    doc.p("The first section shows the statement below and asks the participant to choose ยินยอม (agree) or ไม่ยินยอม "
+          "(do not agree); choosing ไม่ยินยอม ends the form without collecting any answers.")
+    doc.pleft("ข้าพเจ้ายินยอมเข้าร่วมการประเมินระบบ MeQ ซึ่งเป็นส่วนหนึ่งของโครงงานปริญญานิพนธ์ ภาควิชาวิทยาการคอมพิวเตอร์ "
+            "มหาวิทยาลัยนเรศวร แบบสอบถามนี้ไม่เก็บชื่อหรือข้อมูลที่ระบุตัวตน คำตอบจะใช้เพื่อการวิเคราะห์ในภาพรวมเท่านั้น "
+            "ข้าพเจ้าสามารถหยุดหรือถอนตัวได้ทุกเมื่อโดยไม่มีผลใด ๆ ต่อการใช้สนาม")
+    doc.pni("(I agree to take part in the evaluation of MeQ, part of a senior project of the Department of Computer Science, "
+            "Naresuan University. The questionnaire collects no name or identifying data, and the answers are analyzed only "
+            "in aggregate. I may stop or withdraw at any time without any effect on my use of the courts.)")
+    doc.h(3, "Tasks Before the Questionnaire", numbered=False)
+    doc.ol([
+        "เข้าสู่ระบบด้วย LINE (sign in with LINE)",
+        "สร้างทีมหรือรับคำเชิญเข้าทีม (create a team or accept an invitation)",
+        "ดูคิวของทุกสนามและลงคิว (view the queues and join one)",
+        "เช็กอินเมื่อถึงคิวและยืนยันความพร้อม (check in when called and confirm ready)",
+        "ส่งคะแนนหลังจบเกม และดูสถิติของตนเอง (submit the score and view your statistics)",
+        "แจ้งซ่อมอุปกรณ์สนาม 1 รายการ (report one equipment problem)",
+    ])
+    doc.h(3, "Questionnaire", numbered=False)
+    doc.pleft("โปรดเลือกระดับความเห็นของท่านต่อข้อความแต่ละข้อ: 1 = ไม่เห็นด้วยอย่างยิ่ง, 2 = ไม่เห็นด้วย, 3 = เฉย ๆ, "
+            "4 = เห็นด้วย, 5 = เห็นด้วยอย่างยิ่ง")
+    doc.table("The SUS questionnaire as administered in Thai", ["#", "Statement (Thai)", "Original statement [22]"], [
+        ["1", "ฉัน\u200bคิดว่า\u200bฉัน\u200bอยาก\u200bใช้ MeQ เป็น\u200bประจำ", "I think that I would like to use this system frequently."],
+        ["2", "ฉัน\u200bรู้สึก\u200bว่า MeQ ซับซ้อน\u200bเกิน\u200bความ\u200bจำเป็น", "I found the system unnecessarily complex."],
+        ["3", "ฉัน\u200bคิดว่า MeQ ใช้งาน\u200bง่าย", "I thought the system was easy to use."],
+        ["4", "ฉัน\u200bคิดว่า\u200bต้อง\u200bมี\u200bคน\u200bช่วย\u200bแนะนำ จึง\u200bจะ\u200bใช้ MeQ ได้", "I think that I would need the support of a technical person to be able to use this system."],
+        ["5", "ฉัน\u200bพบ\u200bว่า\u200bฟังก์ชัน\u200bต่าง ๆ ของ MeQ ทำงาน\u200bเชื่อมโยง\u200bกัน\u200bได้\u200bดี", "I found the various functions in this system were well integrated."],
+        ["6", "ฉัน\u200bคิดว่า MeQ มี\u200bส่วน\u200bที่\u200bไม่\u200bสอดคล้อง\u200bกัน\u200bมาก\u200bเกินไป", "I thought there was too much inconsistency in this system."],
+        ["7", "ฉัน\u200bคิดว่า\u200bคน\u200bส่วนใหญ่\u200bจะ\u200bเรียนรู้\u200bวิธี\u200bใช้ MeQ ได้\u200bอย่าง\u200bรวดเร็ว", "I would imagine that most people would learn to use this system very quickly."],
+        ["8", "ฉัน\u200bรู้สึก\u200bว่า MeQ ใช้งาน\u200bยุ่งยาก", "I found the system very cumbersome to use."],
+        ["9", "ฉัน\u200bรู้สึก\u200bมั่นใจ\u200bขณะ\u200bใช้ MeQ", "I felt very confident using the system."],
+        ["10", "ฉัน\u200bต้อง\u200bเรียนรู้\u200bหลาย\u200bอย่าง\u200bก่อน\u200bจึง\u200bจะ\u200bเริ่ม\u200bใช้ MeQ ได้", "I needed to learn a lot of things before I could get going with this system."],
+    ], [0.8, 5.6, 5.1])
+    doc.pleft("ข้อเสนอแนะเพิ่มเติม (ไม่บังคับ) — additional comments (optional), free text.")
+    doc.h(3, "Background Questions", numbered=False)
+    doc.p("The last section, headed by the note shown to participants that these answers are used only to describe "
+          "the respondents as a group, asks two required multiple-choice questions (Table C.2).")
+    doc.table("Background questions", ["Question (Thai)", "Choices (Thai)", "English"], [
+        ["คุณ\u200bมา\u200bเล่น\u200bที่\u200bสนาม\u200bบาส\u200bมหาวิทยาลัย\u200bนเรศวร\u200bบ่อย\u200bแค่ไหน",
+         "สัปดาห์\u200bละ 4 ครั้ง\u200bขึ้น\u200bไป / สัปดาห์\u200bละ 2–3 ครั้ง / สัปดาห์\u200bละ\u200bครั้ง\u200bหรือ\u200bน้อย\u200bกว่า / ครั้ง\u200bแรก",
+         "How often do you play at the NU basketball courts? 4 or more times a week / 2–3 times a week / once a week or less / first time"],
+        ["ใน\u200bการ\u200bทดลอง\u200bครั้ง\u200bนี้ คุณ\u200bใช้ MeQ ใน\u200bฐานะ\u200bอะไร",
+         "หัวหน้า\u200bทีม หรือ\u200bผู้\u200bช่วย\u200bหัวหน้า / สมาชิก\u200bทีม",
+         "In this trial, did you use MeQ as a team leader (captain or delegate) or as a team member?"],
+    ], [3.4, 3.6, 4.5])
+    fig(doc, SHOT + "sus-form.png", "The SUS section of the questionnaire in Google Forms", 65)
+    doc.h(3, "Scoring", numbered=False)
+    doc.p("For each odd statement the contribution is the response minus 1; for each even statement it is 5 minus the "
+          "response. The sum of the ten contributions is multiplied by 2.5, giving a score from 0 to 100 [22]. A mean of "
+          "68 is the commonly used benchmark of average usability [23]. The responses were exported from the linked "
+          "Google Sheet, and each respondent's score was computed before the mean, standard deviation, and 95% "
+          "confidence interval.")
