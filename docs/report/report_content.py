@@ -610,7 +610,7 @@ def chapter4(doc):
         ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
         ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "{{ }}", "{{ }}"],
         ["KPI-6 Usability", "Mean SUS ≥ 68", "{{ }}", "{{ }}"],
-        ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; npm audit: 0 production vulnerabilities after upgrade; ZAP baseline: 0 High, 4 Medium", "Pass"],
+        ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; npm audit: 0 production vulnerabilities after upgrade; ZAP baseline: 0 High; warnings 11 → 7 after security headers", "Pass"],
     ], [3, 3, 4, 1.5])
 
     doc.h(3, "Formative Field Test")
@@ -716,7 +716,7 @@ def chapter4(doc):
          "Code review"],
         ["A04 Insecure Design", "Rules, timers, and positions are decided in database transactions; the distance to the court is computed on the server; browser timers are for display only",
          "pgTAP rule tests; field test"],
-        ["A05 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table",
+        ["A05 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table; security headers including a Content Security Policy",
          "Privilege tests; ZAP baseline (Table 4.7)"],
         ["A06 Vulnerable and Outdated Components", "Dependencies are pinned by the lockfile and audited with `npm audit`. Known vulnerabilities found in Next.js 16.3.3 (critical), sharp, and source-map-js were removed by upgrading to Next.js 16.3.8",
          "npm audit before and after the upgrade"],
@@ -735,23 +735,28 @@ def chapter4(doc):
           "Next.js 16.3.8, the audit of the production dependencies reported no vulnerabilities, and the type check, lint, "
           "unit tests, and production build all passed. Five high-severity advisories remain in the lint toolchain, a "
           "development dependency that is not deployed.")
-    doc.p("The ZAP baseline scan of the deployed site on 15 October 2026, after the upgrade, passed 56 of its rules and "
-          "raised no High-risk alert, which meets the criterion of KPI-7. It raised the warnings in Table 4.7. The scan "
-          "was not signed in, so it covered only the public pages (the sign-in, privacy, and terms pages and the static "
-          "files); the pages behind sign-in are protected by the privilege tests instead.")
-    doc.table("Alerts of the ZAP baseline scan, 15 October 2026", ["Risk", "Alert", "Assessment"], [
-        ["Medium", "Content Security Policy header not set", "Valid; a policy limits where scripts and images may load from"],
-        ["Medium", "Missing anti-clickjacking header", "Valid; pages can be framed by another site"],
-        ["Medium", "Cross-domain misconfiguration", "Static files are served to any origin by the host; they contain no user data"],
-        ["Medium", "Absence of anti-CSRF tokens", "On the sign-in form, which only starts LINE Login; Next.js Server Actions check the request origin instead of a token"],
-        ["Low", "Missing X-Content-Type-Options, Permissions-Policy, and cross-origin isolation headers", "Valid; set by response headers"],
-        ["Low", "X-Powered-By header reveals the framework", "Valid; can be switched off in the Next.js configuration"],
-        ["Informational", "Caching and modern web application notes", "No action needed"],
-    ], [2, 4.5, 5.5])
-    doc.p("Most warnings concern security headers, which the application does not yet set. They are not exploitable "
-          "flaws in themselves but remove layers of defense against clickjacking and injected scripts, and adding them in "
-          "the Next.js configuration is the first item of further hardening. The full report is kept with the project "
-          "(`docs/report/evidence/zap-baseline-2026-10-15.html`).")
+    doc.p("The deployed site was scanned twice with the ZAP baseline scan. The first scan, on the evening of 15 October "
+          "2026 after the Next.js upgrade, passed 56 rules and raised no High-risk alert, which already meets the "
+          "criterion of KPI-7, but it reported missing security headers. The headers were then added to the Next.js "
+          "configuration, and the second scan, early on 16 October, passed 60 rules with no High-risk alert and seven "
+          "warnings instead of eleven (Table 4.7). Neither scan was signed in, so both covered only the public pages (the "
+          "sign-in, privacy, and terms pages and the static files); the pages behind sign-in are protected by the "
+          "privilege tests instead.")
+    doc.table("Alerts of the ZAP baseline scans before and after the security headers",
+              ["Risk", "Alert", "Before", "After", "Assessment"], [
+        ["Medium", "Content Security Policy header not set", "Raised", "Resolved", "A policy now limits scripts, images, and forms to the site, Supabase, and LINE Login"],
+        ["Medium", "Missing anti-clickjacking header", "Raised", "Resolved", "frame-ancestors 'none' and X-Frame-Options DENY"],
+        ["Medium", "CSP allows inline scripts and styles", "—", "Raised", "Next.js needs inline scripts without nonces, and React uses style attributes; a nonce-based policy would require dynamic rendering of every page"],
+        ["Medium", "Cross-domain misconfiguration", "Raised", "Raised", "Static files are served to any origin by the host; they contain no user data"],
+        ["Medium", "Absence of anti-CSRF tokens", "Raised", "Raised", "On the sign-in form, which only starts LINE Login; Next.js Server Actions check the request origin instead of a token"],
+        ["Low", "X-Content-Type-Options, Permissions-Policy, opener and resource policies", "Raised", "Resolved", "Set as response headers; geolocation stays allowed for check-in"],
+        ["Low", "X-Powered-By header reveals the framework", "Raised", "Resolved", "Switched off"],
+        ["Low", "Cross-Origin-Embedder-Policy missing", "Raised", "Raised", "Requiring it would block photos from Supabase and LINE profile pictures"],
+        ["Info", "Caching and modern web application notes", "Raised", "Raised", "No action needed"],
+    ], [1.5, 3.4, 1.4, 1.4, 4.3])
+    doc.p("The remaining warnings are accepted trade-offs rather than flaws: the policy still blocks scripts from other "
+          "origins, framing, plugins, and changes of the base address, which are the usual routes of the attacks it "
+          "targets. Both reports are kept with the project (`docs/report/evidence/`).")
 
     doc.h(2, "Discussion")
     doc.h(3, "Rules in the Database, Not in the Interface")
