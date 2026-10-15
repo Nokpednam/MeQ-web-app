@@ -753,7 +753,7 @@ def chapter4(doc):
         ["Low", "X-Powered-By header reveals the framework", "Raised", "Resolved", "Switched off"],
         ["Low", "Cross-Origin-Embedder-Policy missing", "Raised", "Raised", "Requiring it would block photos from Supabase and LINE profile pictures"],
         ["Info", "Caching and modern web application notes", "Raised", "Raised", "No action needed"],
-    ], [1.5, 3.4, 1.4, 1.4, 4.3])
+    ], [1.5, 3.2, 1.7, 1.7, 3.9])
     doc.p("The remaining warnings are accepted trade-offs rather than flaws: the policy still blocks scripts from other "
           "origins, framing, plugins, and changes of the base address, which are the usual routes of the attacks it "
           "targets. Both reports are kept with the project (`docs/report/evidence/`).")
