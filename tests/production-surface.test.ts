@@ -84,3 +84,13 @@ test("admin maintenance note field is not hidden with the header admin link on p
   assert.doesNotMatch(section, /className="admin-entry"[^>]*name="adminNote"/);
   assert.match(section, /className="admin-report-note" name="adminNote"/);
 });
+
+test("security headers keep geolocation for check-in and block framing", () => {
+  const config = readFileSync(resolve(root, "next.config.ts"), "utf8");
+  assert.match(config, /poweredByHeader: false/);
+  assert.match(config, /frame-ancestors 'none'/);
+  assert.match(config, /"X-Frame-Options", value: "DENY"/);
+  assert.match(config, /"X-Content-Type-Options", value: "nosniff"/);
+  // Disabling geolocation here would silently break GPS check-in.
+  assert.match(config, /geolocation=\(self\)/);
+});
