@@ -1,0 +1,26 @@
+erDiagram
+  PROFILES ||--o{ MAINTENANCE_REPORTS : "reports"
+  COURTS ||--o{ MAINTENANCE_REPORTS : "concerns"
+  MAINTENANCE_REPORTS ||--o| MAINTENANCE_ACTIVE_ISSUES : "holds slot"
+  MAINTENANCE_REPORTS ||--o{ MAINTENANCE_STATUS_HISTORY : "logs"
+  PROFILES ||--o{ LINE_NOTIFICATIONS : "receives"
+  MAINTENANCE_REPORTS { uuid id PK
+    uuid reporter_user_id FK
+    text court_id FK
+    maintenance_category category
+    maintenance_status status
+    text image_path }
+  MAINTENANCE_ACTIVE_ISSUES { text court_id PK
+    maintenance_category category PK
+    uuid report_id FK }
+  MAINTENANCE_STATUS_HISTORY { bigint id PK
+    uuid report_id FK
+    maintenance_status to_status
+    uuid changed_by FK
+    timestamptz changed_at }
+  LINE_NOTIFICATIONS { uuid id PK
+    uuid recipient_user_id FK
+    text kind
+    text status
+    text dedupe_key
+    timestamptz expires_at }

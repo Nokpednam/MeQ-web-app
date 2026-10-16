@@ -1,0 +1,10 @@
+flowchart TB
+  R["Player submits a report<br/>court, problem type, details, photo"]
+  R --> X{"Another open report for the<br/>same court and type?"}
+  X -->|yes| DUP["Refused: already being handled"]
+  X -->|no| N["NEW<br/>LINE to every administrator"]
+  N -->|accept| I["IN_PROGRESS<br/>shown on the public board"]
+  N -->|spam or invalid| J["REJECTED"]
+  I -->|admin phones the caretaker| W["WAITING_FOR_CARETAKER<br/>daily reminder after 2 days"]
+  I -->|fixed| Z["RESOLVED"]
+  W -->|fixed| Z

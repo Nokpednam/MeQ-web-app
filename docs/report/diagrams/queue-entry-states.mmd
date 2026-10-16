@@ -1,0 +1,23 @@
+stateDiagram-v2
+  direction TB
+  [*] --> WAITING: leader joins queue
+  WAITING --> CALLED: scheduler calls the next team
+  CALLED --> CHECKING_IN: members verify location
+  CHECKING_IN --> READY_TO_PLAY: leader confirms ready
+  CALLED --> MISSED_QUEUE: deadline passes
+  CHECKING_IN --> MISSED_QUEUE: deadline passes
+  READY_TO_PLAY --> PLAYING: both teams ready
+  PLAYING --> DECIDING_CONTINUE: valid result, team won
+  PLAYING --> DECIDING_REQUEUE: valid result, team lost
+  PLAYING --> CANCELLED: no valid scores in 5 min
+  DECIDING_CONTINUE --> HOLDING_COURT: continue (first win)
+  HOLDING_COURT --> PLAYING: next challenger ready
+  PLAYING --> RESTING: second consecutive win
+  RESTING --> WAITING: one game rested, back to the head
+  DECIDING_REQUEUE --> WAITING: requeue at the end
+  DECIDING_CONTINUE --> LEFT_QUEUE: leave or 3 min pass
+  DECIDING_REQUEUE --> LEFT_QUEUE: leave or 3 min pass
+  WAITING --> LEFT_QUEUE: leader leaves
+  MISSED_QUEUE --> [*]
+  LEFT_QUEUE --> [*]
+  CANCELLED --> [*]

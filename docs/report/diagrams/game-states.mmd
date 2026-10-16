@@ -1,0 +1,17 @@
+stateDiagram-v2
+  direction TB
+  [*] --> PLAYING: both teams ready
+  PLAYING --> END_REQUESTED: a leader requests the end<br/>(5-minute score deadline starts)
+  END_REQUESTED --> PLAYING: other leader rejects
+  END_REQUESTED --> AWAITING_SCORE: first team submits
+  AWAITING_SCORE --> VALIDATING_RESULT: second team submits
+  VALIDATING_RESULT --> COMPLETED: exactly one team reached the target
+  VALIDATING_RESULT --> INVALID_SCORE: tie, or zero or two teams reached it
+  INVALID_SCORE --> VALIDATING_RESULT: both teams submit again
+  END_REQUESTED --> CANCELLED: deadline passes
+  AWAITING_SCORE --> CANCELLED: deadline passes
+  INVALID_SCORE --> CANCELLED: deadline passes
+  AWAITING_SCORE --> COMPLETED: administrator decides
+  INVALID_SCORE --> COMPLETED: administrator decides
+  COMPLETED --> [*]: statistics recorded, rotation applied
+  CANCELLED --> [*]: no result, court released

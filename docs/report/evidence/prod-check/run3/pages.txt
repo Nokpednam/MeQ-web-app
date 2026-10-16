@@ -1,0 +1,12 @@
+all	p95=477 ms	med=311 ms	max=1507 ms	failed=0.00%
+/maintenance	p95=549 ms	med=279 ms
+/courts/3x3-b	p95=400 ms	med=314 ms
+/profile	p95=394 ms	med=316 ms
+/admin	p95=527 ms	med=400 ms
+/courts	p95=734 ms	med=305 ms
+/calendar	p95=443 ms	med=315 ms
+/courts/3x3-a	p95=377 ms	med=291 ms
+/teams	p95=536 ms	med=278 ms
+/courts/5x5	p95=378 ms	med=310 ms
+/admin/maintenance	p95=432 ms	med=363 ms
+/admin/maintenance/stats	p95=1004 ms	med=304 ms
