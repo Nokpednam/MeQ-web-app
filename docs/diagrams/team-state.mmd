@@ -16,6 +16,7 @@ stateDiagram-v2
   WAITING --> CHECK_IN_REQUIRED: ถึงคิว
   CHECK_IN_REQUIRED --> READY_TO_PLAY: เช็กอินครบ
   CHECK_IN_REQUIRED --> MISSED_QUEUE: หมดเวลา
+  CHECK_IN_REQUIRED --> WAITING: ทีมชนะไม่เล่นต่อและไม่มีทีมอื่นรอ (กลับเป็นคิวแรก)
   READY_TO_PLAY --> PLAYING: เริ่มเกม
   PLAYING --> SUBMITTING_SCORE: จบเกม
   SUBMITTING_SCORE --> PLAYING: คะแนนไม่ผ่านและเปิดแก้ไข
