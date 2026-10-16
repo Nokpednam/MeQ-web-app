@@ -1,0 +1,58 @@
+{
+ "lighthouseVersion": "13.5.0",
+ "fetchTime": "2026-10-16T10:56:48.102Z",
+ "requestedUrl": "https://meq-starter-v01.vercel.app/admin",
+ "finalDisplayedUrl": "https://meq-starter-v01.vercel.app/admin",
+ "configSettings": {
+  "formFactor": "mobile",
+  "throttlingMethod": "simulate",
+  "throttling": {
+   "rttMs": 150,
+   "throughputKbps": 1638.4,
+   "requestLatencyMs": 562.5,
+   "downloadThroughputKbps": 1474.5600000000002,
+   "uploadThroughputKbps": 675,
+   "cpuSlowdownMultiplier": 4
+  },
+  "screenEmulation": {
+   "mobile": true,
+   "width": 412,
+   "height": 823,
+   "deviceScaleFactor": 1.75,
+   "disabled": false
+  }
+ },
+ "performanceScore": 1,
+ "audits": {
+  "first-contentful-paint": {
+   "numericValue": 780.843,
+   "numericUnit": "millisecond",
+   "displayValue": "0.8 s"
+  },
+  "largest-contentful-paint": {
+   "numericValue": 929.843,
+   "numericUnit": "millisecond",
+   "displayValue": "0.9 s"
+  },
+  "total-blocking-time": {
+   "numericValue": 26,
+   "numericUnit": "millisecond",
+   "displayValue": "30 ms"
+  },
+  "speed-index": {
+   "numericValue": 1495.6854304112862,
+   "numericUnit": "millisecond",
+   "displayValue": "1.5 s"
+  },
+  "cumulative-layout-shift": {
+   "numericValue": 0,
+   "numericUnit": "unitless",
+   "displayValue": "0"
+  },
+  "interactive": {
+   "numericValue": 934.3430000000001,
+   "numericUnit": "millisecond",
+   "displayValue": "0.9 s"
+  }
+ }
+}

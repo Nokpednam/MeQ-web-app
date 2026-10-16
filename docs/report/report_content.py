@@ -374,7 +374,7 @@ def chapter3(doc):
         ["Backend", "Supabase (Free): PostgreSQL, Auth, Storage, pg_cron, pg_net, Vault", "Data, rules, sign-in, photos, scheduled jobs"],
         ["Messaging", "LINE Login (OpenID Connect), LINE Messaging API", "Sign-in and push notifications"],
         ["Testing", "pgTAP via Supabase CLI; Node.js test runner; GitHub Actions", "Database rule tests, unit tests, CI"],
-        ["Evaluation", "k6; OWASP ZAP; npm audit; SUS questionnaire in Google Forms", "KPI-1, KPI-5, KPI-6, KPI-7"],
+        ["Evaluation", "k6; Lighthouse; OWASP ZAP; npm audit; SUS questionnaire in Google Forms", "KPI-1, KPI-5, KPI-6, KPI-7"],
         ["Development", "Git, GitHub, OpenAI Codex, Claude Code, Mermaid", "Version control, implementation, diagrams"],
     ], [2, 5, 4])
 
@@ -554,7 +554,7 @@ def chapter3(doc):
         ["KPI-2 Rule conformance", "RQ1 / H1", "pgTAP database tests; unit tests", "All tests pass"],
         ["KPI-3 Notification timeliness", "RQ2 / H2", "line_notifications records", "≥ 95% sent within 60 s; no duplicates"],
         ["KPI-4 Maintenance workflow", "RQ3 / H3", "Scripted scenario; status history; outbox records", "Every step as specified; notifications within 60 s"],
-        ["KPI-5 Responsiveness under load", "RQ4 / H4", "k6 with 50 virtual users [24]", "p95 < 2 s and < 1% failed"],
+        ["KPI-5 Responsiveness under load", "RQ4 / H4", "k6 with 50 virtual users [24]; k6 and Lighthouse [29] on the deployed site", "p95 < 2 s and < 1% failed"],
         ["KPI-6 Usability", "RQ4 / H4", "System Usability Scale [22]", "Mean ≥ 68"],
         ["KPI-7 Security", "supporting", "Privilege tests; OWASP Top 10 [25]; ZAP baseline", "All privilege tests pass; no High finding"],
     ], [3.2, 2.4, 3.8, 3])
@@ -584,6 +584,9 @@ def chapter3(doc):
                                               "members open their court page every 10 seconds. The scheduler of the "
                                               "database keeps calling teams during the run. Refusals by a queue rule are "
                                               "expected answers and are not counted as failed requests.")
+    doc.lead("Deployed-site check (KPI-5).", "A k6 script in which three users, signed in with the author's session, "
+                                             "open eleven pages of a player and an administrator for three minutes, "
+                                             "reading only; and Lighthouse [29] in its default mobile settings on four of them.")
     doc.lead("Outbox records (KPI-3).", "The creation and delivery time, status, and attempts of every notification.")
     doc.lead("Maintenance scenario (KPI-4).", "The scripted steps in Table 3.8, with the status history and the outbox "
                                               "records of the test reports as evidence.")
@@ -633,7 +636,7 @@ def chapter4(doc):
         ["KPI-2 Rule conformance", "All tests pass", "115 of 115 database tests; 32 of 32 unit tests", "Pass"],
         ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "29 of 30 (96.7%) within 60 s; median 1.7 s; no duplicates (11–12 Oct)", "Pass"],
         ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
-        ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "Set B: p95 88–94 ms, 0 failed in 3 runs (set A: up to 1.46% failed, traced to the load generator)", "Pass"],
+        ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "Set B (local, 50 users): p95 88–94 ms, 0 failed in 3 runs (set A: up to 1.46% failed, traced to the load generator); set C (deployed, 3 users): p95 477–567 ms, 0 failed; Lighthouse mobile: largest content within 1.9 s", "Pass"],
         ["KPI-6 Usability", "Mean SUS ≥ 68", "{{ }}", "{{ }}"],
         ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; npm audit: 0 production vulnerabilities after upgrade; ZAP baseline: 0 High; warnings 11 → 7 after security headers", "Pass"],
     ], [3, 3, 4, 1.5])
@@ -755,7 +758,7 @@ def chapter4(doc):
           "all requests was 88 to 94 milliseconds and no request took longer than 227 milliseconds. Court pages, rendered on the server "
           "with their queue, accounted for almost all of this time, while the queue functions in the database answered in "
           "under 8 milliseconds at the 95th percentile.")
-    doc.table("Responsiveness under load (KPI-5), 16 October 2026",
+    doc.table("Response times under load (sets A and B, local) and on the deployed site (set C), 16 October 2026",
               ["Run", "Requests", "Pages p95 (ms)", "Functions p95 (ms)", "All p95 (ms)", "Max (ms)", "Failed"], [
         ["A1", "1,336", "100.9", "7.6", "91.1", "183.5", "9 (0.67%)"],
         ["A2", "1,317", "101.0", "7.6", "93.6", "178.2", "10 (0.76%)"],
@@ -763,6 +766,9 @@ def chapter4(doc):
         ["B1", "1,351", "109.5", "7.8", "94.2", "226.4", "0 (0%)"],
         ["B2", "1,366", "97.0", "7.4", "88.2", "174.6", "0 (0%)"],
         ["B3", "1,356", "92.8", "7.8", "88.6", "172.4", "0 (0%)"],
+        ["C1", "131", "567", "—", "567", "1,579", "0 (0%)"],
+        ["C2", "133", "506", "—", "506", "1,315", "0 (0%)"],
+        ["C3", "130", "477", "—", "477", "1,507", "0 (0%)"],
     ], [1, 1.7, 1.7, 1.9, 1.6, 1.4, 2.1])
     doc.p("In set A the failure rate met the threshold in the first two runs but not in the third (1.46%). The failed "
           "requests were not slow answers: they came in short bursts, mostly as connections from the load generator that "
@@ -783,14 +789,39 @@ def chapter4(doc):
           "database directly rather than through the Server Actions that the application uses. The server stayed running, "
           "so the cold starts of a serverless host were not included. The result therefore shows that the server and the "
           "database are not a bottleneck for 50 concurrent users, with a wide margin under the threshold of 2 seconds, but "
-          "it does not give the response time on the deployed system, which remains to be measured from phones at the courts.")
+          "it does not give the response time on the deployed system.")
+    doc.p("Set C measured that response time on the deployed site between 17:44 and 17:57 on 16 October 2026, signed "
+          "in as the author, from the same laptop over its internet connection. Three k6 users opened the eleven signed-in "
+          "pages of a player and an administrator, with three to six seconds between pages, for three minutes in each of "
+          "three runs; they only read pages, so no queue entry, score, report, or notification was created. Every request "
+          "was answered signed in and none failed. The 95th percentile was 477 to 567 milliseconds, five to six times that "
+          "of set B, and the median about 310 milliseconds (Table 4.7); the slowest page at the 95th percentile in any run, 1.0 second, was the "
+          "maintenance statistics of the administrator. The difference from set B is the time of the internet and of the "
+          "database queries between Vercel and Supabase. Lighthouse [29] then loaded four pages three times each as a "
+          "phone on a mobile network, using its default mobile settings, which emulate a mid-range phone and simulate a "
+          "slow 4G connection. Unlike k6, it counts the scripts, styles, and images of the page and the time to draw it. "
+          "The largest content of every page appeared within 1.9 seconds, with a median of about 1.0 second, and every "
+          "page scored 99 or 100 for performance (Table 4.8). The first run of each page was the slowest, because "
+          "nothing was cached yet.")
+    doc.table("Lighthouse mobile results on the deployed site, median of three runs, 16 October 2026",
+              ["Page", "Performance score", "First contentful paint (s)", "Largest contentful paint (s)", "Slowest LCP (s)", "Total blocking time (ms)"], [
+        ["/courts/3x3-a (court and queue)", "99–100", "0.81", "1.02", "1.87", "64"],
+        ["/profile (statistics)", "100", "0.83", "1.02", "1.06", "73"],
+        ["/courts (court list)", "100", "0.84", "0.97", "1.15", "27"],
+        ["/admin (administrator)", "100", "0.78", "0.93", "1.28", "26"],
+    ], [3.4, 1.7, 1.8, 1.8, 1.5, 1.8])
+    doc.p("Set C used three users, so it shows the response time that a player meets, not whether the deployed site "
+          "holds 50 users at once; that capacity rests on sets A and B, because a load of 50 users on the free tiers "
+          "of the deployed services would have disturbed real players. Lighthouse simulates a mobile network rather than "
+          "measuring one, and the k6 requests left from a fixed connection, so a phone at the courts may be slower when "
+          "its signal is weak.")
     doc.h(3, "KPI-6: Usability")
     doc.p("{{Report n, how often the participants play at the courts and how many acted as team leaders, then the mean "
           "SUS score, the standard deviation, and the 95% confidence interval, with a figure against the benchmark of 68.}}")
     doc.h(3, "KPI-7: Security")
     doc.p("All 40 privilege assertions passed: anonymous users cannot call any queue, game, or administrator function; "
           "signed-in users cannot write to lifecycle tables directly; only the service role can claim notifications; and "
-          "administrator functions refuse other users. Table 4.8 maps the controls of MeQ to the OWASP Top 10 [25].")
+          "administrator functions refuse other users. Table 4.9 maps the controls of MeQ to the OWASP Top 10 [25].")
     doc.table("Controls of MeQ against the OWASP Top 10:2021", ["Risk", "Control in MeQ", "Evidence"], [
         ["A01 Broken Access Control", "Row-level security on every table; lifecycle tables are written only by functions that check `auth.uid()` and the role; administrator functions check the role again; each user's photos are kept in their own folder of a private bucket",
          "40 privilege assertions; role checks in the other test files"],
@@ -801,7 +832,7 @@ def chapter4(doc):
         ["A04 Insecure Design", "Rules, timers, and positions are decided in database transactions; the distance to the court is computed on the server; browser timers are for display only",
          "pgTAP rule tests; field test"],
         ["A05 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table; security headers including a Content Security Policy",
-         "Privilege tests; ZAP baseline (Table 4.9)"],
+         "Privilege tests; ZAP baseline (Table 4.10)"],
         ["A06 Vulnerable and Outdated Components", "Dependencies are pinned by the lockfile and audited with `npm audit`. Known vulnerabilities found in Next.js 16.3.3 (critical), sharp, and source-map-js were removed by upgrading to Next.js 16.3.8",
          "npm audit before and after the upgrade"],
         ["A07 Identification and Authentication Failures", "Sign-in with LINE Login through OpenID Connect [17]; sessions are kept in cookies managed by Supabase Auth and refreshed on every request",
@@ -823,7 +854,7 @@ def chapter4(doc):
           "2026 after the Next.js upgrade, passed 56 rules and raised no High-risk alert, which already meets the "
           "criterion of KPI-7, but it reported missing security headers. The headers were then added to the Next.js "
           "configuration, and the second scan, early on 16 October, passed 60 rules with no High-risk alert and seven "
-          "warnings instead of eleven (Table 4.9). Neither scan was signed in, so both covered only the public pages (the "
+          "warnings instead of eleven (Table 4.10). Neither scan was signed in, so both covered only the public pages (the "
           "sign-in, privacy, and terms pages and the static files); the pages behind sign-in are protected by the "
           "privilege tests instead.")
     doc.table("Alerts of the ZAP baseline scans before and after the security headers",
@@ -899,8 +930,9 @@ def chapter5(doc):
              "supported; one defect, a note field hidden on phones, was found and corrected.")
     doc.lead("Objective 4: notifications and evaluation.", "Of 30 notifications, 29 arrived within a minute and none twice "
              "(KPI-3, H2 supported). In a load test on one laptop, pages answered within a tenth of a second at the 95th "
-             "percentile under 50 users, with no failed request once the load generator ran outside Docker (KPI-5); "
-             "response times on the deployed system were not measured. No High-risk alert or vulnerable "
+             "percentile under 50 users, with no failed request once the load generator ran outside Docker; on the deployed "
+             "site, with three users, they answered within 0.6 seconds at the 95th percentile and a simulated phone showed each page within "
+             "1.9 seconds (KPI-5). No High-risk alert or vulnerable "
              "production dependency remained after the upgrade and the security headers (KPI-7). {{Conclusion on KPI-6 "
              "and H4.}}")
     doc.h(2, "Limitations")
@@ -909,7 +941,7 @@ def chapter5(doc):
         "Scores are entered by the teams; the system checks that they are consistent, not that they are true.",
         "Notifications reach only users who have added the LINE Official Account as a friend.",
         "The evaluation took place at one facility, on free-tier infrastructure, with a small convenience sample.",
-        "The load test ran on one laptop that hosted the application, the database, and the load generator together, so its response times are not those of the hosted services; the failures of its first set were traced to the load generator's network path by a second set, not by a test from a separate machine.",
+        "The load test ran on one laptop that hosted the application, the database, and the load generator together, so its response times are not those of the hosted services; the deployed site was measured only with three users and a simulated mobile network; the failures of its first set were traced to the load generator's network path by a second set, not by a test from a separate machine.",
         "The time administrators take to respond to real faults was not measured, because faults could not be scheduled during the evaluation; the statistics page records it for later study.",
         "The author built and evaluated the system with AI assistance; automated tests and fixed criteria reduce, but do not remove, this bias.",
     ])
@@ -962,6 +994,7 @@ REFS = [
     "“Personal Data Protection Act, B.E. 2562 (2019),” *Royal Thai Government Gazette*, vol. 136, part 69 Kor, May 27, 2019.",
     "L. Wroblewski, *Mobile First*. New York, NY, USA: A Book Apart, 2011.",
     "ZAP Dev Team, “ZAP – Baseline scan.” [Online]. Available: https://www.zaproxy.org/docs/docker/baseline-scan/ (accessed Oct. 15, 2026).",
+    "Google, “Introduction to Lighthouse,” Chrome for Developers. [Online]. Available: https://developer.chrome.com/docs/lighthouse/overview (accessed Oct. 16, 2026).",
 ]
 
 

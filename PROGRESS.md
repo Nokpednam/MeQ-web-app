@@ -136,6 +136,7 @@
      - ยังขาด: KPI-6 (SUS ผู้ใช้จริง), รูปหน้ากรอกคะแนน (`screenshots/scores.png`), ภาพหน้าจอ 8 รูป (หน้าเช็กอิน/ส่งคะแนน/ผลเกม ให้เพื่อนช่วยวันที่ 16 ต.ค.), บทคัดย่อและบทสรุปส่วนที่เหลือ
      - ✅ 2026-10-16: security headers (PR #15 merge แล้ว) สแกน ZAP ซ้ำ: 0 High, ผ่าน 60 กฎ, คำเตือน 11 → 7 (ที่เหลือ: CSP unsafe-inline, static ของ Vercel, anti-CSRF หน้าล็อกอิน, COEP) ตาราง 4.7 แบบก่อน/หลัง
      - 2026-10-16: เพิ่มย่อหน้าข้อจำกัด KPI-5 ในเล่ม (load test บนเครื่องเดียว ไม่ใช่ Vercel + Supabase cloud + เน็ตมือถือ, ~6 req/s, วัดแค่ HTML, เรียก RPC ตรงไม่ผ่าน Server Action) และแก้บทสรุปให้ระบุว่าวัดในเครื่อง ยังไม่ได้ build docx ใหม่
+     - ✅ 2026-10-16 17:44–17:57 KPI-5 ชุด C บนเว็บจริง (ล็อกอินด้วย session เจ้าของ, GET อย่างเดียว): k6 3 VU × 3 รอบ 11 หน้า p95 477–567 ms, median ~310 ms, ล้มเหลว 0, ล็อกอินครบ 100%; Lighthouse mobile 4 หน้า × 3 รอบ คะแนน 99–100, LCP ≤ 1.9 วิ (median ~1.0) ใส่ในเล่มแล้ว (แถว C1–C3 ในตาราง 4.7, ตาราง Lighthouse ใหม่ 4.8 → OWASP เป็น 4.9, ZAP เป็น 4.10, อ้างอิง [29] Lighthouse) หลักฐานใน `docs/report/evidence/prod-check/` (2 ครั้งแรกเสียเพราะบั๊กสคริปต์ k6 ล้าง cookie ทุก iteration แก้ด้วย `noCookiesReset` เก็บไว้ที่ `first-attempt-session-lost/`)
 
 ## งานจุกจิก
 
