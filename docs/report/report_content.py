@@ -80,7 +80,7 @@ def front_matter(doc):
           "their team is next or called, and tell reporters and administrators about maintenance progress. The system was "
           "built with Next.js on Vercel and Supabase, and evaluated against seven key performance indicators whose thresholds "
           "were fixed before measurement. All 107 database tests and 32 unit tests of the business rules passed, and a field "
-          "test with six players on real phones and a review that followed exposed ten defects, among them a queue that stopped advancing after a team "
+          "test with six players on real phones and a review that followed exposed eleven defects, among them a queue that stopped advancing after a team "
           "requeued, all of which were corrected and covered by new tests. "
           "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
           "the 95th percentile, with no failed request once failures caused by the load generator's container were "
@@ -540,7 +540,7 @@ def chapter3(doc):
     fig(doc, SHOT + "login.png", "The sign-in page", 45)
     fig(doc, SHOT + "home.png", "The home page with the status of every court", 45)
     fig(doc, SHOT + "court-queue.png", "A court page with its opening hours, target score, and queue", 45)
-    fig(doc, SHOT + "check-in.png", "Check-in of a called team with each member's location status", 45)
+    fig(doc, SHOT + "check-in.png", "Check-in of the two called teams, with the deadline and the captain's ready button", 45)
     fig(doc, SHOT + "maintenance-form.png", "The maintenance reporting form", 45)
     fig(doc, SHOT + "admin-maintenance.png", "The administrator's maintenance page with a report, its photo, and the status control", 45)
 
@@ -644,7 +644,10 @@ def chapter4(doc):
           "and the database recorded the statistics of all six players. The second round never started: when the losing "
           "team requeued, the scheduler failed and no court advanced again, so no further game could be created. That "
           "defect and the others observed during the session, together with those found in a review of every feature on "
-          "the following day, are listed in Table 4.2; each was corrected and covered by a new test.")
+          "the following day, are listed in Table 4.2; each was corrected and covered by a new test. A second session on "
+          "16 October, after those corrections, completed a game between two new teams (7–6); the result page showed "
+          "every player's points and the profile pages showed the statistics, and the session exposed one more defect, "
+          "the last in Table 4.2.")
     doc.table("Defects found in the field test and the review that followed", ["Source", "Observation", "Cause", "Correction"], [
         ["Field test", "A team that requeued after losing was never called again, and no court advanced", "The second check-in of the same queue entry violated a unique key, and the failed scheduler run rolled back every court",
          "Uniqueness only among open check-ins; each court advanced in its own sub-transaction"],
@@ -659,6 +662,7 @@ def chapter4(doc):
         ["{{?}}", "Location checks expired during a long wait", "Verification lasted 10 minutes", "30 minutes"],
         ["{{?}}", "LINE messages to every member were noisy", "All members were notified", "Only team leaders are notified"],
         ["{{?}}", "A game could hold a court indefinitely", "No deadline for scores", "5-minute score deadline; administrator tools; game delegate"],
+        ["Field test, 16 Oct", "A requeued team called to face the winner was dropped when the winner let its decision time out", "The rule that returns a called challenger when the holder leaves did not cover the winner's decision", "The challenger returns to the head of the queue when the winner leaves or times out"],
     ], [1.8, 3.6, 3.6, 3.6])
     doc.p("The most serious defect, the first in Table 4.2, was diagnosed from the scheduler's own records "
           "(`cron.job_run_details`), which showed a duplicate-key failure seconds after the losing team requeued. It also "
@@ -768,6 +772,17 @@ def chapter4(doc):
           "response times did not change. The failures of set A are therefore attributed to the load generator's "
           "network path rather than to MeQ, and KPI-5 is met on set B. Both sets are reported so that the reader can "
           "judge this attribution.")
+    doc.p("These response times describe the application and the database, not what a player experiences at the "
+          "courts. The test did not reproduce the deployed setting, in which a phone on a mobile network reaches the "
+          "application on Vercel, which in turn queries the database on Supabase's cloud. All three parts ran on one "
+          "laptop, so no request crossed the internet, and every database query that a court page makes would add a network round "
+          "trip on the deployed system. The load was also light: because each user waited 10 seconds between page "
+          "requests, as the live refresh does, the 50 users produced about 6 requests per second. The script measured only "
+          "the HTML of each page, without its scripts, styles, and images, and it called the queue functions in the "
+          "database directly rather than through the Server Actions that the application uses. The server stayed running, "
+          "so the cold starts of a serverless host were not included. The result therefore shows that the server and the "
+          "database are not a bottleneck for 50 concurrent users, with a wide margin under the threshold of 2 seconds, but "
+          "it does not give the response time on the deployed system, which remains to be measured from phones at the courts.")
     doc.h(3, "KPI-6: Usability")
     doc.p("{{Report n, how often the participants play at the courts and how many acted as team leaders, then the mean "
           "SUS score, the standard deviation, and the 95% confidence interval, with a figure against the benchmark of 68.}}")
@@ -882,8 +897,9 @@ def chapter5(doc):
              "system, every step behaved as specified and all ten notifications arrived within 1.3 seconds, so H3 is "
              "supported; one defect, a note field hidden on phones, was found and corrected.")
     doc.lead("Objective 4: notifications and evaluation.", "Of 30 notifications, 29 arrived within a minute and none twice "
-             "(KPI-3, H2 supported). Pages answered within a tenth of a second at the 95th percentile under 50 users, with "
-             "no failed request once the load generator ran outside Docker (KPI-5). No High-risk alert or vulnerable "
+             "(KPI-3, H2 supported). In a load test on one laptop, pages answered within a tenth of a second at the 95th "
+             "percentile under 50 users, with no failed request once the load generator ran outside Docker (KPI-5); "
+             "response times on the deployed system were not measured. No High-risk alert or vulnerable "
              "production dependency remained after the upgrade and the security headers (KPI-7). {{Conclusion on KPI-6 "
              "and H4.}}")
     doc.h(2, "Limitations")
