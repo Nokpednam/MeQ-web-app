@@ -79,8 +79,8 @@ def front_matter(doc):
           "reports that wait too long. LINE notifications, delivered through a transactional outbox, tell team leaders when "
           "their team is next or called, and tell reporters and administrators about maintenance progress. The system was "
           "built with Next.js on Vercel and Supabase, and evaluated against seven key performance indicators whose thresholds "
-          "were fixed before measurement. All 98 database tests and 30 unit tests of the business rules passed, and a field "
-          "test with six players on real phones and a review that followed exposed nine defects, among them a queue that stopped advancing after a team "
+          "were fixed before measurement. All 107 database tests and 32 unit tests of the business rules passed, and a field "
+          "test with six players on real phones and a review that followed exposed ten defects, among them a queue that stopped advancing after a team "
           "requeued, all of which were corrected and covered by new tests. "
           "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
           "the 95th percentile, with no failed request once failures caused by the load generator's container were "
@@ -559,8 +559,9 @@ def chapter3(doc):
         ["KPI-7 Security", "supporting", "Privilege tests; OWASP Top 10 [25]; ZAP baseline", "All privilege tests pass; no High finding"],
     ], [3.2, 2.4, 3.8, 3])
     doc.h(3, "Evaluation Objects and Participants")
-    doc.lead("Automated tests (KPI-2).", "Thirteen pgTAP files that exercise the database functions as different users, and "
-             "seven unit-test suites for the rules in TypeScript.")
+    doc.lead("Automated tests (KPI-2).", "Fourteen pgTAP files that exercise the database functions as different users, one "
+             "of which reads the tables as a signed-in player and as an administrator, and seven unit-test suites "
+             "for the rules in TypeScript.")
     doc.lead("Load test environment (KPI-1, KPI-5).", "The local Supabase stack, with all 37 migrations and its scheduled "
              "jobs, and a production build of the application, on one laptop (AMD Ryzen 7 7840HS, 8 cores, 16 GB RAM, "
              "Docker Desktop), so that production data were not affected. Fifty test accounts formed ten 3x3 teams and four "
@@ -629,7 +630,7 @@ def chapter4(doc):
     doc.h(3, "Summary of Results")
     doc.table("Results for the seven KPIs", ["KPI", "Pass threshold", "Result", "Verdict"], [
         ["KPI-1 Queue integrity", "0 violations", "0 violations in 6 runs; 0 of 533 simultaneous double joins accepted", "Pass"],
-        ["KPI-2 Rule conformance", "All tests pass", "98 of 98 database tests; 30 of 30 unit tests", "Pass"],
+        ["KPI-2 Rule conformance", "All tests pass", "107 of 107 database tests; 32 of 32 unit tests", "Pass"],
         ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "29 of 30 (96.7%) within 60 s; median 1.7 s; no duplicates (11–12 Oct)", "Pass"],
         ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
         ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "Set B: p95 88–94 ms, 0 failed in 3 runs (set A: up to 1.46% failed, traced to the load generator)", "Pass"],
@@ -647,6 +648,9 @@ def chapter4(doc):
     doc.table("Defects found in the field test and the review that followed", ["Source", "Observation", "Cause", "Correction"], [
         ["Field test", "A team that requeued after losing was never called again, and no court advanced", "The second check-in of the same queue entry violated a unique key, and the failed scheduler run rolled back every court",
          "Uniqueness only among open check-ins; each court advanced in its own sub-transaction"],
+        ["Field test", "Players' statistics showed zero although the game had been recorded",
+         "The row-level security policies called helper functions that signed-in users could not execute, and the page hid the error",
+         "Execute granted on the helpers; a test reads the tables as a signed-in user"],
         ["Field test", "The winning captain did not see the option to continue", "The game page did not move to the result when the game ended", "The page follows the game to its result automatically"],
         ["{{?}}", "Scores could be resubmitted by one team alone after a rejection", "Only the resubmitting team was checked", "Both teams must submit again"],
         ["{{?}}", "A winning team that continued could never leave the queue", "No transition from holding the court", "Holders may leave; a waiting challenger returns to the head"],
@@ -677,9 +681,12 @@ def chapter4(doc):
         ["B3", "180", "57", "0 of 90", "45", "12", "12", "0"],
     ], [1, 1.4, 1.6, 1.8, 1.1, 1.5, 1.4, 1.9])
     doc.h(3, "KPI-2: Rule Conformance")
-    doc.p("All 98 assertions in the thirteen database test files and all 30 unit tests passed on the final build (Table 4.4). "
-          "The database tests run each function as specific users, including users who must be refused, so they verify the "
-          "rules and the permissions together.")
+    doc.p("All 107 assertions in the fourteen database test files and all 32 unit tests passed on the final build "
+          "(Table 4.4). The database tests run each function as specific users, including users who must be refused, so "
+          "they verify the rules and the permissions together. Until 16 October, however, they ran as the database owner, "
+          "which bypasses row-level security, so none of them read a table the way the application does. That gap hid the "
+          "defect behind the empty statistics in Table 4.2; the test file `rls_helper_access` now reads as a signed-in "
+          "player and as an administrator, and it failed before the correction and passes after it.")
     doc.table("Automated test results", ["Test file", "Area", "Assertions", "Result"], [
         ["security_privileges", "Grants, RLS, and function permissions", "40", "Pass"],
         ["winner_rotation", "Two-win limit, rest, and decisions", "14", "Pass"],
@@ -688,8 +695,9 @@ def chapter4(doc):
         ["court_advance_safety", "Resting order, radius, per-court isolation", "8", "Pass"],
         ["location_verification", "Distance, accuracy, and expiry", "7", "Pass"],
         ["line_notifications", "Outbox, claiming, retry, and expiry", "3", "Pass"],
+        ["rls_helper_access", "Reading statistics, scores, and logs as a player and as an admin", "9", "Pass"],
         ["Other six files", "Full 3x3 flow, queue, teams, invitations, maintenance, game safety", "6", "Pass"],
-        ["Unit tests (7 suites)", "Rules, notifications, live refresh, statistics", "30", "Pass"],
+        ["Unit tests (7 suites)", "Rules, notifications, live refresh, statistics, security headers", "32", "Pass"],
     ], [3.2, 5, 1.9, 1.2])
     doc.h(3, "KPI-3: Notification Timeliness")
     doc.p("The outbox recorded 30 notifications on the production system between 11 and 12 October 2026, during the "
@@ -827,7 +835,9 @@ def chapter4(doc):
           "necessary for a fair queue [2], [5], but a scheduler that serves several courts must also contain each court's "
           "failures. The load test supports this from the other side: with 50 users and the scheduler acting on the same "
           "queues, the row locks and unique indexes of the database let only one of two simultaneous joins succeed, and "
-          "no run left a single inconsistency.")
+          "no run left a single inconsistency. Placing the rules in the database also moves the risk there: a single "
+          "missing grant made every player's statistics unreadable, and the tests missed it because they ran with "
+          "privileges that skip row-level security.")
     doc.h(3, "Notifications Turn an Uncertain Wait into a Known One")
     doc.p("Maister's observation that uncertain waits feel longer [3] motivated the notifications. The field test added a "
           "practical refinement: messages to every member were perceived as noise, and limiting them to team leaders kept "
@@ -890,6 +900,7 @@ def chapter5(doc):
     doc.h(3, "Recommendations for Practice")
     doc.ol([
         "Developers of shared queues should enforce every rule in a database transaction and test it as each kind of user, including users who must be refused.",
+        "Row-level security should be tested as the role the application uses, because tests run as the database owner bypass it.",
         "A scheduler that advances several resources should isolate each one, so that one failure does not stop the others.",
         "Notifications should be stored with the change that causes them, carry an expiry, and be sent idempotently.",
         "Field tests with real users on real devices should precede the summative evaluation; the most serious defect of this project was found that way.",
