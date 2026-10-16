@@ -80,7 +80,7 @@ def front_matter(doc):
           "their team is next or called, and tell reporters and administrators about maintenance progress. The system was "
           "built with Next.js on Vercel and Supabase, and evaluated against seven key performance indicators whose thresholds "
           "were fixed before measurement. All 115 database tests and 32 unit tests of the business rules passed, and a field "
-          "test with six players on real phones and a review that followed exposed eleven defects, among them a queue that stopped advancing after a team "
+          "tests with real players on their own phones, development, and a review that followed exposed eleven defects, among them a queue that stopped advancing after a team "
           "requeued, all of which were corrected and covered by new tests. "
           "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
           "the 95th percentile, with no failed request once failures caused by the load generator's container were "
@@ -148,7 +148,7 @@ def chapter1(doc):
     doc.pni("**H1 (RQ1).** With 50 concurrent virtual users joining and leaving queues, no run produces a rule violation "
             "(a team or player in two active queues, a duplicate or missing queue position, or an order that differs from the "
             "joining order), and every automated rule test passes.")
-    doc.pni("**H2 (RQ2).** During the field evaluation, at least 95% of LINE notifications are delivered within 60 seconds "
+    doc.pni("**H2 (RQ2).** In use on the deployed system, at least 95% of LINE notifications are delivered within 60 seconds "
             "of the event that caused them, and no message is delivered twice.")
     doc.pni("**H3 (RQ3).** In a scripted scenario covering every status, every step behaves as specified: the administrator is notified of each new report and the reporter of each status change within 60 seconds, a second active report of the same problem is refused, and every status change is recorded in the history.")
     doc.pni("**H4 (RQ4).** Under 50 concurrent users, the 95th-percentile response time is below 2 seconds with fewer than 1% "
@@ -189,7 +189,7 @@ def chapter1(doc):
           "indicators (KPIs) defined in Section 3.3.1.")
     doc.h(3, "Setting and Period")
     doc.p("Development took place from April to October 2026. A formative field test with six players on real "
-          "phones was held on 12 October 2026. The summative evaluation was scheduled for October 2026.")
+          "phones was held on 12 October 2026 and a second on 16 October 2026. The summative evaluation took place in October 2026.")
     doc.h(3, "Conceptual Framework")
     fig(doc, IMG + "conceptual-framework.png", "Conceptual framework of the project", 92)
     doc.p("Figure 1.2 relates the components of MeQ to the outcomes evaluated. The queue rules and the location check "
@@ -234,7 +234,7 @@ def chapter1(doc):
         ["2", "Database, queue rules, and team management", "May–Aug 2026"],
         ["3", "Check-in, game flow, and statistics", "Aug 2026"],
         ["4", "Maintenance module and LINE notifications", "Sep–Oct 2026"],
-        ["5", "Formative field test and corrections", "12–13 Oct 2026"],
+        ["5", "Field tests and corrections", "12–16 Oct 2026"],
         ["6", "Summative evaluation (KPI-1 to KPI-7)", "Oct 2026"],
         ["7", "Analysis and report preparation", "Oct 2026"],
     ], [1, 6, 3])
@@ -454,7 +454,7 @@ def chapter3(doc):
           "database validates the result: a tie, a result in which neither team reached the target, or one in which both did "
           "is rejected, and both teams must submit again. A valid result records each player's points, updates the winner's "
           "streak, and moves both teams to their post-game decision (Figure 3.4).")
-    doc.p("The field test showed that a game could block a court indefinitely if a leader left without submitting scores. "
+    doc.p("A game could block a court indefinitely if a leader left without submitting scores. "
           "Three safeguards were added. Both teams must submit valid scores within 5 minutes of the end request, after which "
           "the game ends without a result, nothing is recorded, and the court is released. Administrators can cancel a stuck "
           "game or decide its final score. A captain can name one member as *game delegate*, who may perform the captain's "
@@ -507,7 +507,7 @@ def chapter3(doc):
           "add-friend button on the profile page that opens LINE directly on a phone and shows a QR code on a computer.")
 
     doc.h(3, "Database Design")
-    doc.p("The schema was built through 37 migrations. Table 3.6 lists the core tables, and Figures 3.7 and 3.8 show their relationships; "
+    doc.p("The schema was built through 39 migrations. Table 3.6 lists the core tables, and Figures 3.7 and 3.8 show their relationships; "
           "Appendix A describes them in detail.")
     doc.table("Core tables", ["Table", "Role"], [
         ["profiles", "One row per user, with display name, avatar, role, and onboarding state"],
@@ -529,10 +529,30 @@ def chapter3(doc):
           "teams, and public reports, but they cannot write to any lifecycle table; every change goes through a function that "
           "checks the caller. Administrators are users whose profile role is *ADMIN*, and every administrator function checks "
           "the role again. Players never handle the service key: it exists only on the server, where the dispatcher uses it.")
-    doc.p("In line with Thailand's Personal Data Protection Act [26], the system stores only what it needs: the LINE display "
-          "name, avatar, and user ID; team and game records; and, for check-in, the distance to the court rather than the "
-          "coordinates. Maintenance photos are private, and the public status board omits the reporter. Privacy and terms "
-          "pages describe these practices to users.")
+    doc.p("In line with Thailand's Personal Data Protection Act (PDPA) [26], the system stores only what it needs: the LINE "
+          "display name, avatar, and user ID; team and game records; and, for check-in, the distance to the court rather "
+          "than the coordinates. Maintenance photos are private, and the public status board omits the reporter. Privacy "
+          "and terms pages describe these practices to users. Table 3.7 checks the system against the main duties of a data "
+          "controller under the PDPA; it is a self-assessment by the author, not a legal review, and it lists the gaps that "
+          "remain.")
+    doc.table("Personal data protection checklist against the PDPA [26]", ["Duty", "What MeQ does", "Remaining gap"], [
+        ["Notice of collection and purpose", "A privacy page lists each kind of data, its source, its purpose, and who can see it; it is linked from the sign-in and profile pages",
+         "The page still says a location check expires within minutes; it now lasts 30 minutes"],
+        ["Lawful basis and consent", "Data are used to provide the service the player signs in for; LINE messages are sent only after the player adds the Official Account as a friend; evaluation participants give explicit consent in the questionnaire",
+         "No separate consent step at sign-in"],
+        ["Data minimization", "LINE Login requests only the `openid` and `profile` scopes, so no e-mail or phone number is collected; check-in stores the distance, not the coordinates; the public board omits the reporter",
+         "—"],
+        ["Retention", "A new location check replaces the previous one and each expires after 30 minutes; undelivered notifications expire",
+         "No automatic deletion of old notifications, audit logs, reports, or photos"],
+        ["Security", "Row-level security on every table, a private photo bucket, HTTPS with security headers, and a service key kept on the server (KPI-7)",
+         "—"],
+        ["Processors", "Supabase (database, sign-in, photos), Vercel (hosting), and LINE (sign-in, messages) are named in the privacy page",
+         "Relies on the providers' standard terms; no separate agreements"],
+        ["Rights of the data subject", "Players can ask through the LINE Official Account to see, correct, or delete their account data; results that involve other players may be kept for their statistics",
+         "No self-service deletion; requests are handled manually"],
+        ["Breach notification", "Audit logs record changes, and the hosting providers keep their own request logs",
+         "No written procedure for reporting a breach to the authority and to users"],
+    ], [2.6, 5.4, 3.6])
 
     doc.h(3, "Interface Design")
     doc.p("The interface is Thai by default with an English option, and is designed for phones. Figures 3.9 to 3.14 show the "
@@ -547,7 +567,7 @@ def chapter3(doc):
     doc.h(2, "Testing")
     doc.h(3, "Evaluation Framework")
     doc.p("The criteria of the evaluation were fixed on 15 October 2026, before the summative measurement, so that the "
-          "results could not influence the criteria by which they are judged (Table 3.7). Apart from the SUS benchmark of 68 "
+          "results could not influence the criteria by which they are judged (Table 3.8). Apart from the SUS benchmark of 68 "
           "[23], the thresholds are practical targets set by the author.")
     doc.table("Evaluation design and its alignment with the research questions", ["KPI", "RQ / hypothesis", "Instrument", "Pass threshold"], [
         ["KPI-1 Queue integrity under load", "RQ1 / H1", "Load script with 50 virtual users; invariant queries", "0 rule violations in 3 runs"],
@@ -568,7 +588,7 @@ def chapter3(doc):
              "5x5 teams, every member's location was recorded as verified, and the courts were opened all day.")
     doc.lead("Maintenance scenario (KPI-4).", "Five report attempts, each marked as a test in its description, filed on the "
              "deployed system at the 5x5 court, where no real report was open, by the author acting as player and as "
-             "administrator on the author's own phone (Table 3.8).")
+             "administrator on the author's own phone (Table 3.9).")
     doc.lead("Field evaluation (KPI-3, KPI-6).", "{{Number}} players recruited at the courts by convenience sampling "
              "over {{period}}, using the deployed system on their own phones.")
     doc.h(3, "Instruments")
@@ -588,7 +608,7 @@ def chapter3(doc):
                                              "open eleven pages of a player and an administrator for three minutes, "
                                              "reading only; and Lighthouse [29] in its default mobile settings on four of them.")
     doc.lead("Outbox records (KPI-3).", "The creation and delivery time, status, and attempts of every notification.")
-    doc.lead("Maintenance scenario (KPI-4).", "The scripted steps in Table 3.8, with the status history and the outbox "
+    doc.lead("Maintenance scenario (KPI-4).", "The scripted steps in Table 3.9, with the status history and the outbox "
                                               "records of the test reports as evidence.")
     doc.table("Maintenance scenario of KPI-4", ["Step", "Action", "Expected behavior"], [
         ["S1", "File report R1 (surface, with photo)", "Report saved as NEW; administrator notified by LINE"],
@@ -646,25 +666,25 @@ def chapter4(doc):
           "at the courts on 12 October 2026. They completed one game through queuing, check-in, play, and scoring (7–3), "
           "and the database recorded the statistics of all six players. The second round never started: when the losing "
           "team requeued, the scheduler failed and no court advanced again, so no further game could be created. That "
-          "defect and the others observed during the session, together with those found in a review of every feature on "
-          "the following day, are listed in Table 4.2; each was corrected and covered by a new test. A second session on "
+          "defect and the others observed during the session, together with two found while developing on the same day and "
+          "those found in a review of every feature on the following day, are listed in Table 4.2; each was corrected and covered by a new test. A second session on "
           "16 October, after those corrections, completed a game between two new teams (7–6); the result page showed "
           "every player's points and the profile pages showed the statistics, and the session exposed one more defect, "
           "the last in Table 4.2.")
-    doc.table("Defects found in the field test and the review that followed", ["Source", "Observation", "Cause", "Correction"], [
+    doc.table("Defects found in the field tests, during development, and in the review that followed", ["Source", "Observation", "Cause", "Correction"], [
         ["Field test", "A team that requeued after losing was never called again, and no court advanced", "The second check-in of the same queue entry violated a unique key, and the failed scheduler run rolled back every court",
          "Uniqueness only among open check-ins; each court advanced in its own sub-transaction"],
         ["Field test", "Players' statistics showed zero although the game had been recorded",
          "The row-level security policies called helper functions that signed-in users could not execute, and the page hid the error",
          "Execute granted on the helpers; a test reads the tables as a signed-in user"],
         ["Field test", "The winning captain did not see the option to continue", "The game page did not move to the result when the game ended", "The page follows the game to its result automatically"],
-        ["{{?}}", "Scores could be resubmitted by one team alone after a rejection", "Only the resubmitting team was checked", "Both teams must submit again"],
-        ["{{?}}", "A winning team that continued could never leave the queue", "No transition from holding the court", "Holders may leave; a waiting challenger returns to the head"],
+        ["Development, 12 Oct", "Scores could be resubmitted by one team alone after a rejection", "Only the resubmitting team was checked", "Both teams must submit again"],
+        ["Field test", "A winning team that continued could never leave the queue", "No transition from holding the court", "Holders may leave; a waiting challenger returns to the head"],
         ["Review, 13 Oct", "A team that won twice was not made to rest", "The rest was released before the loser decided", "The resting team waits for the loser's decision"],
         ["Review, 13 Oct", "Members verified as present were refused at confirmation", "Two different radii (300 m and 50 m)", "One radius per court for both checks"],
-        ["{{?}}", "Location checks expired during a long wait", "Verification lasted 10 minutes", "30 minutes"],
-        ["{{?}}", "LINE messages to every member were noisy", "All members were notified", "Only team leaders are notified"],
-        ["{{?}}", "A game could hold a court indefinitely", "No deadline for scores", "5-minute score deadline; administrator tools; game delegate"],
+        ["Field test", "Location checks expired during a long wait", "Verification lasted 10 minutes", "30 minutes"],
+        ["Field test", "LINE messages to every member were noisy", "All members were notified", "Only team leaders are notified"],
+        ["Development, 12 Oct", "A game could hold a court indefinitely", "No deadline for scores", "5-minute score deadline; administrator tools; game delegate"],
         ["Field test, 16 Oct", "A requeued team called to face the winner was dropped when the winner let its decision time out", "The rule that returns a called challenger when the holder leaves did not cover the winner's decision", "The challenger returns to the head of the queue when the winner leaves or times out"],
     ], [1.8, 3.6, 3.6, 3.6])
     doc.p("The most serious defect, the first in Table 4.2, was diagnosed from the scheduler's own records "
@@ -731,7 +751,7 @@ def chapter4(doc):
           "message of the same kind, eight minutes later, was sent in 24.8 seconds. These records come from the formative "
           "period rather than the summative evaluation, so the sample is small and covers only two days.")
     doc.h(3, "KPI-4: Maintenance Workflow")
-    doc.p("The scenario of Table 3.8 was run on the deployed system on 15 October 2026 between 19:15 and 19:40, on the "
+    doc.p("The scenario of Table 3.9 was run on the deployed system on 15 October 2026 between 19:15 and 19:40, on the "
           "author's phone, with five report attempts at the 5x5 court. Step S4 was carried out after S6 by mistake; the "
           "order does not affect its outcome, because R1 had already been resolved. Every step behaved as specified "
           "(Table 4.6).")
@@ -920,7 +940,7 @@ def chapter5(doc):
           "at the basketball courts of Naresuan University and gives players a channel for reporting damaged equipment.")
     doc.lead("Objective 1: the queue.", "MeQ shows the queue of every court and enforces the court rules in the database. "
              "All automated rule tests passed, and the defects found in the field test were corrected and covered by tests. "
-             "Under 50 simultaneous users the queues stayed consistent in all three runs, and no team "
+             "Under 50 simultaneous users the queues stayed consistent in all six runs, and no team "
              "could hold two places at once, so H1 is supported.")
     doc.lead("Objective 2: presence.", "Check-in requires every member to be within the court's radius, computed on the "
              "server, before a team can play.")
@@ -1010,7 +1030,7 @@ def appendices(doc):
     doc.page_break()
     doc.plain_heading("Appendix A: Database Schema", appendix="A")
     doc.p("This appendix summarizes the tables of the public schema as defined by the migrations in "
-          "`supabase/migrations/`. {{Expand with column tables for the core tables if the committee requires it.}}")
+          "`supabase/migrations/`.")
     doc.table("Status values used by the queue, games, and maintenance", ["Type", "Values"], [
         ["queue_status", "WAITING, CALLED, CHECKING_IN, READY_TO_PLAY, PLAYING, DECIDING_CONTINUE, HOLDING_COURT, DECIDING_REQUEUE, AWAITING_SCORE, RESTING, RETURNING_CHAMPION, MISSED_QUEUE, CANCELLED, LEFT_QUEUE"],
         ["game_status", "PLAYING, END_REQUESTED, AWAITING_SCORE, VALIDATING_RESULT, COMPLETED, INVALID_SCORE, CANCELLED"],
@@ -1021,7 +1041,7 @@ def appendices(doc):
     ], [2.5, 9])
     doc.page_break()
     doc.plain_heading("Appendix B: User Guide", appendix="B")
-    doc.p("This guide walks a player through MeQ in the order of use. {{Number the steps on each screenshot.}}")
+    doc.p("This guide walks a player through MeQ in the order of use.")
     for shot, cap, steps in [
         ("welcome-guide.png", "The welcome guide shown after the first sign-in",
          ["Choose Sign in with LINE and allow MeQ in LINE.", "Add MeQ as a friend when LINE asks, so that you are notified when your team is called.", "Read the four steps in the welcome guide and choose Start."]),
