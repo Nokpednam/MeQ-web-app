@@ -368,13 +368,16 @@ def chapter3(doc):
           "required the type check, linter, production build, unit tests, and database tests to pass; a continuous integration "
           "pipeline repeats the tests on every pull request.")
     doc.h(3, "Tools and Environment")
+    doc.p("Table 3.1 lists the tools with the versions used for the evaluation in October 2026. Standards are cited in "
+          "their current editions: the OWASP Top 10:2025 [25] and the Personal Data Protection Act B.E. 2562 (2019), in "
+          "full force since 1 June 2022 [26].")
     doc.table("Development and evaluation tools", ["Layer", "Tool", "Use"], [
-        ["Frontend", "Next.js 16 (App Router), React 19, TypeScript (strict)", "Server-rendered pages and Server Actions"],
+        ["Frontend", "Next.js 16.3.8 (App Router), React 19.2.8, TypeScript 5.9 (strict)", "Server-rendered pages and Server Actions"],
         ["Hosting", "Vercel (Hobby), Singapore region", "Web application and the notification endpoint"],
         ["Backend", "Supabase (Free): PostgreSQL, Auth, Storage, pg_cron, pg_net, Vault", "Data, rules, sign-in, photos, scheduled jobs"],
         ["Messaging", "LINE Login (OpenID Connect), LINE Messaging API", "Sign-in and push notifications"],
-        ["Testing", "pgTAP via Supabase CLI; Node.js test runner; GitHub Actions", "Database rule tests, unit tests, CI"],
-        ["Evaluation", "k6; Lighthouse; OWASP ZAP; npm audit; SUS questionnaire in Google Forms", "KPI-1, KPI-5, KPI-6, KPI-7"],
+        ["Testing", "pgTAP via Supabase CLI 2.113; PostgreSQL 17 (local stack); Node.js 24 test runner; GitHub Actions", "Database rule tests, unit tests, CI"],
+        ["Evaluation", "k6 2.3.0; Lighthouse 13.5.0; OWASP ZAP 2.17.0; npm audit; OWASP Top 10:2025; SUS questionnaire in Google Forms", "KPI-1, KPI-5, KPI-6, KPI-7"],
         ["Development", "Git, GitHub, OpenAI Codex, Claude Code, Mermaid", "Version control, implementation, diagrams"],
     ], [2, 5, 4])
 
@@ -536,8 +539,8 @@ def chapter3(doc):
           "controller under the PDPA; it is a self-assessment by the author, not a legal review, and it lists the gaps that "
           "remain.")
     doc.table("Personal data protection checklist against the PDPA [26]", ["Duty", "What MeQ does", "Remaining gap"], [
-        ["Notice of collection and purpose", "A privacy page lists each kind of data, its source, its purpose, and who can see it; it is linked from the sign-in and profile pages",
-         "The page still says a location check expires within minutes; it now lasts 30 minutes"],
+        ["Notice of collection and purpose", "A privacy page lists each kind of data, its source, its purpose, and who can see it; it is linked from the sign-in and profile pages; it was corrected on 16 October 2026 to state the 30-minute expiry of a location check",
+         "—"],
         ["Lawful basis and consent", "Data are used to provide the service the player signs in for; LINE messages are sent only after the player adds the Official Account as a friend; evaluation participants give explicit consent in the questionnaire",
          "No separate consent step at sign-in"],
         ["Data minimization", "LINE Login requests only the `openid` and `profile` scopes, so no e-mail or phone number is collected; check-in stores the distance, not the coordinates; the public board omits the reporter",
@@ -841,28 +844,28 @@ def chapter4(doc):
     doc.h(3, "KPI-7: Security")
     doc.p("All 40 privilege assertions passed: anonymous users cannot call any queue, game, or administrator function; "
           "signed-in users cannot write to lifecycle tables directly; only the service role can claim notifications; and "
-          "administrator functions refuse other users. Table 4.9 maps the controls of MeQ to the OWASP Top 10 [25].")
-    doc.table("Controls of MeQ against the OWASP Top 10:2021", ["Risk", "Control in MeQ", "Evidence"], [
-        ["A01 Broken Access Control", "Row-level security on every table; lifecycle tables are written only by functions that check `auth.uid()` and the role; administrator functions check the role again; each user's photos are kept in their own folder of a private bucket",
-         "40 privilege assertions; role checks in the other test files"],
-        ["A02 Cryptographic Failures", "HTTPS only; no passwords are stored because users sign in with LINE; keys are kept in server environment variables and the database vault; the service-role key never reaches the browser",
-         "Code review; environment configuration"],
-        ["A03 Injection", "Every query goes through parameterized calls of the Supabase client; database functions set an empty `search_path` and use schema-qualified names; React escapes all output",
-         "Code review"],
-        ["A04 Insecure Design", "Rules, timers, and positions are decided in database transactions; the distance to the court is computed on the server; browser timers are for display only",
-         "pgTAP rule tests; field test"],
-        ["A05 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table; security headers including a Content Security Policy",
+          "administrator functions refuse other users. Table 4.9 maps the controls of MeQ to the OWASP Top 10:2025 [25], the edition current at the time of the evaluation.")
+    doc.table("Controls of MeQ against the OWASP Top 10:2025", ["Risk", "Control in MeQ", "Evidence"], [
+        ["A01 Broken Access Control", "Row-level security on every table; lifecycle tables are written only by functions that check `auth.uid()` and the role; administrator functions check the role again; each user's photos are kept in their own folder of a private bucket; the server calls only the fixed LINE address, never one taken from user input (server-side request forgery, part of A01 since 2025)",
+         "40 privilege assertions; reads as a signed-in user (rls_helper_access)"],
+        ["A02 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table; security headers including a Content Security Policy; the framework header switched off",
          "Privilege tests; ZAP baseline (Table 4.10)"],
-        ["A06 Vulnerable and Outdated Components", "Dependencies are pinned by the lockfile and audited with `npm audit`. Known vulnerabilities found in Next.js 16.3.3 (critical), sharp, and source-map-js were removed by upgrading to Next.js 16.3.8",
-         "npm audit before and after the upgrade"],
-        ["A07 Identification and Authentication Failures", "Sign-in with LINE Login through OpenID Connect [17]; sessions are kept in cookies managed by Supabase Auth and refreshed on every request",
+        ["A03 Software Supply Chain Failures", "Dependencies are pinned by the lockfile and audited with `npm audit`; known vulnerabilities in Next.js 16.3.3 (critical), sharp, and source-map-js were removed by upgrading to Next.js 16.3.8; every change passes continuous integration before it is merged",
+         "npm audit before and after the upgrade; CI records"],
+        ["A04 Cryptographic Failures", "HTTPS only; no passwords are stored because users sign in with LINE; keys are kept in server environment variables and the database vault; the service-role key never reaches the browser",
+         "Code review; environment configuration"],
+        ["A05 Injection", "Every query goes through parameterized calls of the Supabase client; database functions set an empty `search_path` and use schema-qualified names; React escapes all output",
          "Code review"],
-        ["A08 Software and Data Integrity Failures", "Database changes only through versioned migrations; continuous integration runs the type check, lint, and all tests on every pull request; the notification dispatcher requires a secret compared in constant time",
-         "CI records"],
-        ["A09 Security Logging and Monitoring Failures", "Queue, team, and game events are written to `audit_logs`; maintenance status changes to their own history; scheduler failures to `cron.job_run_details`",
+        ["A06 Insecure Design", "Rules, timers, and positions are decided in database transactions; the distance to the court is computed on the server; browser timers are for display only",
+         "pgTAP rule tests; field tests"],
+        ["A07 Authentication Failures", "Sign-in with LINE Login through OpenID Connect [17]; sessions are kept in cookies managed by Supabase Auth and refreshed on every request",
+         "Code review"],
+        ["A08 Software or Data Integrity Failures", "Database changes only through versioned migrations; the notification dispatcher requires a secret compared in constant time; each notification carries a retry key so that it is never delivered twice",
+         "Migration history; outbox records (KPI-3)"],
+        ["A09 Security Logging and Alerting Failures", "Queue, team, and game events are written to `audit_logs`; maintenance status changes to their own history; scheduler failures to `cron.job_run_details` and `audit_logs`; administrators are alerted by LINE about new and overdue reports, but not about scheduler failures",
          "Field-test diagnosis (Table 4.2)"],
-        ["A10 Server-Side Request Forgery", "The server calls only the fixed LINE Messaging API address; no address is taken from user input",
-         "Code review"],
+        ["A10 Mishandling of Exceptional Conditions", "Each court advances in its own sub-transaction, so an error in one court is logged and rolled back without stopping the others; database errors are mapped to messages for the user. The statistics defect of Table 4.2 showed the opposite case, an error that a page hid by showing empty data",
+         "court_advance_safety test; Table 4.2"],
     ], [3, 6.2, 2.8])
     doc.p("The dependency audit was the one control that initially failed the criterion. On 15 October 2026, `npm audit` "
           "reported a critical advisory in Next.js 16.3.3, whose affected features include the image optimization that MeQ "
@@ -1010,7 +1013,7 @@ REFS = [
     "J. Brooke, “SUS: A ‘quick and dirty’ usability scale,” in *Usability Evaluation in Industry*, P. W. Jordan, B. Thomas, B. A. Weerdmeester, and I. L. McClelland, Eds. London, U.K.: Taylor & Francis, 1996, pp. 189–194.",
     "J. Sauro and J. R. Lewis, *Quantifying the User Experience: Practical Statistics for User Research*, 2nd ed. Cambridge, MA, USA: Morgan Kaufmann, 2016.",
     "Grafana Labs, “Grafana k6 documentation.” [Online]. Available: https://grafana.com/docs/k6/latest/ (accessed Oct. 15, 2026).",
-    "OWASP Foundation, “OWASP Top 10:2021,” 2021. [Online]. Available: https://owasp.org/Top10/",
+    "OWASP Foundation, “OWASP Top 10:2025,” Nov. 2025. [Online]. Available: https://top10.owasp.org/ (accessed Oct. 16, 2026).",
     "“Personal Data Protection Act, B.E. 2562 (2019),” *Royal Thai Government Gazette*, vol. 136, part 69 Kor, May 27, 2019.",
     "L. Wroblewski, *Mobile First*. New York, NY, USA: A Book Apart, 2011.",
     "ZAP Dev Team, “ZAP – Baseline scan.” [Online]. Available: https://www.zaproxy.org/docs/docker/baseline-scan/ (accessed Oct. 15, 2026).",
