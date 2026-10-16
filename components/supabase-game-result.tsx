@@ -11,6 +11,8 @@ function DecisionTimer({ deadline }: { deadline: string }) {
   const [now, setNow] = useState(0);
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, []);
   const seconds = Math.max(0, Math.ceil((Date.parse(deadline) - (now || Date.parse(deadline) - 180_000)) / 1000));
+  // The database applies the timeout on its next 30-second run, so 00:00 can show for a while.
+  if (now && seconds === 0) return <div className="decision-timer" role="timer"><small>เวลาตัดสินใจ</small><strong>หมดเวลา</strong><p>ระบบกำลังอัปเดตสถานะ ภายในไม่เกิน 30 วินาที</p></div>;
   return <div className="decision-timer" role="timer"><small>เวลาตัดสินใจ</small><strong>{String(Math.floor(seconds / 60)).padStart(2,"0")}:{String(seconds % 60).padStart(2,"0")}</strong></div>;
 }
 
