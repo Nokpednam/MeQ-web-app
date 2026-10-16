@@ -79,7 +79,7 @@ def front_matter(doc):
           "reports that wait too long. LINE notifications, delivered through a transactional outbox, tell team leaders when "
           "their team is next or called, and tell reporters and administrators about maintenance progress. The system was "
           "built with Next.js on Vercel and Supabase, and evaluated against seven key performance indicators whose thresholds "
-          "were fixed before measurement. All 107 database tests and 32 unit tests of the business rules passed, and a field "
+          "were fixed before measurement. All 115 database tests and 32 unit tests of the business rules passed, and a field "
           "test with six players on real phones and a review that followed exposed eleven defects, among them a queue that stopped advancing after a team "
           "requeued, all of which were corrected and covered by new tests. "
           "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
@@ -559,7 +559,7 @@ def chapter3(doc):
         ["KPI-7 Security", "supporting", "Privilege tests; OWASP Top 10 [25]; ZAP baseline", "All privilege tests pass; no High finding"],
     ], [3.2, 2.4, 3.8, 3])
     doc.h(3, "Evaluation Objects and Participants")
-    doc.lead("Automated tests (KPI-2).", "Fourteen pgTAP files that exercise the database functions as different users, one "
+    doc.lead("Automated tests (KPI-2).", "Fifteen pgTAP files that exercise the database functions as different users, one "
              "of which reads the tables as a signed-in player and as an administrator, and seven unit-test suites "
              "for the rules in TypeScript.")
     doc.lead("Load test environment (KPI-1, KPI-5).", "The local Supabase stack, with all 37 migrations and its scheduled "
@@ -630,7 +630,7 @@ def chapter4(doc):
     doc.h(3, "Summary of Results")
     doc.table("Results for the seven KPIs", ["KPI", "Pass threshold", "Result", "Verdict"], [
         ["KPI-1 Queue integrity", "0 violations", "0 violations in 6 runs; 0 of 533 simultaneous double joins accepted", "Pass"],
-        ["KPI-2 Rule conformance", "All tests pass", "107 of 107 database tests; 32 of 32 unit tests", "Pass"],
+        ["KPI-2 Rule conformance", "All tests pass", "115 of 115 database tests; 32 of 32 unit tests", "Pass"],
         ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "29 of 30 (96.7%) within 60 s; median 1.7 s; no duplicates (11–12 Oct)", "Pass"],
         ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
         ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "Set B: p95 88–94 ms, 0 failed in 3 runs (set A: up to 1.46% failed, traced to the load generator)", "Pass"],
@@ -685,7 +685,7 @@ def chapter4(doc):
         ["B3", "180", "57", "0 of 90", "45", "12", "12", "0"],
     ], [1, 1.4, 1.6, 1.8, 1.1, 1.5, 1.4, 1.9])
     doc.h(3, "KPI-2: Rule Conformance")
-    doc.p("All 107 assertions in the fourteen database test files and all 32 unit tests passed on the final build "
+    doc.p("All 115 assertions in the fifteen database test files and all 32 unit tests passed on the final build "
           "(Table 4.4). The database tests run each function as specific users, including users who must be refused, so "
           "they verify the rules and the permissions together. Until 16 October, however, they ran as the database owner, "
           "which bypasses row-level security, so none of them read a table the way the application does. That gap hid the "
@@ -699,6 +699,7 @@ def chapter4(doc):
         ["court_advance_safety", "Resting order, radius, per-court isolation", "8", "Pass"],
         ["location_verification", "Distance, accuracy, and expiry", "7", "Pass"],
         ["line_notifications", "Outbox, claiming, retry, and expiry", "3", "Pass"],
+        ["challenger_return", "A called challenger returns when the winner leaves or times out", "8", "Pass"],
         ["rls_helper_access", "Reading statistics, scores, and logs as a player and as an admin", "9", "Pass"],
         ["Other six files", "Full 3x3 flow, queue, teams, invitations, maintenance, game safety", "6", "Pass"],
         ["Unit tests (7 suites)", "Rules, notifications, live refresh, statistics, security headers", "32", "Pass"],
