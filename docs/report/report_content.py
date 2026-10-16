@@ -80,7 +80,7 @@ def front_matter(doc):
           "their team is next or called, and tell reporters and administrators about maintenance progress. The system was "
           "built with Next.js on Vercel and Supabase, and evaluated against seven key performance indicators whose thresholds "
           "were fixed before measurement. All 98 database tests and 30 unit tests of the business rules passed, and a field "
-          "test with six players on real phones exposed nine defects, among them a queue that stopped advancing after a team "
+          "test with six players on real phones and a review that followed exposed nine defects, among them a queue that stopped advancing after a team "
           "requeued, all of which were corrected and covered by new tests. "
           "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
           "the 95th percentile, with no failed request once failures caused by the load generator's container were "
@@ -638,22 +638,24 @@ def chapter4(doc):
     ], [3, 3, 4, 1.5])
 
     doc.h(3, "Formative Field Test")
-    doc.p("Before the summative evaluation, six players used the deployed system on their own phones at the courts on "
-          "12 October 2026, playing several 3x3 games through the full cycle of queuing, check-in, scoring, and rotation. The "
-          "database confirmed that the statistics of every completed game had been recorded. The session exposed the defects "
-          "in Table 4.2, each of which was corrected and covered by a new test before the next round.")
-    doc.table("Defects found in the field test and their corrections", ["Observation", "Cause", "Correction"], [
-        ["A team that requeued after losing was never called again, and no court advanced", "The second check-in of the same queue entry violated a unique key, and the failed scheduler run rolled back every court",
+    doc.p("Before the summative evaluation, six players in two 3x3 teams used the deployed system on their own phones "
+          "at the courts on 12 October 2026. They completed one game through queuing, check-in, play, and scoring (7–3), "
+          "and the database recorded the statistics of all six players. The second round never started: when the losing "
+          "team requeued, the scheduler failed and no court advanced again, so no further game could be created. That "
+          "defect and the others observed during the session, together with those found in a review of every feature on "
+          "the following day, are listed in Table 4.2; each was corrected and covered by a new test.")
+    doc.table("Defects found in the field test and the review that followed", ["Source", "Observation", "Cause", "Correction"], [
+        ["Field test", "A team that requeued after losing was never called again, and no court advanced", "The second check-in of the same queue entry violated a unique key, and the failed scheduler run rolled back every court",
          "Uniqueness only among open check-ins; each court advanced in its own sub-transaction"],
-        ["The winning captain did not see the option to continue", "The game page did not move to the result when the game ended", "The page follows the game to its result automatically"],
-        ["Scores could be resubmitted by one team alone after a rejection", "Only the resubmitting team was checked", "Both teams must submit again"],
-        ["A winning team that continued could never leave the queue", "No transition from holding the court", "Holders may leave; a waiting challenger returns to the head"],
-        ["A team that won twice was not made to rest", "The rest was released before the loser decided", "The resting team waits for the loser's decision"],
-        ["Members verified as present were refused at confirmation", "Two different radii (300 m and 50 m)", "One radius per court for both checks"],
-        ["Location checks expired during a long wait", "Verification lasted 10 minutes", "30 minutes"],
-        ["LINE messages to every member were noisy", "All members were notified", "Only team leaders are notified"],
-        ["A game could hold a court indefinitely", "No deadline for scores", "5-minute score deadline; administrator tools; game delegate"],
-    ], [4, 4, 4])
+        ["Field test", "The winning captain did not see the option to continue", "The game page did not move to the result when the game ended", "The page follows the game to its result automatically"],
+        ["{{?}}", "Scores could be resubmitted by one team alone after a rejection", "Only the resubmitting team was checked", "Both teams must submit again"],
+        ["{{?}}", "A winning team that continued could never leave the queue", "No transition from holding the court", "Holders may leave; a waiting challenger returns to the head"],
+        ["Review, 13 Oct", "A team that won twice was not made to rest", "The rest was released before the loser decided", "The resting team waits for the loser's decision"],
+        ["Review, 13 Oct", "Members verified as present were refused at confirmation", "Two different radii (300 m and 50 m)", "One radius per court for both checks"],
+        ["{{?}}", "Location checks expired during a long wait", "Verification lasted 10 minutes", "30 minutes"],
+        ["{{?}}", "LINE messages to every member were noisy", "All members were notified", "Only team leaders are notified"],
+        ["{{?}}", "A game could hold a court indefinitely", "No deadline for scores", "5-minute score deadline; administrator tools; game delegate"],
+    ], [1.8, 3.6, 3.6, 3.6])
     doc.p("The most serious defect, the first in Table 4.2, was diagnosed from the scheduler's own records "
           "(`cron.job_run_details`), which showed a duplicate-key failure seconds after the losing team requeued. It also "
           "showed that a single faulty court could stop every court, which is why each court now advances independently.")
@@ -890,7 +892,7 @@ def chapter5(doc):
         "Developers of shared queues should enforce every rule in a database transaction and test it as each kind of user, including users who must be refused.",
         "A scheduler that advances several resources should isolate each one, so that one failure does not stop the others.",
         "Notifications should be stored with the change that causes them, carry an expiry, and be sent idempotently.",
-        "Field tests with real users on real devices should precede the summative evaluation; most defects in this project were found that way.",
+        "Field tests with real users on real devices should precede the summative evaluation; the most serious defect of this project was found that way.",
     ])
     doc.h(3, "Recommendations for Future Research")
     doc.ol([
