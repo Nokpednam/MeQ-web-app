@@ -24,6 +24,8 @@ Lifecycle tables use RLS. Client writes to team, queue, game, and score state go
 
 The application does not expose a service-role key to browser code. Admin role assignment is not part of the normal profile update path.
 
+RLS policies that call helper functions (`private.is_admin()`, `private.is_active_team_member()`) need the `authenticated` role to have `USAGE` on the `private` schema and `EXECUTE` on those helpers; without it every direct read of the table fails with `permission denied for function`. Both helpers are security definer and only answer a yes/no question about the caller. pgTAP tests run as `postgres`, which bypasses RLS, so a policy is only tested when the test switches to `set local role authenticated` (see `rls_helper_access.sql`).
+
 ## Location boundary
 
 The browser obtains coordinates from the device and sends them to a Next.js server action. The server action calls a database function that calculates the distance and stores an expiring verification. The database does not accept a client-provided `in_range` boolean.
@@ -68,7 +70,7 @@ Still required for integration confidence:
 - concurrent join, leave, call, and requeue operations
 - the complete winner hold, rest, and return flow in production SQL
 - invalid-score resubmission by both teams
-- negative RLS tests with separate authenticated users
+- negative RLS tests with separate authenticated users for the remaining tables (`rls_helper_access.sql` covers history, scores, submissions, maintenance reports, and audit logs)
 - browser tests for LINE callback and session handling
 - LINE webhook signature, duplicate-event, retry, and delivery tests after Messaging is implemented
 
