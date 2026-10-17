@@ -67,29 +67,24 @@ def front_matter(doc):
                   "geolocation check-in, LINE Messaging API, Backend-as-a-Service")
 
     doc.plain_heading("Abstract")
-    doc.p("Walk-in players at the basketball courts of Naresuan University queue by word of mouth: newcomers cannot "
-          "tell whose turn is next, queue jumping cannot be proven, and disputes follow. Damaged equipment, such as a broken "
-          "hoop or a failed floodlight, also reaches the staff late because there is no channel for reporting it. This project "
-          "designed, developed, and evaluated MeQ, a mobile web application for on-site court queuing and maintenance reporting "
-          "at three courts (3x3 A, 3x3 B, and 5x5). Every queue rule (full rosters, one active queue per player, a check-in "
-          "deadline, a two-consecutive-win limit with a mandatory rest, and score validation) is enforced inside PostgreSQL "
-          "through transactional functions, and scheduled database jobs advance each court without an administrator. Check-in "
-          "is verified by the device's location, with the distance to the court computed on the server. Players report damaged "
-          "equipment with a photo; administrators track each report through a recorded status history and are reminded about "
-          "reports that wait too long. LINE notifications, delivered through a transactional outbox, tell team leaders when "
-          "their team is next or called, and tell reporters and administrators about maintenance progress. The system was "
-          "built with Next.js on Vercel and Supabase, and evaluated against seven key performance indicators whose thresholds "
-          "were fixed before measurement. All 115 database tests and 32 unit tests of the business rules passed, and field "
-          "tests with real players on their own phones, development, and a review that followed exposed eleven defects, among them a queue that stopped advancing after a team "
-          "requeued, all of which were corrected and covered by new tests, and one configuration problem with the "
-          "court location, corrected on site. "
-          "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
-          "the 95th percentile, with no failed request once failures caused by the load generator's container were "
-          "traced and removed. All 15 LINE notifications of the field evaluation and 29 of 30 in the earlier tests "
-          "arrived within a minute, the maintenance workflow passed every step of a scripted scenario, and "
-          "a security scan found no High-risk alert. Thirteen players who used the system at the courts rated its usability at "
-          "a mean System Usability Scale score of 67.5 (95% confidence interval 59.4–75.6), just below the benchmark of 68; "
-          "their answers point to the first use as the part to improve.")
+    doc.p("Walk-in players at the basketball courts of Naresuan University queue by word of mouth, so newcomers cannot "
+          "tell whose turn is next and disputes are common. Damaged equipment also reaches the staff late, because there is "
+          "no channel for reporting it. This project designed, developed, and evaluated MeQ, a mobile web application for "
+          "queuing at three courts (3x3 A, 3x3 B, and 5x5) and for reporting damaged equipment. The queue rules, such as "
+          "full rosters, one queue per player, a check-in deadline, and a limit of two consecutive wins, are enforced by "
+          "transactional functions in PostgreSQL, and scheduled jobs advance each court without an administrator. A team "
+          "checks in by sharing each member's location, and the server computes the distance to the court. Players report "
+          "damage with a photo, and administrators record each step of the repair. LINE notifications tell team leaders "
+          "when their turn comes and tell reporters and administrators about each report. The system was built with "
+          "Next.js and Supabase.")
+    doc.p("MeQ was evaluated against seven key performance indicators whose thresholds were fixed before measurement. All "
+          "115 database tests and 32 unit tests passed. Field tests and a review found eleven defects, which were corrected "
+          "and covered by new tests. With 50 simultaneous users, no queue rule was violated in six runs, and pages answered "
+          "within 0.1 seconds at the 95th percentile. All 15 LINE notifications of the field evaluation arrived within a "
+          "minute, the maintenance workflow passed every step of a scripted scenario, and a security scan found no "
+          "High-risk alert. Thirteen players rated the usability at a mean System Usability Scale score of 67.5 (95% "
+          "confidence interval 59.4–75.6), just below the benchmark of 68, and their answers show that the first use "
+          "needs to be easier.")
     doc.page_break()
 
     doc.toc("Table of Contents", r'TOC \o "1-3" \h \z \u')
@@ -196,7 +191,7 @@ def chapter1(doc):
           "phones was held on 12 October 2026 and a second on 16 October 2026. The summative evaluation took place in October 2026, "
           "with the field evaluation on 17 October 2026.")
     doc.h(3, "Conceptual Framework")
-    fig(doc, IMG + "conceptual-framework.png", "Conceptual framework of the project", 92)
+    fig(doc, IMG + "conceptual-framework.png", "Conceptual framework of the project", 62)
     doc.p("Figure 1.2 relates the components of MeQ to the outcomes evaluated. The queue rules and the location check "
           "determine whether the queue stays correct (KPI-1, KPI-2); the notification outbox determines whether team leaders "
           "learn of their turn in time (KPI-3); the maintenance workflow determines whether reports reach the administrator "
@@ -444,7 +439,7 @@ def chapter3(doc):
         ["Rotation", "The winner may continue for at most two consecutive wins, then rests one game and returns to the head of the queue"],
         ["Decisions", "The winner and the loser each have 3 minutes to continue or requeue; no decision means leaving the queue"],
     ], [2, 9])
-    fig(doc, IMG + "queue-entry-states.png", "States of a team's queue entry")
+    fig(doc, IMG + "queue-entry-states.png", "States of a team's queue entry", 78)
     doc.p("Figure 3.3 shows the states a queue entry passes through. Each arrow is a database function or a scheduled job; "
           "no state can be changed by writing to the table directly.")
 
@@ -467,7 +462,7 @@ def chapter3(doc):
           "the game ends without a result, nothing is recorded, and the court is released. Administrators can cancel a stuck "
           "game or decide its final score. A captain can name one member as *game delegate*, who may perform the captain's "
           "game actions but not manage the team.")
-    fig(doc, IMG + "game-states.png", "Game states from the end request to the result", 80)
+    fig(doc, IMG + "game-states.png", "Game states from the end request to the result", 58)
 
     doc.h(3, "Maintenance Workflow")
     doc.p("A player reports damaged equipment by choosing the court and the problem type (court surface, backboard or hoop, "
@@ -482,7 +477,7 @@ def chapter3(doc):
           "reporter's identity or photo. The proposal envisaged suspending a court's queue automatically when a report is "
           "filed; this was not adopted, because an unverified report could then close a court. Administrators close a court "
           "manually when the damage requires it.")
-    fig(doc, IMG + "maintenance-flow.png", "Maintenance report statuses and notifications", 70)
+    fig(doc, IMG + "maintenance-flow.png", "Maintenance report statuses and notifications", 40)
     doc.p("A statistics page reports, for a chosen period, the number of reports, those still open, the median and mean time "
           "to the first response and to resolution, and breakdowns by court, problem type, and status. Real faults cannot be "
           "scheduled, so these figures serve the long-term monitoring of the courts, while the evaluation tests the workflow "
@@ -529,8 +524,8 @@ def chapter3(doc):
         ["line_notifications", "The notification outbox"],
         ["court_events, queue_settings, audit_logs", "Closures, adjustable durations, and an audit trail"],
     ], [5, 7])
-    fig(doc, IMG + "er-queue.png", "Entity-relationship diagram of teams, queues, and games")
-    fig(doc, IMG + "er-maintenance.png", "Entity-relationship diagram of maintenance reports and notifications", 80)
+    fig(doc, IMG + "er-queue.png", "Entity-relationship diagram of teams, queues, and games", 85)
+    fig(doc, IMG + "er-maintenance.png", "Entity-relationship diagram of maintenance reports and notifications", 72)
 
     doc.h(3, "Access Control and Data Protection")
     doc.p("Row Level Security is enabled on every table [6]. Users may read what the interface shows them, such as queues, "
@@ -563,14 +558,13 @@ def chapter3(doc):
     ], [2.6, 5.4, 3.6])
 
     doc.h(3, "Interface Design")
-    doc.p("The interface is Thai by default with an English option, and is designed for phones. Figures 3.9 to 3.14 show the "
-          "main pages; Appendix B gives a step-by-step guide.")
-    fig(doc, SHOT + "login.png", "The sign-in page", 45)
-    fig(doc, SHOT + "home.png", "The home page with the status of every court", 45)
-    fig(doc, SHOT + "court-queue.png", "A court page with its opening hours, target score, and queue", 45)
-    fig(doc, SHOT + "check-in.png", "Check-in of the two called teams, with the deadline and the captain's ready button", 45)
-    fig(doc, SHOT + "maintenance-form.png", "The maintenance reporting form", 45)
-    fig(doc, SHOT + "admin-maintenance.png", "The administrator's maintenance page with a report, its photo, and the status control", 45)
+    doc.p("The interface is Thai by default with an English option, and is designed for phones. Figures 3.9 and 3.10 show "
+          "the main pages; Appendix B gives a step-by-step guide.")
+    fig(doc, IMG + "ui-player-pages.png", "Pages for players: (a) sign-in; (b) the home page with the status of every court; "
+        "(c) a court page with its opening hours, target score, and queue", 92)
+    fig(doc, IMG + "ui-checkin-maintenance.png", "(a) Check-in of the two called teams, with the deadline and the captain's "
+        "ready button; (b) the maintenance reporting form; (c) the administrator's maintenance page with a report, its "
+        "photo, and the status control", 92)
 
     doc.h(2, "Testing")
     doc.h(3, "Evaluation Framework")
@@ -811,7 +805,7 @@ def chapter4(doc):
           "to a status change, which is included in the reporter's LINE message, could not be entered on a phone: the note "
           "field reused the style of the header's administrator link, which is hidden on narrow screens, so the field was "
           "hidden with it. The field was given its own style, and a source test now guards against the regression.")
-    fig(doc, SHOT + "admin-stats.png", "The maintenance statistics page after the scenario (30 days), including the test reports", 90)
+    fig(doc, SHOT + "admin-stats.png", "The maintenance statistics page after the scenario (30 days), including the test reports", 70)
     doc.h(3, "KPI-5: Responsiveness Under Load")
     doc.p("Response times stayed far below the threshold in every run of both sets (Table 4.8): the 95th percentile of "
           "all requests was 88 to 94 milliseconds and no request took longer than 227 milliseconds. Court pages, rendered on the server "
@@ -838,17 +832,12 @@ def chapter4(doc):
           "response times did not change. The failures of set A are therefore attributed to the load generator's "
           "network path rather than to MeQ, and KPI-5 is met on set B. Both sets are reported so that the reader can "
           "judge this attribution.")
-    doc.p("These response times describe the application and the database, not what a player experiences at the "
-          "courts. The test did not reproduce the deployed setting, in which a phone on a mobile network reaches the "
-          "application on Vercel, which in turn queries the database on Supabase's cloud. All three parts ran on one "
-          "laptop, so no request crossed the internet, and every database query that a court page makes would add a network round "
-          "trip on the deployed system. The load was also light: because each user waited 10 seconds between page "
-          "requests, as the live refresh does, the 50 users produced about 6 requests per second. The script measured only "
-          "the HTML of each page, without its scripts, styles, and images, and it called the queue functions in the "
-          "database directly rather than through the Server Actions that the application uses. The server stayed running, "
-          "so the cold starts of a serverless host were not included. The result therefore shows that the server and the "
-          "database are not a bottleneck for 50 concurrent users, with a wide margin under the threshold of 2 seconds, but "
-          "it does not give the response time on the deployed system.")
+    doc.p("These times describe the application and the database, not what a player experiences at the courts. All "
+          "parts ran on one laptop, so no request crossed the internet. The load was also light, about 6 requests per "
+          "second, because each user waited 10 seconds between pages as the live refresh does; the script fetched only the "
+          "HTML of each page and called the queue functions directly rather than through Server Actions. The result shows "
+          "that the server and the database are not a bottleneck for 50 users, with a wide margin under 2 seconds, but "
+          "not the response time of the deployed system.")
     doc.p("Set C measured that response time on the deployed site between 17:44 and 17:57 on 16 October 2026, signed "
           "in as the author, from the same laptop over its internet connection. Three k6 users opened the eleven signed-in "
           "pages of a player and an administrator, with three to six seconds between pages, for three minutes in each of "
@@ -949,7 +938,7 @@ def chapter4(doc):
           "targets. Both reports are kept with the project (`docs/report/evidence/`).")
 
     doc.h(2, "Discussion")
-    doc.h(3, "Rules in the Database, Not in the Interface")
+    doc.h(3, "Enforcing the Rules in the Database")
     doc.p("The field test supports the central design decision while showing its cost. Because every rule lives in a "
           "transactional function, the defects found were defects of the rules themselves, not of one page bypassing them, "
           "and each correction applied to every page at once. The same centralization made a single failing court stop every "
@@ -960,7 +949,7 @@ def chapter4(doc):
           "no run left a single inconsistency. Placing the rules in the database also moves the risk there: a single "
           "missing grant made every player's statistics unreadable, and the tests missed it because they ran with "
           "privileges that skip row-level security.")
-    doc.h(3, "Notifications Turn an Uncertain Wait into a Known One")
+    doc.h(3, "Notifications")
     doc.p("Maister's observation that uncertain waits feel longer [3] motivated the notifications. The field test added a "
           "practical refinement: messages to every member were perceived as noise, and limiting them to team leaders kept "
           "the information while reducing interruptions. The outbox design ensured that no message was sent for a change that "
@@ -968,7 +957,7 @@ def chapter4(doc):
           "first attempt and none twice, and the only delay beyond one minute occurred while the dispatch was being "
           "configured. The one-minute cycle of the scheduler, not LINE, accounts for most of the waiting time, so a shorter "
           "cycle is the simplest improvement if faster calls are needed.")
-    doc.h(3, "Maintenance Reporting at the Scale of One Facility")
+    doc.h(3, "Maintenance Reporting")
     doc.p("At one facility, faults are rare and cannot be scheduled, so the evaluation could test the path a report takes "
           "but not how quickly a real administrator acts on it. The design choices still shape that time. Refusing a second "
           "report of an open problem keeps the administrator's list to one item per fault, and the status history makes "
@@ -977,7 +966,7 @@ def chapter4(doc):
           "decides instead. The scenario of KPI-4 confirmed that each of these mechanisms works on the deployed system, "
           "and that a report reaches the administrator about a second after it is filed. What remains unmeasured is the "
           "human part of the cycle, the time an administrator and a caretaker take to act, which only regular use can show.")
-    doc.h(3, "Practicality")
+    doc.h(3, "Performance and Usability")
     doc.p("The load test suggests that the expected evening crowd is far from the limits of the design. Refreshing every "
           "court page every 10 seconds instead of keeping a WebSocket open costs a full page render per refresh, yet 50 "
           "users kept the 95th percentile under a tenth of a second on a laptop. Polling also keeps the queue tables closed "
@@ -1092,8 +1081,7 @@ def references(doc):
 
 
 def appendices(doc):
-    doc.page_break()
-    doc.plain_heading("Appendix")
+    doc.plain_heading("Appendix", new_page=True)
     doc.page_break()
     doc.plain_heading("Appendix A: Database Schema", appendix="A")
     doc.p("Table 3.6 lists the core tables; this appendix lists the status values that they use, as defined by the "
@@ -1109,26 +1097,22 @@ def appendices(doc):
     doc.page_break()
     doc.plain_heading("Appendix B: User Guide", appendix="B")
     doc.p("This guide walks a player through MeQ in the order of use.")
-    for shot, cap, steps in [
-        ("welcome-guide.png", "The welcome guide shown after the first sign-in",
-         ["Choose Sign in with LINE and allow MeQ in LINE.", "Add MeQ as a friend when LINE asks, so that you are notified when your team is called.", "Read the four steps in the welcome guide and choose Start."]),
-        ("team.png", "A team page with the format, roster count, and status",
-         ["Open Teams and create a team (3x3 or 5x5), or accept an invitation.", "As captain, invite members until the roster is full.", "Optionally choose a game delegate who can act for you in games."]),
-        ("court-queue.png", "A court page, where the captain joins the queue",
-         ["Open Courts and choose a court.", "As captain or delegate, choose Join queue. Your position appears in the list."]),
-        ("check-in.png", "Check-in after the team is called",
-         ["When LINE tells you that your team is called, open the court page.", "Every member allows location access so that MeQ can confirm they are at the court.", "The captain or delegate confirms the team ready before the deadline."]),
-        ("scores.png", "Submitting the points of your team",
-         ["After the game, a leader chooses End game.", "Each team enters the points of its own players within 5 minutes."]),
-        ("result.png", "The result and the decision to continue or requeue",
-         ["The winner chooses to continue or leave; the loser chooses to requeue or leave, within 3 minutes."]),
-        ("maintenance-form.png", "Reporting damaged equipment",
+    for image, cap, steps in [
+        ("guide-start.png", "(a) The welcome guide shown after the first sign-in; (b) a team page with the format, roster count, and status",
+         ["Choose Sign in with LINE and allow MeQ in LINE.", "Add MeQ as a friend when LINE asks, so that you are notified when your team is called.", "Read the four steps in the welcome guide and choose Start.",
+          "Open Teams and create a team (3x3 or 5x5), or accept an invitation.", "As captain, invite members until the roster is full, and optionally choose a game delegate who can act for you in games."]),
+        ("guide-queue.png", "(a) A court page, where the captain joins the queue; (b) check-in after the team is called",
+         ["Open Courts and choose a court. As captain or delegate, choose Join queue; your position appears in the list.",
+          "When LINE tells you that your team is called, open the court page. Every member allows location access so that MeQ can confirm they are at the court.",
+          "The captain or delegate confirms the team ready before the deadline."]),
+        ("guide-game.png", "(a) Submitting the points of your team; (b) the result and the decision to continue or requeue",
+         ["After the game, a leader chooses End game, and each team enters the points of its own players within 5 minutes.",
+          "The winner chooses to continue or leave; the loser chooses to requeue or leave, within 3 minutes."]),
+        ("guide-maintenance.png", "(a) Reporting damaged equipment; (b) a LINE notification from MeQ",
          ["Open Maintenance, choose the court and the problem type, describe it, attach a photo, and send.", "Follow the status of your report under My reports; LINE tells you when it changes."]),
-        ("line-chat.png", "A LINE notification from MeQ", []),
     ]:
-        if steps:
-            doc.ol(steps)
-        fig(doc, SHOT + shot, cap, 45)
+        doc.ol(steps)
+        fig(doc, IMG + image, cap, 62)
     doc.page_break()
     doc.plain_heading("Appendix C: SUS Questionnaire", appendix="C")
     doc.p("The questionnaire was administered in Thai through Google Forms after the participants had used MeQ on their "
@@ -1184,7 +1168,7 @@ def appendices(doc):
          "หัวหน้า\u200bทีม หรือ\u200bผู้\u200bช่วย\u200bหัวหน้า / สมาชิก\u200bทีม",
          "In this trial, did you use MeQ as a team leader (captain or delegate) or as a team member?"],
     ], [3.4, 3.6, 4.5])
-    fig(doc, SHOT + "sus-form.png", "The SUS section of the questionnaire in Google Forms", 65)
+    fig(doc, SHOT + "sus-form.png", "The SUS section of the questionnaire in Google Forms", 50)
     doc.h(3, "Scoring", numbered=False)
     doc.p("For each odd statement the contribution is the response minus 1; for each even statement it is 5 minus the "
           "response. The sum of the ten contributions is multiplied by 2.5, giving a score from 0 to 100 [22]. A mean of "

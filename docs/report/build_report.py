@@ -103,12 +103,15 @@ class Doc:
             f'<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="{26 if self.chapter == 1 else 3}"/></w:numPr>'
             '<w:ind w:left="0" w:hanging="0"/></w:pPr><w:r><w:br/></w:r>' + runs(title, thai_pt=THAI_HEADING_PT) + "</w:p>")
 
-    def plain_heading(self, title, appendix=None):
+    def plain_heading(self, title, appendix=None, new_page=False):
         if appendix:
             self.appendix = appendix
             self.fig = self.tbl = 0
+        # pageBreakBefore, unlike a separate page-break paragraph, never leaves a blank page
+        # when the previous page is already full.
+        brk = "<w:pageBreakBefore/>" if new_page else ""
         self.parts.append(
-            '<w:p><w:pPr><w:pStyle w:val="Heading1"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="0"/></w:numPr>'
+            f'<w:p><w:pPr><w:pStyle w:val="Heading1"/>{brk}<w:numPr><w:ilvl w:val="0"/><w:numId w:val="0"/></w:numPr>'
             '<w:ind w:left="0" w:hanging="0"/></w:pPr>' + runs(title, thai_pt=THAI_HEADING_PT) + "</w:p>")
 
     def h(self, level, title, numbered=True):
@@ -217,7 +220,12 @@ class Doc:
                '<w:tblCellMar><w:top w:w="40" w:type="dxa"/><w:left w:w="100" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tblCellMar>'
                '</w:tblPr><w:tblGrid>' + "".join(f'<w:gridCol w:w="{w}"/>' for w in tw) + "</w:tblGrid>"]
 
-        def row(cells, head):
+        # Tables may split across pages, but never leave the header or a single row alone:
+        # the header keeps with the first row, and the second-to-last row keeps with the last.
+        def keeps(i):
+            return i == 0 or i == len(rows) - 2
+
+        def row(cells, head, keep=False):
             trpr = '<w:trPr><w:tblHeader/><w:cantSplit/></w:trPr>' if head else '<w:trPr><w:cantSplit/></w:trPr>'
             r = [f"<w:tr>{trpr}"]
             for w, c in zip(tw, cells):
@@ -225,13 +233,13 @@ class Doc:
                 bottom = '<w:tcBorders><w:bottom w:val="single" w:sz="8" w:color="000000"/></w:tcBorders>' if head else ""
                 text = f"**{c}**" if head and c else str(c)
                 r.append(f'<w:tc><w:tcPr><w:tcW w:w="{w}" w:type="dxa"/>{bottom}{shade}</w:tcPr>'
-                         f'<w:p><w:pPr><w:pStyle w:val="NoSpacing"/><w:jc w:val="left"/><w:rPr><w:sz w:val="22"/></w:rPr></w:pPr>{runs(text, CELL_RPR)}</w:p></w:tc>')
+                         f'<w:p><w:pPr><w:pStyle w:val="NoSpacing"/>{"<w:keepNext/>" if keep else ""}<w:jc w:val="left"/><w:rPr><w:sz w:val="22"/></w:rPr></w:pPr>{runs(text, CELL_RPR)}</w:p></w:tc>')
             r.append("</w:tr>")
             return "".join(r)
 
-        xml.append(row(header, True))
-        for rr in rows:
-            xml.append(row(rr, False))
+        xml.append(row(header, True, True))
+        for i, rr in enumerate(rows):
+            xml.append(row(rr, False, keeps(i)))
         xml.append("</w:tbl>")
         self.parts.append("".join(xml))
         self.parts.append('<w:p><w:pPr><w:pStyle w:val="NoSpacing"/></w:pPr></w:p>')
