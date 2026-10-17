@@ -85,8 +85,8 @@ def front_matter(doc):
           "court location, corrected on site. "
           "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
           "the 95th percentile, with no failed request once failures caused by the load generator's container were "
-          "traced and removed. Twenty-nine of 30 LINE "
-          "notifications arrived within a minute, the maintenance workflow passed every step of a scripted scenario, and "
+          "traced and removed. All 15 LINE notifications of the field evaluation and 29 of 30 in the earlier tests "
+          "arrived within a minute, the maintenance workflow passed every step of a scripted scenario, and "
           "a security scan found no High-risk alert. Thirteen players who used the system at the courts rated its usability at "
           "a mean System Usability Scale score of 67.5 (95% confidence interval 59.4–75.6), just below the benchmark of 68; "
           "their answers point to the first use as the part to improve.")
@@ -580,8 +580,9 @@ def chapter3(doc):
           "targets set by the author. Two criteria changed afterwards. KPI-4 "
           "first required a median time to the administrator's first response of 12 hours or less; because real faults "
           "cannot be scheduled, it was replaced on 15 October by the scripted scenario of Table 3.9 before the scenario was "
-          "run. KPI-5 kept its threshold, and measurements on the deployed site were added to it on 16 October. The notification records of KPI-3 were created "
-          "before the criteria were fixed, during the preliminary and formative tests, and were analysed afterwards.")
+          "run. KPI-5 kept its threshold, and measurements on the deployed site were added to it on 16 October. KPI-3 is measured on the "
+          "notifications of the field evaluation; the records of the preliminary and formative tests, created before the "
+          "criteria were fixed and analysed afterwards, are reported alongside them.")
     doc.table("Evaluation design and its alignment with the research questions", ["KPI", "RQ / hypothesis", "Instrument", "Pass threshold"], [
         ["KPI-1 Queue integrity under load", "RQ1 / H1", "Load script with 50 virtual users; invariant queries", "0 rule violations in 3 runs"],
         ["KPI-2 Rule conformance", "RQ1 / H1", "pgTAP database tests; unit tests", "All tests pass"],
@@ -602,7 +603,7 @@ def chapter3(doc):
     doc.lead("Maintenance scenario (KPI-4).", "Five report attempts, each marked as a test in its description, filed on the "
              "deployed system at the 5x5 court, where no real report was open, by the author acting as player and as "
              "administrator on the author's own phone (Table 3.9).")
-    doc.lead("Field evaluation (KPI-6).", "Thirteen players recruited at the court by convenience sampling on "
+    doc.lead("Field evaluation (KPI-3, KPI-6).", "Thirteen players recruited at the court by convenience sampling on "
              "17 October 2026, using the deployed system on their own phones: twelve in four 3x3 teams, and one who tried "
              "every page but did not join a team.")
     doc.h(3, "Instruments")
@@ -660,7 +661,8 @@ def chapter3(doc):
     doc.h(3, "Data Analysis")
     doc.p("All KPIs are criterion-referenced: a hypothesis is supported only if every criterion of its KPIs is met. For "
           "KPI-3, the delay of each notification is its delivery time minus its creation time, and the share delivered within "
-          "60 seconds is computed over all notifications recorded on 11 and 12 October. For KPI-4, each step is passed or failed "
+          "60 seconds is computed over all notifications created during the field evaluation, and separately over those of 11 "
+          "and 12 October. For KPI-4, each step is passed or failed "
           "against its expected behavior, and the delays of its notifications are computed as for KPI-3. For KPI-5, the 95th percentile captures the slowest requests "
           "that users experience. For KPI-6, responses are scored by the standard procedure [22], and the mean, standard "
           "deviation, and 95% confidence interval are reported. The two background questions (Appendix C) are reported "
@@ -675,7 +677,7 @@ def chapter4(doc):
     doc.table("Results for the seven KPIs", ["KPI", "Pass threshold", "Result", "Verdict"], [
         ["KPI-1 Queue integrity", "0 violations", "0 violations in 6 runs; 0 of 533 simultaneous double joins accepted", "Pass"],
         ["KPI-2 Rule conformance", "All tests pass", "115 of 115 database tests; 32 of 32 unit tests", "Pass"],
-        ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "29 of 30 (96.7%) within 60 s; median 1.7 s; no duplicates (11–12 Oct)", "Pass"],
+        ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "Field evaluation (17 Oct): 15 of 15 (100%) within 60 s, median 1.0 s; earlier tests (11–12 Oct): 29 of 30 (96.7%); none sent twice", "Pass"],
         ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
         ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "Set B (local, 50 users): p95 88–94 ms, 0 failed in 3 runs (set A: up to 1.46% failed, traced to the load generator); set C (deployed, 3 users): p95 477–567 ms, 0 failed; Lighthouse mobile: largest content within 1.9 s", "Pass"],
         ["KPI-6 Usability", "Mean SUS ≥ 68", "Mean 67.5 (SD 13.4; 95% CI 59.4–75.6), n = 13; 8 of 13 scores at or above 68", "Not met"],
@@ -752,8 +754,21 @@ def chapter4(doc):
         ["Unit tests (7 suites)", "Rules, notifications, live refresh, statistics, security headers", "32", "Pass"],
     ], [3.2, 5, 1.9, 1.2])
     doc.h(3, "KPI-3: Notification Timeliness")
+    doc.p("During the field evaluation of 17 October 2026, from 17:00 to 19:30, the outbox recorded 15 notifications "
+          "(Table 4.5). All 15 were sent on the first attempt and none twice, and all were delivered within 60 seconds of "
+          "the change that caused them, which meets the threshold of 95%. The median delay was 1.0 second and the longest "
+          "51.8 seconds, a call to check in that waited for the next dispatch cycle.")
+    doc.table("Delivery delay of LINE notifications by event during the field evaluation, 17 October 2026",
+              ["Event", "Sent", "Within 60 s", "Median delay (s)", "Maximum delay (s)"], [
+        ["Team invitation", "6", "6", "0.8", "1.0"],
+        ["New maintenance report", "1", "1", "0.7", "0.7"],
+        ["Next in queue", "3", "3", "8.4", "11.4"],
+        ["Team called", "3", "3", "11.6", "51.8"],
+        ["Request to submit scores", "2", "2", "30.9", "31.1"],
+        ["**Total**", "**15**", "**15 (100%)**", "**1.0**", "**51.8**"],
+    ], [4.2, 1.3, 2, 2.2, 2.3])
     doc.p("The outbox recorded 30 notifications on the production system between 11 and 12 October 2026, during the "
-          "preliminary test and the formative field test (Table 4.5). All 30 were sent on the first attempt, none was sent "
+          "preliminary test and the formative field test (Table 4.6). All 30 were sent on the first attempt, none was sent "
           "twice, and none failed or expired. Twenty-nine (96.7%) were delivered within 60 seconds of the change that "
           "caused them, which meets the threshold of 95%. The median delay was 1.7 seconds and the mean 25.6 seconds.")
     doc.table("Delivery delay of LINE notifications by event, 11–12 October 2026",
@@ -772,13 +787,13 @@ def chapter4(doc):
           "by the scheduler, such as a team being called, waited for the next one-minute dispatch cycle and took 10 to 20 "
           "seconds. The single late message, a new maintenance report delayed by 530.5 seconds, was created at 20:10 on "
           "11 October, while the scheduled dispatch on the production deployment was still being configured; the next "
-          "message of the same kind, eight minutes later, was sent in 24.8 seconds. These records come from the formative "
-          "period rather than the summative evaluation, so the sample is small and covers only two days.")
+          "message of the same kind, eight minutes later, was sent in 24.8 seconds. Both samples are small, 45 messages "
+          "in all, of which 44 (97.8%) arrived within a minute.")
     doc.h(3, "KPI-4: Maintenance Workflow")
     doc.p("The scenario of Table 3.9 was run on the deployed system on 15 October 2026 between 19:15 and 19:40, on the "
           "author's phone, with five report attempts at the 5x5 court. Step S4 was carried out after S6 by mistake; the "
           "order does not affect its outcome, because R1 had already been resolved. Every step behaved as specified "
-          "(Table 4.6).")
+          "(Table 4.7).")
     doc.table("Results of the maintenance scenario, 15 October 2026", ["Step", "Observed behavior", "Result"], [
         ["S1", "R1 saved as NEW with its photo; administrator notified 1.2 s later", "Pass"],
         ["S2", "R2 refused with the duplicate message; no report saved", "Pass"],
@@ -798,7 +813,7 @@ def chapter4(doc):
           "hidden with it. The field was given its own style, and a source test now guards against the regression.")
     fig(doc, SHOT + "admin-stats.png", "The maintenance statistics page after the scenario (30 days), including the test reports", 90)
     doc.h(3, "KPI-5: Responsiveness Under Load")
-    doc.p("Response times stayed far below the threshold in every run of both sets (Table 4.7): the 95th percentile of "
+    doc.p("Response times stayed far below the threshold in every run of both sets (Table 4.8): the 95th percentile of "
           "all requests was 88 to 94 milliseconds and no request took longer than 227 milliseconds. Court pages, rendered on the server "
           "with their queue, accounted for almost all of this time, while the queue functions in the database answered in "
           "under 8 milliseconds at the 95th percentile.")
@@ -839,13 +854,13 @@ def chapter4(doc):
           "pages of a player and an administrator, with three to six seconds between pages, for three minutes in each of "
           "three runs; they only read pages, so no queue entry, score, report, or notification was created. Every request "
           "was answered signed in and none failed. The 95th percentile was 477 to 567 milliseconds, five to six times that "
-          "of set B, and the median about 310 milliseconds (Table 4.7); the slowest page at the 95th percentile in any run, 1.0 second, was the "
+          "of set B, and the median about 310 milliseconds (Table 4.8); the slowest page at the 95th percentile in any run, 1.0 second, was the "
           "maintenance statistics of the administrator. The difference from set B is the time of the internet and of the "
           "database queries between Vercel and Supabase. Lighthouse [29] then loaded four pages three times each as a "
           "phone on a mobile network, using its default mobile settings, which emulate a mid-range phone and simulate a "
           "slow 4G connection. Unlike k6, it counts the scripts, styles, and images of the page and the time to draw it. "
           "The largest content of every page appeared within 1.9 seconds, with a median of about 1.0 second, and every "
-          "page scored 99 or 100 for performance (Table 4.8). The first run of each page was the slowest, because "
+          "page scored 99 or 100 for performance (Table 4.9). The first run of each page was the slowest, because "
           "nothing was cached yet.")
     doc.table("Lighthouse mobile results on the deployed site, median of three runs, 16 October 2026",
               ["Page", "Performance score", "First contentful paint (s)", "Largest contentful paint (s)", "Slowest LCP (s)", "Total blocking time (ms)"], [
@@ -881,12 +896,12 @@ def chapter4(doc):
     doc.h(3, "KPI-7: Security")
     doc.p("All 40 privilege assertions passed: anonymous users cannot call any queue, game, or administrator function; "
           "signed-in users cannot write to lifecycle tables directly; only the service role can claim notifications; and "
-          "administrator functions refuse other users. Table 4.9 maps the controls of MeQ to the OWASP Top 10:2025 [25], the edition current at the time of the evaluation.")
+          "administrator functions refuse other users. Table 4.10 maps the controls of MeQ to the OWASP Top 10:2025 [25], the edition current at the time of the evaluation.")
     doc.table("Controls of MeQ against the OWASP Top 10:2025", ["Risk", "Control in MeQ", "Evidence"], [
         ["A01 Broken Access Control", "Row-level security on every table; lifecycle tables are written only by functions that check `auth.uid()` and the role; administrator functions check the role again; each user's photos are kept in their own folder of a private bucket; the server calls only the fixed LINE address, never one taken from user input (server-side request forgery, part of A01 since 2025)",
          "40 privilege assertions; reads as a signed-in user (rls_helper_access)"],
         ["A02 Security Misconfiguration", "Private storage bucket limited to JPEG, PNG, and WebP up to 5 MB, checked again in the server action; row-level security enabled on every table; security headers including a Content Security Policy; the framework header switched off",
-         "Privilege tests; ZAP baseline (Table 4.10)"],
+         "Privilege tests; ZAP baseline (Table 4.11)"],
         ["A03 Software Supply Chain Failures", "Dependencies are pinned by the lockfile and audited with `npm audit`; known vulnerabilities in Next.js 16.3.3 (critical), sharp, and source-map-js were removed by upgrading to Next.js 16.3.8; every change passes continuous integration before it is merged",
          "npm audit before and after the upgrade; CI records"],
         ["A04 Cryptographic Failures", "HTTPS only; no passwords are stored because users sign in with LINE; keys are kept in server environment variables and the database vault; the service-role key never reaches the browser",
@@ -914,7 +929,7 @@ def chapter4(doc):
           "2026 after the Next.js upgrade, passed 56 rules and raised no High-risk alert, which already meets the "
           "criterion of KPI-7, but it reported missing security headers. The headers were then added to the Next.js "
           "configuration, and the second scan, early on 16 October, passed 60 rules with no High-risk alert and seven "
-          "warnings instead of eleven (Table 4.10). Neither scan was signed in, so both covered only the public pages (the "
+          "warnings instead of eleven (Table 4.11). Neither scan was signed in, so both covered only the public pages (the "
           "sign-in, privacy, and terms pages and the static files); the pages behind sign-in are protected by the "
           "privilege tests instead.")
     doc.table("Alerts of the ZAP baseline scans before and after the security headers",
@@ -949,7 +964,7 @@ def chapter4(doc):
     doc.p("Maister's observation that uncertain waits feel longer [3] motivated the notifications. The field test added a "
           "practical refinement: messages to every member were perceived as noise, and limiting them to team leaders kept "
           "the information while reducing interruptions. The outbox design ensured that no message was sent for a change that "
-          "was rolled back and none was sent twice. The records of KPI-3 confirm this: every message was sent on the "
+          "was rolled back and none was sent twice. The records of KPI-3 confirm this: all 45 messages were sent on the "
           "first attempt and none twice, and the only delay beyond one minute occurred while the dispatch was being "
           "configured. The one-minute cycle of the scheduler, not LINE, accounts for most of the waiting time, so a shorter "
           "cycle is the simplest improvement if faster calls are needed.")
@@ -994,8 +1009,9 @@ def chapter5(doc):
              "refused, and every status change is recorded. In a scripted scenario on the deployed "
              "system, every step behaved as specified and all ten notifications arrived within 1.3 seconds, so H3 is "
              "supported; one defect, a note field hidden on phones, was found and corrected.")
-    doc.lead("Objective 4: notifications and evaluation.", "Of 30 notifications, 29 arrived within a minute and none twice "
-             "(KPI-3, H2 supported). In a load test on one laptop, pages answered within a tenth of a second at the 95th "
+    doc.lead("Objective 4: notifications and evaluation.", "During the field evaluation all 15 "
+             "notifications arrived within a minute, as did 29 of 30 in the earlier tests, and none arrived twice (KPI-3, H2 "
+             "supported). In a load test on one laptop, pages answered within a tenth of a second at the 95th "
              "percentile under 50 users, with no failed request once the load generator ran outside Docker; on the deployed "
              "site, with three users, they answered within 0.6 seconds at the 95th percentile and a simulated phone showed each page within "
              "1.9 seconds (KPI-5). No High-risk alert or vulnerable "

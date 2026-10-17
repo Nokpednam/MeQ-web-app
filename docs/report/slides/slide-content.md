@@ -174,7 +174,7 @@ Suggested order: join queue → called + LINE message → check in → submit sc
 |---|---|---|
 | 1 Queue integrity | 0 violations, 50 users | 0 in 6 runs ✅ |
 | 2 Rule tests | All pass | 115/115 + 32/32 ✅ |
-| 3 LINE timeliness | ≥ 95% within 60 s | 96.7% (29/30), median 1.7 s ✅ |
+| 3 LINE timeliness | ≥ 95% within 60 s | 15/15 at the field evaluation (median 1.0 s); 29/30 earlier ✅ |
 | 4 Maintenance | Every step as specified | 7/7 steps, 10/10 notifications ✅ |
 | 5 Responsiveness | p95 < 2 s, < 1% failed | p95 < 0.1 s locally, < 0.6 s deployed ✅ |
 | 6 Usability (SUS) | Mean ≥ 68 | 67.5, n = 13 (95% CI 59.4–75.6) ✗ not met (borderline) |

@@ -28,7 +28,7 @@ plt.rcParams["font.family"] = ["Segoe UI", "DejaVu Sans"]
 KPIS = [
     ("KPI-1  Queue integrity", "0", "rule violations in 6 runs\n50 users · 0 of 533 double joins accepted", "Criterion: 0 violations", "pass"),
     ("KPI-2  Rule tests", "147 / 147", "115 database + 32 unit tests", "Criterion: all tests pass", "pass"),
-    ("KPI-3  LINE notifications", "96.7%", "29 of 30 within 60 s\nmedian 1.7 s · no duplicates", "Criterion: ≥ 95% within 60 s", "pass"),
+    ("KPI-3  LINE notifications", "15 / 15", "within 60 s at the field evaluation\nmedian 1.0 s · 29 of 30 earlier · none twice", "Criterion: ≥ 95% within 60 s", "pass"),
     ("KPI-4  Maintenance", "7 / 7", "steps as specified\n10 of 10 notifications within 60 s", "Criterion: every step as specified", "pass"),
     ("KPI-5  Responsiveness", "0.57 s", "slowest p95 · deployed site\n0.09 s locally with 50 users · 0 failed", "Criterion: p95 < 2 s, < 1% failed", "pass"),
     ("KPI-6  Usability (SUS)", "67.5", "mean SUS · 13 players · 17 Oct\n95% CI 59.4–75.6 · 8 of 13 at 68 or above", "Criterion: mean SUS ≥ 68", "notmet"),
