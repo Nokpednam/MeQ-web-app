@@ -67,7 +67,7 @@ def front_matter(doc):
                   "geolocation check-in, LINE Messaging API, Backend-as-a-Service")
 
     doc.plain_heading("Abstract")
-    doc.p("Walk-in players at the outdoor basketball courts of Naresuan University queue by word of mouth: newcomers cannot "
+    doc.p("Walk-in players at the basketball courts of Naresuan University queue by word of mouth: newcomers cannot "
           "tell whose turn is next, queue jumping cannot be proven, and disputes follow. Damaged equipment, such as a broken "
           "hoop or a failed floodlight, also reaches the staff late because there is no channel for reporting it. This project "
           "designed, developed, and evaluated MeQ, a mobile web application for on-site court queuing and maintenance reporting "
@@ -90,6 +90,7 @@ def front_matter(doc):
           "a security scan found no High-risk alert. Thirteen players who used the system at the courts rated its usability at "
           "a mean System Usability Scale score of 67.5 (95% confidence interval 59.4–75.6), just below the benchmark of 68; "
           "their answers point to the first use as the part to improve.")
+    doc.page_break()
 
     doc.toc("Table of Contents", r'TOC \o "1-3" \h \z \u')
     doc.page_break()
@@ -103,7 +104,7 @@ def chapter1(doc):
     doc.chapter_heading("Introduction")
     doc.h(2, "Introduction")
     doc.h(3, "Background and Significance of the Problem")
-    doc.p("Naresuan University provides outdoor basketball courts that students and members of the public may use free of "
+    doc.p("Naresuan University provides covered basketball courts that students and members of the public may use free of "
           "charge during open hours. Two full courts serve walk-in players: one full court is divided into two half courts "
           "for 3-on-3 games (3x3 A and 3x3 B), and the other hosts 5-on-5 games. In the evening, more teams arrive than the "
           "courts can hold, so teams wait for their turn while others play.")
@@ -193,7 +194,7 @@ def chapter1(doc):
     doc.h(3, "Setting and Period")
     doc.p("Development took place from April to October 2026. A formative field test with six players on real "
           "phones was held on 12 October 2026 and a second on 16 October 2026. The summative evaluation took place in October 2026, "
-          "with the field evaluation at the courts on 17 October 2026.")
+          "with the field evaluation on 17 October 2026.")
     doc.h(3, "Conceptual Framework")
     fig(doc, IMG + "conceptual-framework.png", "Conceptual framework of the project", 92)
     doc.p("Figure 1.2 relates the components of MeQ to the outcomes evaluated. The queue rules and the location check "
@@ -355,9 +356,9 @@ def chapter3(doc):
     doc.h(3, "Research Design")
     doc.p("The project follows design science research (Section 2.1.1) [4]. MeQ is the artifact; the need comes from the "
           "courts, the design is grounded in the techniques of Chapter 2, and the system is built (this chapter) and evaluated "
-          "(Chapter 4). Correctness is evaluated by functional testing against expected outcomes; timeliness and maintenance "
-          "responsiveness by observation of the system in use; performance by a load test; usability by a standardized "
-          "questionnaire; and security by privilege tests and a vulnerability scan.")
+          "(Chapter 4). Correctness is evaluated by functional testing against expected outcomes; timeliness by observation "
+          "of the system in use; the maintenance workflow by a scripted scenario; performance by a load test; usability by "
+          "a standardized questionnaire; and security by privilege tests and a vulnerability scan.")
     doc.h(3, "Development Process")
     doc.p("Development followed iterative prototyping in four phases:")
     doc.ol([
@@ -574,8 +575,13 @@ def chapter3(doc):
     doc.h(2, "Testing")
     doc.h(3, "Evaluation Framework")
     doc.p("The criteria of the evaluation were fixed on 15 October 2026, before the summative measurement, so that the "
-          "results could not influence the criteria by which they are judged (Table 3.8). Apart from the SUS benchmark of 68 "
-          "[23], the thresholds are practical targets set by the author.")
+          "results could not influence the criteria by which they are judged (Table 3.8), and they were committed to the "
+          "project's version control on that day. Apart from the SUS benchmark of 68 [23], the thresholds are practical "
+          "targets set by the author. Two criteria changed afterwards. KPI-4 "
+          "first required a median time to the administrator's first response of 12 hours or less; because real faults "
+          "cannot be scheduled, it was replaced on 15 October by the scripted scenario of Table 3.9 before the scenario was "
+          "run. KPI-5 kept its threshold, and measurements on the deployed site were added to it on 16 October. The notification records of KPI-3 were created "
+          "before the criteria were fixed, during the preliminary and formative tests, and were analysed afterwards.")
     doc.table("Evaluation design and its alignment with the research questions", ["KPI", "RQ / hypothesis", "Instrument", "Pass threshold"], [
         ["KPI-1 Queue integrity under load", "RQ1 / H1", "Load script with 50 virtual users; invariant queries", "0 rule violations in 3 runs"],
         ["KPI-2 Rule conformance", "RQ1 / H1", "pgTAP database tests; unit tests", "All tests pass"],
@@ -596,7 +602,7 @@ def chapter3(doc):
     doc.lead("Maintenance scenario (KPI-4).", "Five report attempts, each marked as a test in its description, filed on the "
              "deployed system at the 5x5 court, where no real report was open, by the author acting as player and as "
              "administrator on the author's own phone (Table 3.9).")
-    doc.lead("Field evaluation (KPI-3, KPI-6).", "Thirteen players recruited at the courts by convenience sampling on "
+    doc.lead("Field evaluation (KPI-6).", "Thirteen players recruited at the court by convenience sampling on "
              "17 October 2026, using the deployed system on their own phones: twelve in four 3x3 teams, and one who tried "
              "every page but did not join a team.")
     doc.h(3, "Instruments")
@@ -647,14 +653,14 @@ def chapter3(doc):
           "Science, used for 3x3 games, and took place on 17 October 2026 from about 17:20 to 18:30; the court location "
           "in MeQ was set to that court for the session, and every team used the queue of 3x3 A. The players "
           "signed in with LINE, formed teams, and went through queuing, location check-in, play, and score submission as "
-          "in normal use, with the author at the courts. Afterwards each player received a link to the questionnaire, "
+          "in normal use, with the author at the court. Afterwards each player received a link to the questionnaire, "
           "which opened with the consent statement (Appendix C); all thirteen respondents consented. Several players left "
           "before answering, so the responses arrived between 18:09 and 22:49 on the same day. The responses were exported "
           "from Google Forms as a CSV file and scored with the script in `docs/report/evidence/sus/`.")
     doc.h(3, "Data Analysis")
     doc.p("All KPIs are criterion-referenced: a hypothesis is supported only if every criterion of its KPIs is met. For "
           "KPI-3, the delay of each notification is its delivery time minus its creation time, and the share delivered within "
-          "60 seconds is computed over all notifications sent during the evaluation. For KPI-4, each step is passed or failed "
+          "60 seconds is computed over all notifications recorded on 11 and 12 October. For KPI-4, each step is passed or failed "
           "against its expected behavior, and the delays of its notifications are computed as for KPI-3. For KPI-5, the 95th percentile captures the slowest requests "
           "that users experience. For KPI-6, responses are scored by the standard procedure [22], and the mean, standard "
           "deviation, and 95% confidence interval are reported. The two background questions (Appendix C) are reported "
@@ -982,7 +988,8 @@ def chapter5(doc):
              "Under 50 simultaneous users the queues stayed consistent in all six runs, and no team "
              "could hold two places at once, so H1 is supported.")
     doc.lead("Objective 2: presence.", "Check-in requires every member to be within the court's radius, computed on the "
-             "server, before a team can play.")
+             "server, before a team can play. In the field evaluation it worked once the court location had been pinned at "
+             "the court itself, which showed that the location must be set where players actually stand.")
     doc.lead("Objective 3: maintenance.", "Players report damage with a photo, a second report of an open problem is "
              "refused, and every status change is recorded. In a scripted scenario on the deployed "
              "system, every step behaved as specified and all ten notifications arrived within 1.3 seconds, so H3 is "
@@ -993,8 +1000,9 @@ def chapter5(doc):
              "site, with three users, they answered within 0.6 seconds at the 95th percentile and a simulated phone showed each page within "
              "1.9 seconds (KPI-5). No High-risk alert or vulnerable "
              "production dependency remained after the upgrade and the security headers (KPI-7). Thirteen players rated the "
-             "usability at a mean SUS score of 67.5, just below the benchmark of 68 (KPI-6 not met), so H4 is only partly "
-             "supported: the system is fast enough, but its first use needs to be easier.")
+             "usability at a mean SUS score of 67.5, just below the benchmark of 68 (KPI-6 not met). Because a hypothesis is "
+             "supported only if all of its criteria are met, H4 is not supported: its responsiveness criterion was met, "
+             "but its usability criterion was not, and the first use of the system needs to be easier.")
     doc.h(2, "Limitations")
     doc.ol([
         "A falsified browser location cannot be detected; the radius check only confirms what the phone reports.",
@@ -1072,8 +1080,8 @@ def appendices(doc):
     doc.plain_heading("Appendix")
     doc.page_break()
     doc.plain_heading("Appendix A: Database Schema", appendix="A")
-    doc.p("This appendix summarizes the tables of the public schema as defined by the migrations in "
-          "`supabase/migrations/`.")
+    doc.p("Table 3.6 lists the core tables; this appendix lists the status values that they use, as defined by the "
+          "migrations in `supabase/migrations/`.")
     doc.table("Status values used by the queue, games, and maintenance", ["Type", "Values"], [
         ["queue_status", "WAITING, CALLED, CHECKING_IN, READY_TO_PLAY, PLAYING, DECIDING_CONTINUE, HOLDING_COURT, DECIDING_REQUEUE, AWAITING_SCORE, RESTING, RETURNING_CHAMPION, MISSED_QUEUE, CANCELLED, LEFT_QUEUE"],
         ["game_status", "PLAYING, END_REQUESTED, AWAITING_SCORE, VALIDATING_RESULT, COMPLETED, INVALID_SCORE, CANCELLED"],
@@ -1107,8 +1115,9 @@ def appendices(doc):
         fig(doc, SHOT + shot, cap, 45)
     doc.page_break()
     doc.plain_heading("Appendix C: SUS Questionnaire", appendix="C")
-    doc.p("The questionnaire was administered in Thai through Google Forms after the participant had completed the tasks "
-          "below with MeQ on their own phone. The form has three sections: consent; the ten statements and an optional "
+    doc.p("The questionnaire was administered in Thai through Google Forms after the participants had used MeQ on their "
+          "own phones; the tasks below were planned for each participant, and one participant, who did not join a team, "
+          "did not queue, check in, or submit scores. The form has three sections: consent; the ten statements and an optional "
           "comment; and two background questions, placed last so that they cannot influence the SUS answers. It "
           "collects no name, e-mail address, or LINE account. The ten statements follow the "
           "standard SUS [22]: odd statements are positive and even statements are negative. The Thai wording is the "
@@ -1163,6 +1172,6 @@ def appendices(doc):
     doc.h(3, "Scoring", numbered=False)
     doc.p("For each odd statement the contribution is the response minus 1; for each even statement it is 5 minus the "
           "response. The sum of the ten contributions is multiplied by 2.5, giving a score from 0 to 100 [22]. A mean of "
-          "68 is the commonly used benchmark of average usability [23]. The responses were exported from the linked "
-          "Google Sheet, and each respondent's score was computed before the mean, standard deviation, and 95% "
-          "confidence interval.")
+          "68 is the commonly used benchmark of average usability [23]. The responses were exported as a CSV file from "
+          "the linked Google Sheet, and each respondent's score was computed before the mean, standard deviation, and "
+          "95% confidence interval.")
