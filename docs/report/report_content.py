@@ -702,7 +702,7 @@ def chapter4(doc):
         ["Development, 12 Oct", "A game could hold a court indefinitely", "No deadline for scores", "5-minute score deadline; administrator tools; game delegate"],
         ["Field test, 16 Oct", "A requeued team called to face the winner was dropped when the winner let its decision time out", "The rule that returns a called challenger when the holder leaves did not cover the winner's decision", "The challenger returns to the head of the queue when the winner leaves or times out"],
         ["Field test, 17 Oct", "Players standing at the evaluation court were refused at check-in", "The court location, taken from the place marker of the court in Google Maps, was about 125 m from where the players stood, and the check adds the reported GPS accuracy to the distance, so a 150 m radius left no margin",
-         "Court location re-pinned on site in Google Maps, next to the court and its waiting area; radius raised to 400 m"],
+         "Court location re-pinned on site in Google Maps, next to the court and its waiting area; radius raised to 400 m for the session, then set to 200 m"],
     ], [1.8, 3.6, 3.6, 3.6])
     doc.p("The most serious defect, the first in Table 4.2, was diagnosed from the scheduler's own records "
           "(`cron.job_run_details`), which showed a duplicate-key failure seconds after the losing team requeued. It also "
