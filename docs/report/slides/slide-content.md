@@ -186,7 +186,7 @@ Suggested order: join queue → called + LINE message → check in → submit sc
 
 ## Slide 12: RESULTS: What the field tests found
 **On the slide**
-- 12 defects found during the field tests, development, and review; all were fixed
+- 11 defects found during the field tests, development, and review, all fixed and covered by tests; plus 1 court-location setting fixed on site
 - Example 1: the queue stopped advancing after a team requeued
 - Example 2 (16 Oct): the challenger disappeared when the winner left → fixed, new test added
 - Example 3: player statistics showed 0 because of a permission grant → fixed and verified on production

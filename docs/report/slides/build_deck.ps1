@@ -223,7 +223,7 @@ $stats = @(
   @("39", "database migrations, each versioned"),
   @("147", "automated tests on every change: 115 database + 32 unit"),
   @("3", "field sessions with real players on their own phones"),
-  @("12", "defects found and fixed; code defects covered by new tests")
+  @("11", "defects found and fixed, each covered by a new test")
 )
 for ($i = 0; $i -lt 4; $i++) {
   $x = 48 + $i * 220
@@ -298,7 +298,7 @@ $tr = $l.TextFrame.TextRange
 $tr.Text = "Lesson: every automated test passed, but real users on real phones found the edge cases."
 $tr.Font.Name = $FONT; $tr.Font.Size = 19; $tr.Font.Bold = -1; $tr.Font.Color.RGB = [int]($INK); $tr.ParagraphFormat.Alignment = 1
 $l.TextFrame.MarginLeft = 24
-Notes $s "สิ่งที่ได้เรียนรู้มากที่สุดคือ เทสอัตโนมัติผ่านหมดก็ยังไม่พอ ต้องให้คนจริงใช้จริง บั๊กที่ร้ายแรงที่สุดเจอจากการทดสอบที่สนาม รวมทั้งหมดเจอ 12 จุด แก้ครบและเพิ่มเทสทุกครั้ง (1 นาที)"
+Notes $s "สิ่งที่ได้เรียนรู้มากที่สุดคือ เทสอัตโนมัติผ่านหมดก็ยังไม่พอ ต้องให้คนจริงใช้จริง บั๊กที่ร้ายแรงที่สุดเจอจากการทดสอบที่สนาม รวมทั้งหมดเจอข้อบกพร่องในโค้ด 11 จุด แก้ครบและเพิ่มเทสทุกครั้ง และปัญหาการตั้งค่าพิกัด 1 จุดที่แก้ที่สนาม (1 นาที)"
 
 # 13. IMPACT
 $s = NewSlide $pres
