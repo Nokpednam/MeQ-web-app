@@ -257,21 +257,21 @@ Notes $s "(พูดตามวิดีโอ) อัดหน้าจอร�
 
 # 10b. Field evaluation photos
 $s = NewSlide $pres
-Heading $s "RESULTS" "Field evaluation at the courts, 17 October 2026"
+Heading $s "RESULTS" "Field evaluation, 17 October 2026"
 Pic $s "slides\photos\field-game.jpg" 48 112 440 330 | Out-Null
 T $s "A game during the evaluation" 48 450 440 18 12 $MUTED | Out-Null
 Pic $s "slides\photos\field-author.jpg" 508 112 200 150 | Out-Null
 T $s "MeQ in use at the court" 508 268 200 18 12 $MUTED | Out-Null
 Pic $s "slides\photos\covered-court-renovation.jpg" 712 112 200 150 | Out-Null
-T $s "The planned court, under renovation" 712 268 200 18 12 $MUTED | Out-Null
+T $s "Planned court: no lights (maintenance)" 712 268 200 18 12 $MUTED | Out-Null
 Bullets $s @(
-  "13 players; four 3x3 teams played, 17:20–18:30",
-  "Everyone used their own phone",
-  "Queue, check-in, play, scores, and a maintenance report",
+  "Moved to the Faculty of Science court, played as 3x3",
+  "13 players; four teams played, 17:20–18:30",
+    "Queue, check-in, play, scores, and a maintenance report",
   "Check-in failed at first: the court point was moved on site",
   "SUS questionnaire answered the same evening"
-) 508 304 404 200 15 $INK | Out-Null
-Notes $s "วันที่ 17 ต.ค. ผมพาผู้เล่น 13 คน 4 ทีม มาใช้ระบบจริงที่สนาม ตั้งแต่ 5 โมงครึ่งถึง 6 โมงครึ่ง สนามที่ตั้งใจจะใช้กำลังซ่อม พื้นมีฝุ่นและลื่น ไม่มีใครเล่น ตอนแรกเช็กอินไม่ผ่านเพราะพิกัดสนามคลาด ผมวัดพิกัดใหม่ที่สนามแล้วแก้ทันที ข้อนี้นับเป็นข้อบกพร่องข้อที่ 12 (40 วินาที)"
+) 508 318 404 200 15 $INK | Out-Null
+Notes $s "วันที่ 17 ต.ค. ผมพาผู้เล่น 13 คน 4 ทีม มาใช้ระบบจริงที่สนาม ตั้งแต่ 5 โมงครึ่งถึง 6 โมงครึ่ง ตามแผนจะเทสที่สนามในร่ม แต่วันนั้นกำลังซ่อมไฟสนาม ไม่มีไฟ คนเลยไม่มาเล่น ผมจึงย้ายไปเทสที่สนามคณะวิทยาศาสตร์ซึ่งมีสนามเดียว เล่นแบบ 3x3 ตอนแรกเช็กอินไม่ผ่านเพราะพิกัดในระบบยังชี้ไปที่สนามในร่ม ผมตั้งพิกัดใหม่ที่สนามนั้นทันที (40 วินาที)"
 
 # 11. RESULTS: KPI scorecard (the image carries its own title)
 $s = NewSlide $pres

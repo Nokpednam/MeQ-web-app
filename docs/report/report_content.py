@@ -641,7 +641,10 @@ def chapter3(doc):
           "two invariant queries treated the cleared position of a called team, which the design intends, as a violation. "
           "Both were corrected and the runs of set A were repeated; the results below come from the repeated runs, and the "
           "discarded first attempt is kept with the evidence. The scripts and results are in `docs/report/evidence/load-test/`. "
-          "The field evaluation took place at the 3x3 courts on 17 October 2026, from about 17:20 to 18:30. The players "
+          "The field evaluation was planned at the covered courts that MeQ serves, but on the day their floodlights were "
+          "under maintenance, so no one came to play there. It was moved to the single outdoor court of the Faculty of "
+          "Science, used for 3x3 games, and took place on 17 October 2026 from about 17:20 to 18:30; the court location "
+          "in MeQ was set to that court for the session. The players "
           "signed in with LINE, formed teams, and went through queuing, location check-in, play, and score submission as "
           "in normal use, with the author at the courts. Afterwards each player received a link to the questionnaire, "
           "which opened with the consent statement (Appendix C); all thirteen respondents consented. Several players left "
@@ -681,8 +684,8 @@ def chapter4(doc):
           "those found in a review of every feature on the following day, are listed in Table 4.2; each was corrected and covered by a new test. A second session on "
           "16 October, after those corrections, completed a game between two new teams (7–6); the result page showed "
           "every player's points and the profile pages showed the statistics, and the session exposed one more defect. "
-          "The field evaluation of 17 October, the first at the real courts, exposed another: players standing at the "
-          "court were refused at check-in. Both are the last rows of Table 4.2.")
+          "The field evaluation of 17 October, moved to another court at short notice, exposed a problem of operation "
+          "rather than code: players standing at the court were refused at check-in. Both are the last rows of Table 4.2.")
     doc.table("Defects found in the field tests, during development, and in the review that followed", ["Source", "Observation", "Cause", "Correction"], [
         ["Field test", "A team that requeued after losing was never called again, and no court advanced", "The second check-in of the same queue entry violated a unique key, and the failed scheduler run rolled back every court",
          "Uniqueness only among open check-ins; each court advanced in its own sub-transaction"],
@@ -698,8 +701,8 @@ def chapter4(doc):
         ["Field test", "LINE messages to every member were noisy", "All members were notified", "Only team leaders are notified"],
         ["Development, 12 Oct", "A game could hold a court indefinitely", "No deadline for scores", "5-minute score deadline; administrator tools; game delegate"],
         ["Field test, 16 Oct", "A requeued team called to face the winner was dropped when the winner let its decision time out", "The rule that returns a called challenger when the holder leaves did not cover the winner's decision", "The challenger returns to the head of the queue when the winner leaves or times out"],
-        ["Field test, 17 Oct", "Players standing at the court were refused at check-in", "The court point was set about 125 m from the courts, and the check adds the reported GPS accuracy to the distance, so a 150 m radius left almost no margin",
-         "Court point moved to the courts on site; radius raised to 400 m"],
+        ["Field test, 17 Oct", "Players standing at the evaluation court were refused at check-in", "The court location still pointed to the covered courts, about 125 m away, and the check adds the reported GPS accuracy to the distance, so a 150 m radius left no margin",
+         "Court location set to the evaluation court on site; radius raised to 400 m"],
     ], [1.8, 3.6, 3.6, 3.6])
     doc.p("The most serious defect, the first in Table 4.2, was diagnosed from the scheduler's own records "
           "(`cron.job_run_details`), which showed a duplicate-key failure seconds after the losing team requeued. It also "
@@ -996,7 +999,9 @@ def chapter5(doc):
         "A falsified browser location cannot be detected; the radius check only confirms what the phone reports.",
         "Scores are entered by the teams; the system checks that they are consistent, not that they are true.",
         "Notifications reach only users who have added the LINE Official Account as a friend.",
-        "The evaluation took place at one facility, on free-tier infrastructure, with a small convenience sample.",
+        "The evaluation took place at one facility, on free-tier infrastructure, with a small convenience sample. The field "
+        "evaluation itself was held on a single outdoor court used for 3x3 games, because the covered courts had no "
+        "lighting during maintenance, so it exercised the queue of one court only.",
         "The load test ran on one laptop that hosted the application, the database, and the load generator together, so its response times are not those of the hosted services; the deployed site was measured only with three users and a simulated mobile network; the failures of its first set were traced to the load generator's network path by a second set, not by a test from a separate machine.",
         "The time administrators take to respond to real faults was not measured, because faults could not be scheduled during the evaluation; the statistics page records it for later study.",
         "The author built and evaluated the system with AI assistance; automated tests and fixed criteria reduce, but do not remove, this bias.",

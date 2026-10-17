@@ -157,13 +157,13 @@ Suggested order: join queue → called + LINE message → check in → submit sc
 
 ## Slide 10b: RESULTS: Field evaluation, 17 Oct
 **On the slide:** photos `slides/photos/field-game.jpg` (large), `field-author.jpg`, `covered-court-renovation.jpg`
-- 13 players; four 3x3 teams played, 17:20–18:30
-- Everyone used their own phone
+- Moved to the Faculty of Science court, played as 3x3
+- 13 players; four teams played, 17:20–18:30
 - Queue, check-in, play, scores, and a maintenance report
 - Check-in failed at first: the court point was moved on site
 - SUS questionnaire answered the same evening
 
-**Speaker notes:** วันที่ 17 ต.ค. ผมพาผู้เล่น 13 คน 4 ทีม มาใช้ระบบจริงที่สนาม สนามที่ตั้งใจจะใช้กำลังซ่อม พื้นมีฝุ่นและลื่น ตอนแรกเช็กอินไม่ผ่านเพราะพิกัดสนามคลาด ผมวัดพิกัดใหม่ที่สนามแล้วแก้ทันที (40 วินาที)
+**Speaker notes:** วันที่ 17 ต.ค. ผมพาผู้เล่น 13 คน 4 ทีม มาใช้ระบบจริงที่สนาม สนามในร่มที่ตั้งใจจะใช้กำลังซ่อมไฟ ไม่มีไฟ จึงย้ายไปสนามคณะวิทยาศาสตร์ เล่นแบบ 3x3 ตอนแรกเช็กอินไม่ผ่านเพราะพิกัดยังชี้ไปที่สนามในร่ม เลยตั้งพิกัดใหม่ที่สนาม (40 วินาที)
 
 ---
 
