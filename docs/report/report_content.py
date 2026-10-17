@@ -79,14 +79,16 @@ def front_matter(doc):
           "reports that wait too long. LINE notifications, delivered through a transactional outbox, tell team leaders when "
           "their team is next or called, and tell reporters and administrators about maintenance progress. The system was "
           "built with Next.js on Vercel and Supabase, and evaluated against seven key performance indicators whose thresholds "
-          "were fixed before measurement. All 115 database tests and 32 unit tests of the business rules passed, and a field "
-          "tests with real players on their own phones, development, and a review that followed exposed eleven defects, among them a queue that stopped advancing after a team "
+          "were fixed before measurement. All 115 database tests and 32 unit tests of the business rules passed, and field "
+          "tests with real players on their own phones, development, and a review that followed exposed twelve defects, among them a queue that stopped advancing after a team "
           "requeued, all of which were corrected and covered by new tests. "
           "With 50 simultaneous users, no queue rule was violated in six runs and pages answered within 0.1 seconds at "
           "the 95th percentile, with no failed request once failures caused by the load generator's container were "
           "traced and removed. Twenty-nine of 30 LINE "
           "notifications arrived within a minute, the maintenance workflow passed every step of a scripted scenario, and "
-          "a security scan found no High-risk alert. {{Add the SUS result.}}")
+          "a security scan found no High-risk alert. Twelve players who used the system at the courts rated its usability at a "
+          "mean System Usability Scale score of 66.3 (95% confidence interval 57.9–74.6), just below the benchmark of 68; "
+          "their answers point to the first use as the part to improve.")
 
     doc.toc("Table of Contents", r'TOC \o "1-3" \h \z \u')
     doc.page_break()
@@ -189,7 +191,8 @@ def chapter1(doc):
           "indicators (KPIs) defined in Section 3.3.1.")
     doc.h(3, "Setting and Period")
     doc.p("Development took place from April to October 2026. A formative field test with six players on real "
-          "phones was held on 12 October 2026 and a second on 16 October 2026. The summative evaluation took place in October 2026.")
+          "phones was held on 12 October 2026 and a second on 16 October 2026. The summative evaluation took place in October 2026, "
+          "with the field evaluation at the courts on 17 October 2026.")
     doc.h(3, "Conceptual Framework")
     fig(doc, IMG + "conceptual-framework.png", "Conceptual framework of the project", 92)
     doc.p("Figure 1.2 relates the components of MeQ to the outcomes evaluated. The queue rules and the location check "
@@ -273,8 +276,8 @@ def chapter2(doc):
     doc.p("Browsers expose the device's position through the W3C Geolocation API, which reports latitude, longitude, and an "
           "accuracy radius [8]. The distance between two points on the Earth is computed with the haversine formula [7]. "
           "Because any value computed in the browser can be altered, the browser only sends its coordinates; the database "
-          "computes the distance to the court, compares it with the court's radius plus the reported accuracy, and stores an "
-          "expiring verification.")
+          "computes the distance to the court, adds the reported accuracy, accepts the reading only if the sum is within the "
+          "court's radius, and stores an expiring verification.")
     doc.pni("**Reliable Notification Delivery**")
     doc.p("Sending a message to an external service inside a database transaction is unreliable: the transaction may roll "
           "back after the message is sent, or the service may fail after the data are committed. The transactional outbox "
@@ -592,8 +595,8 @@ def chapter3(doc):
     doc.lead("Maintenance scenario (KPI-4).", "Five report attempts, each marked as a test in its description, filed on the "
              "deployed system at the 5x5 court, where no real report was open, by the author acting as player and as "
              "administrator on the author's own phone (Table 3.9).")
-    doc.lead("Field evaluation (KPI-3, KPI-6).", "{{Number}} players recruited at the courts by convenience sampling "
-             "over {{period}}, using the deployed system on their own phones.")
+    doc.lead("Field evaluation (KPI-3, KPI-6).", "Twelve players from four 3x3 teams, recruited at the courts by "
+             "convenience sampling on 17 October 2026, using the deployed system on their own phones.")
     doc.h(3, "Instruments")
     doc.lead("Invariant queries (KPI-1).", "Nine SQL queries run after each load run that count teams or players in more "
                                            "than one active queue, duplicate or missing positions of waiting teams, waiting "
@@ -637,8 +640,12 @@ def chapter3(doc):
           "two invariant queries treated the cleared position of a called team, which the design intends, as a violation. "
           "Both were corrected and the runs of set A were repeated; the results below come from the repeated runs, and the "
           "discarded first attempt is kept with the evidence. The scripts and results are in `docs/report/evidence/load-test/`. "
-          "{{Describe the field evaluation: dates, participants, briefing and consent, tasks before the SUS questionnaire, "
-          "and export of the responses.}}")
+          "The field evaluation took place at the 3x3 courts on 17 October 2026, from about 17:20 to 18:30. The players "
+          "signed in with LINE, formed teams, and went through queuing, location check-in, play, and score submission as "
+          "in normal use, with the author at the courts. Afterwards each player received a link to the questionnaire, "
+          "which opened with the consent statement (Appendix C); all twelve respondents consented. Several players left "
+          "before answering, so the responses arrived between 18:09 and 22:17 on the same day. The responses were exported "
+          "from Google Forms as a CSV file and scored with the script in `docs/report/evidence/sus/`.")
     doc.h(3, "Data Analysis")
     doc.p("All KPIs are criterion-referenced: a hypothesis is supported only if every criterion of its KPIs is met. For "
           "KPI-3, the delay of each notification is its delivery time minus its creation time, and the share delivered within "
@@ -660,7 +667,7 @@ def chapter4(doc):
         ["KPI-3 Notification timeliness", "≥ 95% within 60 s", "29 of 30 (96.7%) within 60 s; median 1.7 s; no duplicates (11–12 Oct)", "Pass"],
         ["KPI-4 Maintenance workflow", "Every step as specified; notifications within 60 s", "7 of 7 steps as specified; 10 of 10 notifications within 60 s (median 1.0 s)", "Pass"],
         ["KPI-5 Responsiveness", "p95 < 2 s; < 1% failed", "Set B (local, 50 users): p95 88–94 ms, 0 failed in 3 runs (set A: up to 1.46% failed, traced to the load generator); set C (deployed, 3 users): p95 477–567 ms, 0 failed; Lighthouse mobile: largest content within 1.9 s", "Pass"],
-        ["KPI-6 Usability", "Mean SUS ≥ 68", "{{ }}", "{{ }}"],
+        ["KPI-6 Usability", "Mean SUS ≥ 68", "Mean 66.3 (SD 13.2; 95% CI 57.9–74.6), n = 12; 7 of 12 scores at or above 68", "Not met"],
         ["KPI-7 Security", "Privilege tests pass; no High finding", "40 of 40 privilege tests; npm audit: 0 production vulnerabilities after upgrade; ZAP baseline: 0 High; warnings 11 → 7 after security headers", "Pass"],
     ], [3, 3, 4, 1.5])
 
@@ -672,8 +679,9 @@ def chapter4(doc):
           "defect and the others observed during the session, together with two found while developing on the same day and "
           "those found in a review of every feature on the following day, are listed in Table 4.2; each was corrected and covered by a new test. A second session on "
           "16 October, after those corrections, completed a game between two new teams (7–6); the result page showed "
-          "every player's points and the profile pages showed the statistics, and the session exposed one more defect, "
-          "the last in Table 4.2.")
+          "every player's points and the profile pages showed the statistics, and the session exposed one more defect. "
+          "The field evaluation of 17 October, the first at the real courts, exposed another: players standing at the "
+          "court were refused at check-in. Both are the last rows of Table 4.2.")
     doc.table("Defects found in the field tests, during development, and in the review that followed", ["Source", "Observation", "Cause", "Correction"], [
         ["Field test", "A team that requeued after losing was never called again, and no court advanced", "The second check-in of the same queue entry violated a unique key, and the failed scheduler run rolled back every court",
          "Uniqueness only among open check-ins; each court advanced in its own sub-transaction"],
@@ -689,6 +697,8 @@ def chapter4(doc):
         ["Field test", "LINE messages to every member were noisy", "All members were notified", "Only team leaders are notified"],
         ["Development, 12 Oct", "A game could hold a court indefinitely", "No deadline for scores", "5-minute score deadline; administrator tools; game delegate"],
         ["Field test, 16 Oct", "A requeued team called to face the winner was dropped when the winner let its decision time out", "The rule that returns a called challenger when the holder leaves did not cover the winner's decision", "The challenger returns to the head of the queue when the winner leaves or times out"],
+        ["Field test, 17 Oct", "Players standing at the court were refused at check-in", "The court point was set about 125 m from the courts, and the check adds the reported GPS accuracy to the distance, so a 150 m radius left almost no margin",
+         "Court point moved to the courts on site; radius raised to 400 m"],
     ], [1.8, 3.6, 3.6, 3.6])
     doc.p("The most serious defect, the first in Table 4.2, was diagnosed from the scheduler's own records "
           "(`cron.job_run_details`), which showed a duplicate-key failure seconds after the losing team requeued. It also "
@@ -839,8 +849,21 @@ def chapter4(doc):
           "measuring one, and the k6 requests left from a fixed connection, so a phone at the courts may be slower when "
           "its signal is weak.")
     doc.h(3, "KPI-6: Usability")
-    doc.p("{{Report n, how often the participants play at the courts and how many acted as team leaders, then the mean "
-          "SUS score, the standard deviation, and the 95% confidence interval, with a figure against the benchmark of 68.}}")
+    doc.p("Twelve players answered the questionnaire on the day of the field evaluation. Four play at the courts at "
+          "least four times a week, five two or three times a week, and three once a week or less; four acted as team "
+          "leaders and eight as members. The mean SUS score was 66.3 (SD 13.2; median 70; range 40–87.5), with a 95% "
+          "confidence interval of 57.9 to 74.6 (t distribution, 11 degrees of freedom). The mean is 1.7 points below the "
+          "benchmark of 68 [23], so KPI-6 is not met. The interval includes 68, so the sample cannot show whether the "
+          "true mean lies above or below the benchmark. Seven of the twelve scores were 68 or higher (Figure 4.2).")
+    fig(doc, IMG + "sus-scores.png", "SUS scores of the twelve participants, with the mean, its 95% confidence interval, and the benchmark of 68", 95)
+    doc.p("One response gave 5 to all ten items, including the five negatively worded ones, a pattern that suggests the "
+          "items were not read. It was kept, because the procedure fixed before measurement made no provision for "
+          "excluding responses; without it the mean would be 67.5, still below 68. The item means show where the score was "
+          "lost. Players would like to use MeQ regularly (item 1: 4.25 of 5) and found its functions well integrated "
+          "(item 5: 4.25) and consistent (item 6: 1.83, where lower is better). They were less sure that they could use it "
+          "without help (item 4: 3.58, lower is better) or without learning several things first (item 10: 3.00). Two "
+          "written comments agree: one player asked for someone to teach the first use, and another asked to see the "
+          "queues without signing in.")
     doc.h(3, "KPI-7: Security")
     doc.p("All 40 privilege assertions passed: anonymous users cannot call any queue, game, or administrator function; "
           "signed-in users cannot write to lifecycle tables directly; only the service role can claim notifications; and "
@@ -931,8 +954,13 @@ def chapter4(doc):
           "users kept the 95th percentile under a tenth of a second on a laptop. Polling also keeps the queue tables closed "
           "to the browser, which subscriptions would have required opening. The failures of the first set of runs are a "
           "reminder that a load test measures its own environment as well: only by changing the load generator's path, "
-          "and nothing else, could they be separated from the application. "
-          "{{Discuss KPI-6 after the SUS results.}}")
+          "and nothing else, could they be separated from the application.")
+    doc.p("Usability fell just short of its criterion, and the answers separate what MeQ does from how a newcomer starts. "
+          "The functions were rated well, but before the first game a player must sign in with LINE, join a full team, "
+          "allow location access, and learn the court rules, and the welcome guide shown at the first sign-in did not "
+          "remove the need for help. The comments suggest two changes: letting anyone see the queues without signing in, "
+          "and a short guided first use at the courts. The sample was small and came from one session, so the confidence "
+          "interval is wide; a larger sample after these changes would show whether the score rises above 68.")
 
 
 # =====================================================================
@@ -956,8 +984,9 @@ def chapter5(doc):
              "percentile under 50 users, with no failed request once the load generator ran outside Docker; on the deployed "
              "site, with three users, they answered within 0.6 seconds at the 95th percentile and a simulated phone showed each page within "
              "1.9 seconds (KPI-5). No High-risk alert or vulnerable "
-             "production dependency remained after the upgrade and the security headers (KPI-7). {{Conclusion on KPI-6 "
-             "and H4.}}")
+             "production dependency remained after the upgrade and the security headers (KPI-7). Twelve players rated the "
+             "usability at a mean SUS score of 66.3, just below the benchmark of 68 (KPI-6 not met), so H4 is only partly "
+             "supported: the system is fast enough, but its first use needs to be easier.")
     doc.h(2, "Limitations")
     doc.ol([
         "A falsified browser location cannot be detected; the radius check only confirms what the phone reports.",
@@ -984,6 +1013,7 @@ def chapter5(doc):
         "Study whether a visible, enforced queue reduces disputes, for example by observing the courts before and after deployment.",
         "Add stronger presence checks, such as a QR code displayed at the court, where location alone is insufficient.",
         "Measure the time from report to response and to repair over a semester of regular use, using the statistics page.",
+        "Repeat the SUS with a larger sample after making the first use easier, for example by showing the queues without sign-in.",
     ])
 
 

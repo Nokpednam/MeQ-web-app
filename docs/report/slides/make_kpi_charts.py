@@ -24,14 +24,14 @@ GOOD_TEXT = "#006300"
 BLUE = "#2a78d6"
 plt.rcParams["font.family"] = ["Segoe UI", "DejaVu Sans"]
 
-# (title, result, detail, criterion, status) where status is "pass" or "pending".
+# (title, result, detail, criterion, status) where status is "pass" or "notmet".
 KPIS = [
     ("KPI-1  Queue integrity", "0", "rule violations in 6 runs\n50 users · 0 of 533 double joins accepted", "Criterion: 0 violations", "pass"),
     ("KPI-2  Rule tests", "147 / 147", "115 database + 32 unit tests", "Criterion: all tests pass", "pass"),
     ("KPI-3  LINE notifications", "96.7%", "29 of 30 within 60 s\nmedian 1.7 s · no duplicates", "Criterion: ≥ 95% within 60 s", "pass"),
     ("KPI-4  Maintenance", "7 / 7", "steps as specified\n10 of 10 notifications within 60 s", "Criterion: every step as specified", "pass"),
     ("KPI-5  Responsiveness", "0.57 s", "slowest p95 · deployed site\n0.09 s locally with 50 users · 0 failed", "Criterion: p95 < 2 s, < 1% failed", "pass"),
-    ("KPI-6  Usability (SUS)", "—", "questionnaire in progress", "Criterion: mean SUS ≥ 68", "pending"),
+    ("KPI-6  Usability (SUS)", "66.3", "mean SUS · 12 players · 17 Oct\n95% CI 57.9–74.6 · 7 of 12 at 68 or above", "Criterion: mean SUS ≥ 68", "notmet"),
     ("KPI-7  Security", "0 High", "ZAP findings · 40 / 40 privilege tests\n0 vulnerable production packages", "Criterion: no High finding", "pass"),
 ]
 
@@ -45,22 +45,22 @@ def card(fig, x, y, w, h, kpi):
     ax.add_patch(FancyBboxPatch((0.01, 0.02), 0.98, 0.96, boxstyle="round,pad=0,rounding_size=0.04",
                                 facecolor=CARD, edgecolor=BORDER, linewidth=1.5, mutation_aspect=w / h * 1.78))
     ax.text(0.07, 0.86, title, fontsize=17, fontweight="bold", color=INK, va="center")
-    ax.text(0.07, 0.60, value, fontsize=44, fontweight="bold", color=INK if status == "pass" else MUTED, va="center")
+    ax.text(0.07, 0.60, value, fontsize=44, fontweight="bold", color=INK, va="center")
     ax.text(0.07, 0.33, detail, fontsize=13.5, color=INK2, va="center", linespacing=1.4)
     ax.text(0.07, 0.11, criterion, fontsize=12.5, color=MUTED, va="center")
     if status == "pass":
         ax.text(0.93, 0.86, "✓ Pass", fontsize=15, fontweight="bold", color=GOOD_TEXT, va="center", ha="right",
                 bbox=dict(boxstyle="round,pad=0.35", facecolor="#e6f5e6", edgecolor=GOOD, linewidth=1.2))
     else:
-        ax.text(0.93, 0.86, "… Pending", fontsize=15, fontweight="bold", color=INK2, va="center", ha="right",
-                bbox=dict(boxstyle="round,pad=0.35", facecolor="#f0efec", edgecolor=MUTED, linewidth=1.2))
+        ax.text(0.93, 0.86, "✗ Not met", fontsize=15, fontweight="bold", color="#8a4b00", va="center", ha="right",
+                bbox=dict(boxstyle="round,pad=0.35", facecolor="#fff3e0", edgecolor="#e8a33c", linewidth=1.2))
 
 
 def scorecard():
     fig = plt.figure(figsize=(19.2, 10.8), dpi=100, facecolor=SURFACE)
     fig.text(0.04, 0.93, "Results against criteria fixed before measurement", fontsize=30, fontweight="bold", color=INK)
     passed = sum(1 for k in KPIS if k[4] == "pass")
-    fig.text(0.04, 0.885, f"{passed} of 7 KPIs met · KPI-6 awaits the SUS questionnaire", fontsize=18, color=INK2)
+    fig.text(0.04, 0.885, f"{passed} of 7 KPIs met · usability 1.7 points below the benchmark of 68", fontsize=18, color=INK2)
     w, h, gx, gy = 0.225, 0.37, 0.012, 0.03
     for i, kpi in enumerate(KPIS):
         row, col = divmod(i, 4)

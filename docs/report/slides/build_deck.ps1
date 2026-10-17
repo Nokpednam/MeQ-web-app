@@ -222,8 +222,8 @@ Heading $s "HOW" "Built and tested in small, verified steps"
 $stats = @(
   @("39", "database migrations, each versioned"),
   @("147", "automated tests on every change: 115 database + 32 unit"),
-  @("2", "field tests with real players on their own phones"),
-  @("11", "defects found and fixed, each covered by a new test")
+  @("3", "field sessions with real players on their own phones"),
+  @("12", "defects found and fixed; code defects covered by new tests")
 )
 for ($i = 0; $i -lt 4; $i++) {
   $x = 48 + $i * 220
@@ -258,7 +258,7 @@ Notes $s "(พูดตามวิดีโอ) อัดหน้าจอร�
 # 11. RESULTS: KPI scorecard (the image carries its own title)
 $s = NewSlide $pres
 Pic $s "slides\kpi-scorecard.png" 0 0 960 540 $false | Out-Null
-Notes $s "ทุกเกณฑ์ตั้งไว้ก่อนวัดผล ผลออกมาผ่าน 6 ตัว รอผล SUS อยู่ โดยเฉพาะ KPI-1 ที่จำลองผู้ใช้ 50 คนกดเข้าออกคิวพร้อมกัน ไม่มีครั้งไหนที่คิวผิดกติกาเลย และมีการกดเข้าคิวซ้ำพร้อมกัน 533 ครั้ง ระบบไม่ยอมรับแม้แต่ครั้งเดียว (1 นาที 30 วินาที)"
+Notes $s "ทุกเกณฑ์ตั้งไว้ก่อนวัดผล ผลออกมาผ่าน 6 จาก 7 ตัว ตัวที่ไม่ผ่านคือ SUS ได้ 66.3 จากผู้เล่น 12 คน ต่ำกว่าเกณฑ์ 68 อยู่ 1.7 คะแนน ข้อที่ได้คะแนนน้อยคือต้องมีคนช่วยตอนใช้ครั้งแรก โดยเฉพาะ KPI-1 ที่จำลองผู้ใช้ 50 คนกดเข้าออกคิวพร้อมกัน ไม่มีครั้งไหนที่คิวผิดกติกาเลย และมีการกดเข้าคิวซ้ำพร้อมกัน 533 ครั้ง ระบบไม่ยอมรับแม้แต่ครั้งเดียว (1 นาที 30 วินาที)"
 
 # 12. RESULTS: field tests
 $s = NewSlide $pres
@@ -280,15 +280,15 @@ $tr = $l.TextFrame.TextRange
 $tr.Text = "Lesson: every automated test passed, but real users on real phones found the edge cases."
 $tr.Font.Name = $FONT; $tr.Font.Size = 19; $tr.Font.Bold = -1; $tr.Font.Color.RGB = [int]($INK); $tr.ParagraphFormat.Alignment = 1
 $l.TextFrame.MarginLeft = 24
-Notes $s "สิ่งที่ได้เรียนรู้มากที่สุดคือ เทสอัตโนมัติผ่านหมดก็ยังไม่พอ ต้องให้คนจริงใช้จริง บั๊กที่ร้ายแรงที่สุดเจอจากการทดสอบที่สนาม รวมทั้งหมดเจอ 11 จุด แก้ครบและเพิ่มเทสทุกครั้ง (1 นาที)"
+Notes $s "สิ่งที่ได้เรียนรู้มากที่สุดคือ เทสอัตโนมัติผ่านหมดก็ยังไม่พอ ต้องให้คนจริงใช้จริง บั๊กที่ร้ายแรงที่สุดเจอจากการทดสอบที่สนาม รวมทั้งหมดเจอ 12 จุด แก้ครบและเพิ่มเทสทุกครั้ง (1 นาที)"
 
 # 13. IMPACT
 $s = NewSlide $pres
 Heading $s "IMPACT" "Impact, limitations, and future work"
 $cols = @(
   @("Impact", @("A visible, fair queue: fewer arguments, no standing by the court", "Damage reaches the staff sooner; players follow the repair", "Free infrastructure that other facilities can reuse")),
-  @("Limitations", @("A faked GPS location cannot be detected", "Scores are entered by the teams themselves", "One facility and a small sample")),
-  @("Future work", @("Futsal and volleyball courts", "QR code check-in at the court", "Measure disputes before and after deployment"))
+  @("Limitations", @("A faked GPS location cannot be detected", "Scores are entered by the teams themselves", "First use needs guidance (SUS 66.3)", "One facility and a small sample")),
+  @("Future work", @("Queues visible without sign-in; guided first use", "QR code check-in at the court", "Futsal and volleyball courts", "Measure disputes before and after deployment"))
 )
 for ($i = 0; $i -lt 3; $i++) {
   $x = 48 + $i * 295

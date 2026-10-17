@@ -138,7 +138,7 @@ Objectives:
 - Design science research: build → evaluate → improve
 - 39 database migrations, versioned
 - 147 automated tests (115 database + 32 unit), run on every change (CI)
-- 2 field tests with real players on their own phones → defects fixed and covered by new tests
+- 3 field sessions with real players on their own phones (12, 16, 17 Oct) → defects fixed and covered by new tests
 
 **Speaker notes:** ผมพัฒนาแบบสร้าง ทดสอบ แล้วปรับปรุง ทุกครั้งที่แก้โค้ด GitHub จะรันเทสอัตโนมัติ 147 ข้อ ถ้าข้อไหนไม่ผ่านจะ merge ไม่ได้ และบั๊กที่เจอจากการทดสอบที่สนามจริง แก้แล้วจะเขียนเทสเพิ่มเพื่อไม่ให้บั๊กนั้นกลับมาอีก
 
@@ -165,16 +165,16 @@ Suggested order: join queue → called + LINE message → check in → submit sc
 | 3 LINE timeliness | ≥ 95% within 60 s | 96.7% (29/30), median 1.7 s ✅ |
 | 4 Maintenance | Every step as specified | 7/7 steps, 10/10 notifications ✅ |
 | 5 Responsiveness | p95 < 2 s, < 1% failed | p95 < 0.1 s locally, < 0.6 s deployed ✅ |
-| 6 Usability (SUS) | Mean ≥ 68 | ⏳ |
+| 6 Usability (SUS) | Mean ≥ 68 | 66.3, n = 12 (95% CI 57.9–74.6) ✗ not met |
 | 7 Security | No High finding | 0 High, 40/40 privilege tests ✅ |
 
-**Speaker notes:** ทุกเกณฑ์ตั้งไว้ก่อนวัดผล ผลออกมาผ่าน 6 ตัว ⏳ รอผล SUS อยู่ โดยเฉพาะ KPI-1 ที่จำลองผู้ใช้ 50 คนกดเข้าออกคิวพร้อมกัน ไม่มีครั้งไหนที่คิวผิดกติกาเลย และมีการกดเข้าคิวซ้ำพร้อมกัน 533 ครั้ง ระบบไม่ยอมรับแม้แต่ครั้งเดียว
+**Speaker notes:** ทุกเกณฑ์ตั้งไว้ก่อนวัดผล ผลออกมาผ่าน 6 จาก 7 ตัว SUS ได้ 66.3 ต่ำกว่าเกณฑ์ 68 อยู่ 1.7 คะแนน จุดที่ต้องปรับคือการใช้ครั้งแรก โดยเฉพาะ KPI-1 ที่จำลองผู้ใช้ 50 คนกดเข้าออกคิวพร้อมกัน ไม่มีครั้งไหนที่คิวผิดกติกาเลย และมีการกดเข้าคิวซ้ำพร้อมกัน 533 ครั้ง ระบบไม่ยอมรับแม้แต่ครั้งเดียว
 
 ---
 
 ## Slide 12: RESULTS: What the field tests found
 **On the slide**
-- 11 defects found during the field tests, development, and review; all were fixed
+- 12 defects found during the field tests, development, and review; all were fixed
 - Example 1: the queue stopped advancing after a team requeued
 - Example 2 (16 Oct): the challenger disappeared when the winner left → fixed, new test added
 - Example 3: player statistics showed 0 because of a permission grant → fixed and verified on production
