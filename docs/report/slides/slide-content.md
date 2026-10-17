@@ -165,10 +165,10 @@ Suggested order: join queue → called + LINE message → check in → submit sc
 | 3 LINE timeliness | ≥ 95% within 60 s | 96.7% (29/30), median 1.7 s ✅ |
 | 4 Maintenance | Every step as specified | 7/7 steps, 10/10 notifications ✅ |
 | 5 Responsiveness | p95 < 2 s, < 1% failed | p95 < 0.1 s locally, < 0.6 s deployed ✅ |
-| 6 Usability (SUS) | Mean ≥ 68 | 66.3, n = 12 (95% CI 57.9–74.6) ✗ not met |
+| 6 Usability (SUS) | Mean ≥ 68 | 67.5, n = 13 (95% CI 59.4–75.6) ✗ not met (borderline) |
 | 7 Security | No High finding | 0 High, 40/40 privilege tests ✅ |
 
-**Speaker notes:** ทุกเกณฑ์ตั้งไว้ก่อนวัดผล ผลออกมาผ่าน 6 จาก 7 ตัว SUS ได้ 66.3 ต่ำกว่าเกณฑ์ 68 อยู่ 1.7 คะแนน จุดที่ต้องปรับคือการใช้ครั้งแรก โดยเฉพาะ KPI-1 ที่จำลองผู้ใช้ 50 คนกดเข้าออกคิวพร้อมกัน ไม่มีครั้งไหนที่คิวผิดกติกาเลย และมีการกดเข้าคิวซ้ำพร้อมกัน 533 ครั้ง ระบบไม่ยอมรับแม้แต่ครั้งเดียว
+**Speaker notes:** ทุกเกณฑ์ตั้งไว้ก่อนวัดผล ผลออกมาผ่าน 6 จาก 7 ตัว SUS ได้ 67.5 ต่ำกว่าเกณฑ์ 68 อยู่ 0.5 คะแนน จุดที่ต้องปรับคือการใช้ครั้งแรก โดยเฉพาะ KPI-1 ที่จำลองผู้ใช้ 50 คนกดเข้าออกคิวพร้อมกัน ไม่มีครั้งไหนที่คิวผิดกติกาเลย และมีการกดเข้าคิวซ้ำพร้อมกัน 533 ครั้ง ระบบไม่ยอมรับแม้แต่ครั้งเดียว
 
 ---
 

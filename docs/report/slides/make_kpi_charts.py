@@ -31,7 +31,7 @@ KPIS = [
     ("KPI-3  LINE notifications", "96.7%", "29 of 30 within 60 s\nmedian 1.7 s · no duplicates", "Criterion: ≥ 95% within 60 s", "pass"),
     ("KPI-4  Maintenance", "7 / 7", "steps as specified\n10 of 10 notifications within 60 s", "Criterion: every step as specified", "pass"),
     ("KPI-5  Responsiveness", "0.57 s", "slowest p95 · deployed site\n0.09 s locally with 50 users · 0 failed", "Criterion: p95 < 2 s, < 1% failed", "pass"),
-    ("KPI-6  Usability (SUS)", "66.3", "mean SUS · 12 players · 17 Oct\n95% CI 57.9–74.6 · 7 of 12 at 68 or above", "Criterion: mean SUS ≥ 68", "notmet"),
+    ("KPI-6  Usability (SUS)", "67.5", "mean SUS · 13 players · 17 Oct\n95% CI 59.4–75.6 · 8 of 13 at 68 or above", "Criterion: mean SUS ≥ 68", "notmet"),
     ("KPI-7  Security", "0 High", "ZAP findings · 40 / 40 privilege tests\n0 vulnerable production packages", "Criterion: no High finding", "pass"),
 ]
 
@@ -60,7 +60,7 @@ def scorecard():
     fig = plt.figure(figsize=(19.2, 10.8), dpi=100, facecolor=SURFACE)
     fig.text(0.04, 0.93, "Results against criteria fixed before measurement", fontsize=30, fontweight="bold", color=INK)
     passed = sum(1 for k in KPIS if k[4] == "pass")
-    fig.text(0.04, 0.885, f"{passed} of 7 KPIs met · usability 1.7 points below the benchmark of 68", fontsize=18, color=INK2)
+    fig.text(0.04, 0.885, f"{passed} of 7 KPIs met · usability 0.5 points below the benchmark of 68", fontsize=18, color=INK2)
     w, h, gx, gy = 0.225, 0.37, 0.012, 0.03
     for i, kpi in enumerate(KPIS):
         row, col = divmod(i, 4)

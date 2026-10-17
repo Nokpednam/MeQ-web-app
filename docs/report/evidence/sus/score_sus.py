@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 HERE = os.path.dirname(os.path.abspath(__file__))
 FIGURE = os.path.join(HERE, "..", "..", "images", "sus-scores.png")
 BENCHMARK = 68
-T_975_DF11 = 2.201  # two-sided 95%, 11 degrees of freedom (n = 12)
+T_975 = {11: 2.201, 12: 2.179}  # two-sided 95% t values by degrees of freedom
 
 with open(os.path.join(HERE, "sus-responses-2026-10-17.csv"), encoding="utf-8") as f:
     rows = list(csv.reader(f))[1:]
@@ -25,9 +25,9 @@ answers = [[int(x) for x in r[2:12]] for r in rows]
 scores = [2.5 * sum((a - 1) if i % 2 == 0 else (5 - a) for i, a in enumerate(v)) for v in answers]
 n = len(scores)
 mean, sd = statistics.mean(scores), statistics.stdev(scores)
-assert n == 12, "the t value above assumes n = 12"
-half = T_975_DF11 * sd / math.sqrt(n)
+half = T_975[n - 1] * sd / math.sqrt(n)
 print(f"n={n} mean={mean:.2f} sd={sd:.2f} median={statistics.median(scores)} min={min(scores)} max={max(scores)}")
+print(f"scores {sorted(scores)}")
 print(f"95% CI {mean - half:.1f} to {mean + half:.1f}; at or above {BENCHMARK}: {sum(s >= BENCHMARK for s in scores)}")
 for i in range(10):
     print(f"item {i + 1}: {statistics.mean(v[i] for v in answers):.2f}")
