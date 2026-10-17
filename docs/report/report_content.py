@@ -644,7 +644,7 @@ def chapter3(doc):
           "The field evaluation was planned at the covered courts that MeQ serves, but on the day their floodlights were "
           "under maintenance, so no one came to play there. It was moved to the single outdoor court of the Faculty of "
           "Science, used for 3x3 games, and took place on 17 October 2026 from about 17:20 to 18:30; the court location "
-          "in MeQ was set to that court for the session. The players "
+          "in MeQ was set to that court for the session, and every team used the queue of 3x3 A. The players "
           "signed in with LINE, formed teams, and went through queuing, location check-in, play, and score submission as "
           "in normal use, with the author at the courts. Afterwards each player received a link to the questionnaire, "
           "which opened with the consent statement (Appendix C); all thirteen respondents consented. Several players left "
@@ -1001,7 +1001,7 @@ def chapter5(doc):
         "Notifications reach only users who have added the LINE Official Account as a friend.",
         "The evaluation took place at one facility, on free-tier infrastructure, with a small convenience sample. The field "
         "evaluation itself was held on a single outdoor court used for 3x3 games, because the covered courts had no "
-        "lighting during maintenance, so it exercised the queue of one court only.",
+        "lighting during maintenance, so it exercised only the queue of 3x3 A.",
         "The load test ran on one laptop that hosted the application, the database, and the load generator together, so its response times are not those of the hosted services; the deployed site was measured only with three users and a simulated mobile network; the failures of its first set were traced to the load generator's network path by a second set, not by a test from a separate machine.",
         "The time administrators take to respond to real faults was not measured, because faults could not be scheduled during the evaluation; the statistics page records it for later study.",
         "The author built and evaluated the system with AI assistance; automated tests and fixed criteria reduce, but do not remove, this bias.",
