@@ -120,7 +120,7 @@ export function CourtLocationVerifier({ courtId }: { courtId: CourtId }) {
     </button>
     {status.kind === "checking" ? <div className="location-checking" role="status" aria-live="polite">กำลังขอตำแหน่งจากอุปกรณ์ อาจใช้เวลาสูงสุด 20 วินาที…</div> : null}
     {status.kind === "success" ? <div className="queue-success" role="status">
-      ยืนยันแล้ว · ห่างจากจุดทดสอบ {Math.round(status.distance)} เมตร · ใช้ได้ถึง {new Date(status.expiresAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
+      ยืนยันแล้ว · ห่างจากสนาม {Math.round(status.distance)} เมตร · ใช้ได้ถึง {new Date(status.expiresAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
     </div> : null}
     {status.kind === "error" ? <div className="team-error" role="alert">{status.message}</div> : null}
   </div>;
