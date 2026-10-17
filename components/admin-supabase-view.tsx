@@ -2,115 +2,20 @@
 import Link from "next/link";
 import { useMeqLanguage } from "./use-meq-language";
 import { adminTranslations } from "@/lib/admin-translations";
-import type {
-  SupabaseAdminData,
-  AdminEventRow,
-} from "@/lib/supabase-admin-repository";
+import type { SupabaseAdminData } from "@/lib/supabase-admin-repository";
+import { AdminEventsSection } from "./admin-events-section";
 import {
-  cancelCourtEventAction,
-  saveCourtEventAction,
   setCheckInDurationAction,
   setCourtOpenAction,
   setTargetScoreAction,
 } from "@/app/admin/actions";
-function dateParts(event: AdminEventRow) {
-  const start = new Date(event.startsAt),
-    end = new Date(event.endsAt);
-  const date = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Bangkok",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(start);
-  return {
-    date,
-    start: start.toLocaleTimeString("en-GB", {
-      timeZone: "Asia/Bangkok",
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-    end: end.toLocaleTimeString("en-GB", {
-      timeZone: "Asia/Bangkok",
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-  };
-}
-function EventForm({
-  event,
+export function AdminSupabaseView({
   data,
-  labels,
+  eventTotal,
 }: {
-  event?: AdminEventRow;
   data: SupabaseAdminData;
-  labels: ReturnType<typeof useMeqLanguage>["language"] extends never
-    ? never
-    : typeof adminTranslations.th;
+  eventTotal: number;
 }) {
-  const value = event ? dateParts(event) : null;
-  return (
-    <form className="admin-event-form" action={saveCourtEventAction}>
-      {event ? <input type="hidden" name="eventId" value={event.id} /> : null}
-      <h3>{event ? labels.editEvent : labels.createEvent}</h3>
-      <label>
-        <span>{labels.eventTitle}</span>
-        <input
-          name="title"
-          required
-          minLength={2}
-          maxLength={120}
-          defaultValue={event?.title}
-        />
-      </label>
-      <label>
-        <span>{labels.details}</span>
-        <textarea name="details" rows={3} defaultValue={event?.details} />
-      </label>
-      <label>
-        <span>{labels.date}</span>
-        <input type="date" name="date" required defaultValue={value?.date} />
-      </label>
-      <label className="admin-check">
-        <input type="checkbox" name="allDay" defaultChecked={event?.allDay} />
-        <span>{labels.allDay}</span>
-      </label>
-      <div className="admin-form-row">
-        <label>
-          <span>{labels.start}</span>
-          <input
-            type="time"
-            name="startTime"
-            defaultValue={value?.start ?? "09:00"}
-          />
-        </label>
-        <label>
-          <span>{labels.end}</span>
-          <input
-            type="time"
-            name="endTime"
-            defaultValue={value?.end ?? "10:00"}
-          />
-        </label>
-      </div>
-      <fieldset>
-        <legend>{labels.courts}</legend>
-        {data.courts.map((court) => (
-          <label className="admin-check" key={court.id}>
-            <input
-              type="checkbox"
-              name="courtIds"
-              value={court.id}
-              defaultChecked={event?.courtIds.includes(court.id)}
-            />
-            <span>{court.name}</span>
-          </label>
-        ))}
-      </fieldset>
-      <button className="queue-primary-button">{labels.save}</button>
-    </form>
-  );
-}
-export function AdminSupabaseView({ data }: { data: SupabaseAdminData }) {
   const { language, selectLanguage } = useMeqLanguage();
   const copy = adminTranslations[language];
   return (
@@ -282,70 +187,7 @@ export function AdminSupabaseView({ data }: { data: SupabaseAdminData }) {
           </article>
         </div>
       </section>
-      <section className="admin-section admin-calendar">
-        <div className="admin-section-heading">
-          <div>
-            <p className="section-label">CALENDAR</p>
-            <h2>{copy.calendar}</h2>
-            <p>{copy.calendarHint}</p>
-          </div>
-        </div>
-        <div className="admin-calendar-grid">
-          <EventForm data={data} labels={copy} />
-          <div className="admin-event-list">
-            {data.events.length === 0 ? (
-              <p className="admin-empty">
-                {language === "th" ? "ยังไม่มีกิจกรรม" : "No events"}
-              </p>
-            ) : (
-              data.events.map((event) => {
-                const value = dateParts(event);
-                return (
-                  <article
-                    className={event.cancelledAt ? "is-cancelled" : ""}
-                    key={event.id}
-                  >
-                    <header>
-                      <div>
-                        <strong>{event.title}</strong>
-                        <span>
-                          {event.cancelledAt ? copy.cancelled : copy.active}
-                        </span>
-                      </div>
-                      <time>
-                        {value.date} ·{" "}
-                        {event.allDay
-                          ? copy.allDay
-                          : `${value.start}–${value.end}`}
-                      </time>
-                    </header>
-                    <p>{event.details}</p>
-                    <small>
-                      {event.courtIds.map((id) => id.toUpperCase()).join(" · ")}
-                    </small>
-                    {!event.cancelledAt ? (
-                      <footer>
-                        <details>
-                          <summary>{copy.edit}</summary>
-                          <EventForm event={event} data={data} labels={copy} />
-                        </details>
-                        <form action={cancelCourtEventAction}>
-                          <input
-                            type="hidden"
-                            name="eventId"
-                            value={event.id}
-                          />
-                          <button>{copy.cancelEvent}</button>
-                        </form>
-                      </footer>
-                    ) : null}
-                  </article>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </section>
+      <AdminEventsSection events={data.events} courts={data.courts} totalCount={eventTotal} />
     </main>
   );
 }

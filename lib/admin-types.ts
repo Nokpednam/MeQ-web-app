@@ -1,9 +1,8 @@
 import type { CourtId } from "./queue-types";
 
 export type AdminCourtSetting = { courtId: CourtId; isOpen: boolean };
-export type AdminEventImpact = "LOW" | "MEDIUM" | "HIGH";
 export type AdminEventStatus = "ACTIVE" | "CANCELLED";
-export type AdminEvent = { id: string; title: string; details: string; date: string; startTime: string; endTime: string; allDay: boolean; courtIds: CourtId[]; impact: AdminEventImpact; status: AdminEventStatus; createdAt: string };
+export type AdminEvent = { id: string; title: string; details: string; date: string; startTime: string; endTime: string; allDay: boolean; courtIds: CourtId[]; status: AdminEventStatus; createdAt: string };
 export type MaintenanceCategory = "SURFACE" | "HOOP" | "LIGHTING" | "OTHER";
 export type MaintenanceStatus = "NEW" | "IN_PROGRESS" | "WAITING_FOR_CARETAKER" | "RESOLVED" | "REJECTED";
 export type MaintenanceReport = { id: string; courtId: CourtId; category: MaintenanceCategory; details: string; imageName?: string; status: MaintenanceStatus; createdAt: string };
