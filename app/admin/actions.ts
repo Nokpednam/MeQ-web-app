@@ -23,6 +23,7 @@ function refresh() {
   revalidatePath("/calendar");
   revalidatePath("/courts", "layout");
   revalidatePath("/admin");
+  revalidatePath("/admin/events");
 }
 export async function setCourtOpenAction(form: FormData) {
   const s = await adminClient();

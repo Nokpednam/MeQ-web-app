@@ -3,7 +3,7 @@ import { AdminSupabaseView } from "@/components/admin-supabase-view";
 import { AdminGamesSection } from "@/components/admin-games-section";
 import { AdminMaintenanceSection } from "@/components/admin-maintenance-section";
 import { createClient } from "@/lib/supabase/server";
-import { getAdminActiveGames, getSupabaseAdminData } from "@/lib/supabase-admin-repository";
+import { getAdminActiveGames, getSupabaseAdminData, upcomingAdminEvents } from "@/lib/supabase-admin-repository";
 import { getAdminMaintenanceReports } from "@/lib/supabase-maintenance-repository";
 
 export const dynamic = "force-dynamic";
@@ -15,10 +15,12 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
   if (profile?.role !== "ADMIN") redirect("/?notice=admin-only");
   const [data, reports, games, query] = await Promise.all([getSupabaseAdminData(supabase, user.id), getAdminMaintenanceReports(supabase), getAdminActiveGames(supabase), searchParams]);
-  const viewData = { ...data, newReportCount: reports.filter((report) => report.status === "NEW").length };
+  // The admin home shows only the next few events; /admin/events lists them all.
+  const upcomingEvents = upcomingAdminEvents(data.events, 3);
+  const viewData = { ...data, events: upcomingEvents, newReportCount: reports.filter((report) => report.status === "NEW").length };
 
   return <>
-    <AdminSupabaseView data={viewData}/>
+    <AdminSupabaseView data={viewData} eventTotal={data.events.length}/>
     {viewData.newReportCount > 0 ? <div className="admin-alert-shell"><a className="admin-report-alert" href="/admin/maintenance"><span>!</span><div><strong>มีรายการแจ้งซ่อมใหม่ {viewData.newReportCount} รายการ</strong><small>แตะเพื่อเปิดรายการแจ้งซ่อมทั้งหมด</small></div><b>→</b></a></div> : null}
     <main className="admin-shell admin-maintenance-shell">
       {query.maintenance === "saved" ? <div className="queue-success" role="status">บันทึกสถานะแจ้งซ่อมเรียบร้อยแล้ว และผู้ใช้จะเห็นสถานะล่าสุดทันที</div> : null}

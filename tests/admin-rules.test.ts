@@ -16,7 +16,7 @@ function createInitialAdminData(): AdminDataState {
     events: [{
       id: "event-aug-08", title: "งดใช้ Full Court 2", details: "กิจกรรมมหาวิทยาลัย",
       date: "2026-08-08", startTime: "16:00", endTime: "20:00", allDay: false,
-      courtIds: ["5x5"], impact: "HIGH", status: "ACTIVE", createdAt: "2026-08-01T02:00:00.000Z",
+      courtIds: ["5x5"], status: "ACTIVE", createdAt: "2026-08-01T02:00:00.000Z",
     }],
     maintenanceReports: [],
   };

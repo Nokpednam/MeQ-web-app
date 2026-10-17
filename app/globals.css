@@ -172,9 +172,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 103, 37, .3
 .event-item { min-height: 88px; padding: 15px 4px; display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; gap: 17px; border-bottom: 1px solid var(--neutral-300); }
 .event-item time { font-size: 14px; font-weight: 900; text-transform: uppercase; }
 .event-copy > div { display: flex; align-items: center; gap: 10px; color: var(--neutral-700); font-size: 10px; font-weight: 800; }
-.impact { padding: 4px 7px; border: 0; border-radius: 999px; background: var(--neutral-50); }
-.impact-high { border-color: var(--danger); color: var(--danger); }
-.impact-medium { border-color: var(--warning); color: #865b05; }
 .event-copy h3 { margin: 6px 0 2px; font-size: 15px; }
 .event-copy p { margin: 0; color: var(--neutral-700); font-size: 12px; }
 .event-time { font-family: "Courier New", monospace; font-size: 15px; font-variant-numeric: tabular-nums; }

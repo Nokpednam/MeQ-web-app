@@ -40,6 +40,16 @@ export type SupabaseAdminData = {
   activeGameCount: number;
   newReportCount: number;
 };
+/** Active events that have not ended yet, soonest first. */
+export function upcomingAdminEvents(
+  events: AdminEventRow[],
+  limit: number,
+  now = new Date(),
+): AdminEventRow[] {
+  return events
+    .filter((event) => !event.cancelledAt && new Date(event.endsAt) >= now)
+    .slice(0, limit);
+}
 export async function getSupabaseAdminData(
   s: SupabaseClient,
   userId: string,
