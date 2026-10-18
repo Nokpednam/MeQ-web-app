@@ -282,6 +282,11 @@ def chapter2(doc):
           "stored messages afterwards and records the result [9]. Messaging practice adds two properties: a receiver should "
           "tolerate the same message arriving twice (idempotency), and messages that cannot be delivered should be set aside "
           "rather than retried forever [10]. MeQ applies these ideas to LINE notifications (Section 3.2.8).")
+    doc.pni("**Usability Measurement**")
+    doc.p("For a new system without an established user base, a standardized questionnaire is the practical way to "
+          "measure usability. The ten-item System Usability Scale (SUS) yields a score from 0 to 100 [22]; it has high "
+          "internal-consistency reliability, with a coefficient alpha of about 0.9, and a mean of 68 is the usual benchmark "
+          "of average usability [23]. Because the scale is short, it can be answered at the court right after a game.")
     doc.h(3, "Technology")
     doc.pni("**Next.js and React**")
     doc.p("React builds user interfaces from components [12]. Next.js is a React framework whose App Router renders pages on "
@@ -628,7 +633,9 @@ def chapter3(doc):
         ["S6", "File R5 for the same problem as R4", "Accepted, because a rejection closes R4"],
         ["S7", "Reject R3 and R5 with the note “test data”", "Test reports closed; real reports unaffected"],
     ], [1, 5.5, 5.5])
-    doc.lead("System Usability Scale (KPI-6).", "The standard ten-item questionnaire [22], administered in Thai through Google Forms (Appendix C).")
+    doc.lead("System Usability Scale (KPI-6).", "The standard ten-item questionnaire [22], administered in Thai through "
+             "Google Forms (Appendix C). The Thai wording is the author's translation and was not separately validated, for "
+             "example by item–objective congruence (IOC) review or back-translation (Section 5.2).")
     doc.lead("Security instruments (KPI-7).", "The privilege tests in `security_privileges.sql` and the role checks in the "
                                               "other test files; an OWASP Top 10 matrix [25]; `npm audit` of the production dependencies; and an OWASP ZAP baseline scan of the deployed site [28], which crawls "
                                               "the public pages and checks their responses without submitting forms.")
@@ -1017,6 +1024,7 @@ def chapter5(doc):
         "evaluation itself was held on a single outdoor court used for 3x3 games, because the covered courts had no "
         "lighting during maintenance, so it exercised only the queue of 3x3 A.",
         "The load test ran on one laptop that hosted the application, the database, and the load generator together, so its response times are not those of the hosted services; the deployed site was measured only with three users and a simulated mobile network; the failures of its first set were traced to the load generator's network path by a second set, not by a test from a separate machine.",
+        "The Thai translation of the SUS was not validated, and the thirteen respondents came from one session, recruited by convenience.",
         "The time administrators take to respond to real faults was not measured, because faults could not be scheduled during the evaluation; the statistics page records it for later study.",
         "The author built and evaluated the system with AI assistance; automated tests and fixed criteria reduce, but do not remove, this bias.",
     ])
@@ -1028,6 +1036,13 @@ def chapter5(doc):
         "A scheduler that advances several resources should isolate each one, so that one failure does not stop the others.",
         "Notifications should be stored with the change that causes them, carry an expiry, and be sent idempotently.",
         "Field tests with real users on real devices should precede the summative evaluation; the most serious defect of this project was found that way.",
+    ])
+    doc.h(3, "Recommendations for Deployment at the University")
+    doc.ol([
+        "Pin the location of the covered courts on site, next to the courts and their waiting area, and set the radius accordingly, as was done for the field evaluation.",
+        "Make the first use easier before regular use: show the queues without sign-in and guide a new player through the first game.",
+        "Close the remaining PDPA gaps of Table 3.7: a retention period for old notifications, logs, and photos, and a written procedure for reporting a data breach.",
+        "Agree with the facility staff who acts as administrator, and rotate every secret key before handing the system over.",
     ])
     doc.h(3, "Recommendations for Future Research")
     doc.ol([
