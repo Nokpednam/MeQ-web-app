@@ -164,6 +164,21 @@ Objectives:
 
 ---
 
+## Slide 10c: RESULTS: How each KPI was tested
+A table of the seven KPIs: how each was tested and with which tools (k6 + SQL checks; pgTAP and unit tests; outbox records; 7-step scenario; k6 + Lighthouse; SUS in Google Forms; permission tests, OWASP Top 10:2025, npm audit, ZAP).
+
+**Speaker notes:** KPI แต่ละตัววัดคนละเรื่องและใช้เครื่องมือต่างกัน ทุกเกณฑ์ตั้งไว้ก่อนวัดผล (1 นาที)
+
+---
+
+## Slide 10d: RESULTS: What the 147 automated tests check
+- 115 database tests: permissions and RLS 49, location check-in 18, winner rotation 14, requeue 9, per-court isolation 8, challenger return 8, full flows 6, LINE outbox 3
+- 32 unit tests: source checks and security headers 10, LINE messages 5, admin rules 4, live refresh 4, team location 4, maintenance statistics 3, game lifecycle 2
+
+**Speaker notes:** เทสฐานข้อมูลเกือบครึ่งเป็นเรื่องสิทธิ์ ทุกครั้งที่แก้โค้ด GitHub รันทั้ง 147 ข้อ ถ้าไม่ผ่านจะ merge ไม่ได้ (1 นาที)
+
+---
+
 ## Slide 11: RESULTS: KPI results
 **On the slide** (table or 7 cards)
 

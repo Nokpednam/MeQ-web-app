@@ -280,6 +280,73 @@ Bullets $s @(
 ) 508 318 404 200 15 $INK | Out-Null
 Notes $s "วันที่ 17 ต.ค. ผมพาผู้เล่น 13 คน 4 ทีม มาใช้ระบบจริงที่สนาม ตั้งแต่ 5 โมงครึ่งถึง 6 โมงครึ่ง ตามแผนจะเทสที่สนามในร่ม แต่วันนั้นกำลังซ่อมไฟสนาม ไม่มีไฟ คนเลยไม่มาเล่น ผมจึงย้ายไปเทสที่สนามคณะวิทยาศาสตร์ซึ่งมีสนามเดียว เล่นแบบ 3x3 ตอนแรกเช็กอินไม่ผ่านเพราะพิกัดในระบบยังชี้ไปที่สนามในร่ม ผมตั้งพิกัดใหม่ที่สนามนั้นทันที (40 วินาที)"
 
+# 10c. How each KPI was tested
+$s = NewSlide $pres
+Heading $s "RESULTS" "How each KPI was tested"
+$kpis = @(
+  @("KPI", "How it was tested", "Tools"),
+  @("1  Queue integrity", "50 simulated users join and leave queues at the same time; then 9 SQL checks look for any rule violation", "k6, SQL"),
+  @("2  Rule tests", "Automated tests call every database function as different users, including users who must be refused", "pgTAP, Node.js, CI"),
+  @("3  LINE timeliness", "Time from each event to LINE delivery, read from the notification outbox during the field evaluation", "Outbox records"),
+  @("4  Maintenance", "Seven scripted steps on the live system: report, duplicate, each status, reject", "Scenario, history"),
+  @("5  Responsiveness", "95th-percentile response time: 50 users on a laptop, 3 users on the live site, and a simulated phone", "k6, Lighthouse"),
+  @("6  Usability", "13 players answered the 10-item SUS questionnaire after using MeQ at the court", "Google Forms"),
+  @("7  Security", "Permission tests, an OWASP Top 10:2025 check, a dependency audit, and a scan of the live site", "pgTAP, npm audit, ZAP")
+)
+$tb = $s.Shapes.AddTable(8, 3, 48, 112, 864, 380)
+$t = $tb.Table
+$t.Columns.Item(1).Width = 190; $t.Columns.Item(2).Width = 524; $t.Columns.Item(3).Width = 150
+for ($r = 1; $r -le 8; $r++) {
+  for ($c = 1; $c -le 3; $c++) {
+    $cell = $t.Cell($r, $c)
+    $cell.Shape.Fill.Solid()
+    $cell.Shape.Fill.ForeColor.RGB = [int]($(if ($r -eq 1) { $DARK } elseif ($r % 2 -eq 0) { $CARD } else { $WHITE }))
+    $tr = $cell.Shape.TextFrame.TextRange
+    $tr.Text = $kpis[$r - 1][$c - 1]
+    $tr.Font.Name = $FONT; $tr.Font.Size = 13
+    $tr.Font.Bold = $(if ($r -eq 1 -or $c -eq 1) { -1 } else { 0 })
+    $tr.Font.Color.RGB = [int]($(if ($r -eq 1) { $WHITE } elseif ($c -eq 3) { $MUTED } else { $INK }))
+    $cell.Shape.TextFrame.MarginLeft = 8; $cell.Shape.TextFrame.MarginTop = 5; $cell.Shape.TextFrame.MarginBottom = 5
+  }
+}
+T $s "Every threshold was fixed before measuring." 48 500 864 20 13 $MUTED | Out-Null
+Notes $s "KPI แต่ละตัววัดคนละเรื่องและใช้เครื่องมือต่างกัน KPI-1 จำลองผู้ใช้ 50 คนกดเข้าออกคิวพร้อมกัน แล้วใช้ SQL 9 ข้อตรวจว่ามีอะไรผิดกติกาไหม KPI-2 คือเทสอัตโนมัติ KPI-3 วัดเวลาส่ง LINE จากข้อมูลจริงวันทดสอบ KPI-4 ทำตามสถานการณ์แจ้งซ่อม 7 ขั้นบนระบบจริง KPI-5 วัดความเร็วด้วย k6 และ Lighthouse KPI-6 คือแบบสอบถาม SUS และ KPI-7 ตรวจความปลอดภัยด้วยหลายเครื่องมือ ทุกเกณฑ์ตั้งไว้ก่อนวัดผล (1 นาที)"
+
+# 10d. What the 147 automated tests check
+$s = NewSlide $pres
+Heading $s "RESULTS" "What the 147 automated tests check"
+T $s "115 database tests (pgTAP)" 48 108 520 22 15 $ORANGE $true | Out-Null
+$groups = @(
+  @("Permissions and row-level security", 49),
+  @("Location check-in and team readiness", 18),
+  @("Winner rotation: two wins, then rest", 14),
+  @("Requeue and repeated check-in", 9),
+  @("One court failing does not stop others", 8),
+  @("Challenger returns when the winner leaves", 8),
+  @("Full flows: game, queue, teams, maintenance", 6),
+  @("LINE outbox: claim, retry, expiry", 3)
+)
+for ($i = 0; $i -lt $groups.Count; $i++) {
+  $y = 140 + $i * 44
+  T $s $groups[$i][0] 48 ($y + 6) 290 20 13 $INK | Out-Null
+  $w = [math]::Round(220 * $groups[$i][1] / 49)
+  Box $s 344 ($y + 4) $w 24 $ORANGE | Out-Null
+  T $s ([string]$groups[$i][1]) (350 + $w) ($y + 6) 40 20 13 $INK $true | Out-Null
+}
+Box $s 624 108 288 220 $CARD | Out-Null
+T $s "32 unit tests (TypeScript)" 644 124 250 22 15 $ORANGE $true | Out-Null
+Bullets $s @(
+  "Removed browser-side queue code stays removed; security headers (10)",
+  "LINE message text and recipients (5)",
+  "Administrator rules (4)",
+  "Live refresh of court pages (4)",
+  "Team location rules (4)",
+  "Maintenance statistics (3)",
+  "Game lifecycle states (2)"
+) 644 158 252 330 12 $INK | Out-Null
+T $s "All 147 run on every change in GitHub Actions; a change that fails any test cannot be merged." 48 500 864 20 13 $MUTED | Out-Null
+Notes $s "เทส 147 ข้อแบ่งเป็นสองส่วน ส่วนแรกคือเทสฐานข้อมูล 115 ข้อ เกือบครึ่งเป็นเรื่องสิทธิ์ ว่าใครอ่านหรือแก้อะไรได้บ้าง รองลงมาคือการเช็กอินด้วยตำแหน่ง กติกาชนะสองเกมแล้วพัก และการต่อคิวใหม่ อีกส่วนคือ unit test 32 ข้อ ตรวจฝั่งโค้ด TypeScript เช่น ข้อความ LINE และ security headers ทุกครั้งที่แก้โค้ด GitHub จะรันทั้ง 147 ข้อ ถ้าไม่ผ่านจะ merge ไม่ได้ (1 นาที)"
+
 # 11. RESULTS: KPI scorecard (the image carries its own title)
 $s = NewSlide $pres
 Pic $s "slides\kpi-scorecard.png" 0 0 960 540 $false | Out-Null
