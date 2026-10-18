@@ -66,19 +66,25 @@ def front_matter(doc):
     doc.info_line("Keywords", "virtual queue, sports facility, maintenance reporting, transactional database rules, "
                   "geolocation check-in, LINE Messaging API, Backend-as-a-Service")
 
-    doc.plain_heading("Abstract")
+    doc.plain_heading("Abstract", new_page=True)
     doc.p("Walk-in players at the basketball courts of Naresuan University queue by word of mouth, so newcomers cannot "
-          "tell whose turn is next and disputes are common, and damaged equipment reaches the staff late. This project "
-          "developed and evaluated MeQ, a mobile web application for queuing at three courts and for reporting damaged "
-          "equipment. The queue rules are enforced by transactional functions in PostgreSQL, and check-in is verified on "
-          "the server from each member's location. LINE "
-          "notifications tell team leaders when their turn comes and keep reporters and administrators informed.")
-    doc.p("MeQ was evaluated against seven key performance indicators fixed before measurement. All 147 automated tests "
-          "passed, and the eleven defects found in field tests and a review were corrected. With 50 simultaneous users, no "
-          "queue rule was violated and pages answered within 0.1 seconds at the 95th percentile. All 15 LINE notifications "
-          "of the field evaluation arrived within a minute, the maintenance workflow passed a scripted scenario, and a "
-          "security scan found no High-risk alert. Thirteen players gave a mean System Usability Scale score of 67.5, just "
-          "below the benchmark of 68; the first use needs to be easier.")
+          "tell whose turn is next and disputes are common. Damaged equipment also reaches the staff late, because there is "
+          "no channel for reporting it. This project designed, developed, and evaluated MeQ, a mobile web application for "
+          "queuing at three courts (3x3 A, 3x3 B, and 5x5) and for reporting damaged equipment. The queue rules, such as "
+          "full rosters, one queue per player, a check-in deadline, and a limit of two consecutive wins, are enforced by "
+          "transactional functions in PostgreSQL, and scheduled jobs advance each court without an administrator. A team "
+          "checks in by sharing each member's location, and the server computes the distance to the court. Players report "
+          "damage with a photo, and administrators record each step of the repair. LINE notifications tell team leaders "
+          "when their turn comes and tell reporters and administrators about each report. The system was built with "
+          "Next.js and Supabase.")
+    doc.p("MeQ was evaluated against seven key performance indicators whose thresholds were fixed before measurement. All "
+          "115 database tests and 32 unit tests passed. Field tests and a review found eleven defects, which were corrected "
+          "and covered by new tests. With 50 simultaneous users, no queue rule was violated in six runs, and pages answered "
+          "within 0.1 seconds at the 95th percentile. All 15 LINE notifications of the field evaluation arrived within a "
+          "minute, the maintenance workflow passed every step of a scripted scenario, and a security scan found no "
+          "High-risk alert. Thirteen players rated the usability at a mean System Usability Scale score of 67.5 (95% "
+          "confidence interval 59.4–75.6), just below the benchmark of 68, and their answers show that the first use "
+          "needs to be easier.")
     doc.page_break()
 
     doc.toc("Table of Contents", r'TOC \o "1-3" \h \z \u')
