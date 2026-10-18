@@ -243,17 +243,24 @@ for ($i = 0; $i -lt 5; $i++) {
 T $s "Design science research: build, evaluate, improve" 48 458 864 22 14 $MUTED | Out-Null
 Notes $s "ผมพัฒนาแบบสร้าง ทดสอบ แล้วปรับปรุง ทุกครั้งที่แก้โค้ด GitHub จะรันเทสอัตโนมัติ 147 ข้อ ถ้าข้อไหนไม่ผ่านจะ merge ไม่ได้ และบั๊กที่เจอจากการทดสอบที่สนามจริง แก้แล้วจะเขียนเทสเพิ่มเพื่อไม่ให้บั๊กนั้นกลับมาอีก (50 วินาที)"
 
-# 10. DEMO
+# 10. Walkthrough of one round (screenshots, no video)
 $s = NewSlide $pres $true
-Heading $s "DEMO" "One round on the court" $WHITE
-$v = Box $s 48 116 500 380 (C "2A3140")
-$tr = $v.TextFrame.TextRange
-$tr.Text = "[ Demo video, 60–90 s ]`rJoin queue → LINE message → check in → scores → result"
-$tr.Font.Name = $FONT; $tr.Font.Size = 18; $tr.Font.Color.RGB = [int]($SOFT); $tr.ParagraphFormat.Alignment = 2
-$tr.Paragraphs(1).Font.Bold = -1; $tr.Paragraphs(1).Font.Size = 22; $tr.Paragraphs(1).Font.Color.RGB = [int]($WHITE)
-Phone $s "line-chat" 576 116 380 | Out-Null
-Phone $s "result" 741 116 380 | Out-Null
-Notes $s "(พูดตามวิดีโอ) อัดหน้าจอระหว่างเทสที่สนามวันที่ 17 ต.ค. ตัดให้เหลือไม่เกิน 90 วินาที แล้ววางแทนกล่องวิดีโอ (1 นาที 30 วินาที)"
+Heading $s "WALKTHROUGH" "One round, step by step" $WHITE
+$round = @(
+  @("court-queue", "Join the queue"),
+  @("line-chat", "LINE notifications"),
+  @("check-in", "Check in at the court"),
+  @("scores", "Submit the scores"),
+  @("result", "Result and next step")
+)
+for ($i = 0; $i -lt 5; $i++) {
+  $x = 48 + $i * 180
+  Phone $s $round[$i][0] $x 112 320 | Out-Null
+  if ($i -lt 4) { T $s ([string][char]0x2192) ($x + 146) 260 32 30 22 $ORANGE $true 2 | Out-Null }
+  Circle $s $x 448 28 ([string]($i + 1)) | Out-Null
+  T $s $round[$i][1] ($x + 34) 448 112 44 13 $WHITE $true | Out-Null
+}
+Notes $s "เล่าทีละขั้นตามภาพ (1) หัวหน้าทีมกดเข้าคิวที่หน้าสนาม เห็นลำดับของตัวเองทันที (2) เมื่อถึงคิว ระบบส่ง LINE ไปที่หัวหน้าทีม ไม่ต้องยืนรอที่สนาม (ภาพนี้เป็นตัวอย่างข้อความ LINE จากระบบ) (3) สมาชิกทุกคนกดยืนยันตำแหน่ง เซิร์ฟเวอร์คำนวณระยะ แล้วหัวหน้ากดยืนยันทีมพร้อม (4) เล่นจบ แต่ละทีมกรอกคะแนนของผู้เล่นตัวเอง ระบบตรวจว่าตรงกัน (5) ระบบสรุปผล ทีมชนะเลือกเล่นต่อ ทีมแพ้เลือกต่อคิวใหม่ภายใน 3 นาที (1 นาที 30 วินาที)"
 
 # 10b. Field evaluation photos
 $s = NewSlide $pres

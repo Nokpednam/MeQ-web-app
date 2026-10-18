@@ -17,7 +17,7 @@
 | 7 | HOW | Architecture | 1:10 |
 | 8 | HOW | The database is the referee | 1:10 |
 | 9 | HOW | Development and testing process | 0:50 |
-| 10 | DEMO | Video or screenshots of one round | 1:30 |
+| 10 | WALKTHROUGH | Screenshots of one round, step by step | 1:30 |
 | 11 | RESULTS | KPI results | 1:30 |
 | 12 | RESULTS | What the field tests found | 1:00 |
 | 13 | IMPACT | Impact, limitations, future work | 1:00 |
@@ -144,14 +144,11 @@ Objectives:
 
 ---
 
-## Slide 10: DEMO
-**On the slide:** a video of about 60–90 seconds, or a sequence of screenshots
+## Slide 10: WALKTHROUGH: One round, step by step
+**On the slide:** five screenshots in a row with arrows (no video): `court-queue` → `line-chat` → `check-in` → `scores` → `result`
+1. Join the queue · 2. LINE notifications · 3. Check in at the court · 4. Submit the scores · 5. Result and next step
 
-Suggested order: join queue → called + LINE message → check in → submit scores → result → statistics
-
-**Pictures:** `screenshots/court-queue.png` → `screenshots/line-chat.png` → `screenshots/check-in.png` → ⏳ `screenshots/scores.png` → `screenshots/result.png`
-
-**Speaker notes:** (พูดตามภาพ) ⏳ แนะนำให้อัดวิดีโอหน้าจอระหว่างเทสที่สนามวันที่ 17 ต.ค. แล้วตัดให้เหลือไม่เกิน 90 วินาที
+**Speaker notes:** เล่าทีละขั้นตามภาพ: เข้าคิว → ได้ LINE เมื่อถึงคิว → ทุกคนยืนยันตำแหน่ง หัวหน้ายืนยันทีมพร้อม → แต่ละทีมกรอกคะแนน ระบบตรวจว่าตรงกัน → ทีมชนะเลือกเล่นต่อ ทีมแพ้ต่อคิวใหม่ภายใน 3 นาที (1 นาที 30 วินาที)
 
 ---
 
