@@ -82,13 +82,13 @@ $pres.PageSetup.SlideWidth = 960; $pres.PageSetup.SlideHeight = 540
 try {
 # 1. Title
 $s = NewSlide $pres $true
-T $s "FINAL-YEAR PROJECT · COMPUTER SCIENCE · NARESUAN UNIVERSITY" 48 120 480 18 13 $ORANGE $true | Out-Null
-T $s "MeQ" 48 146 480 90 72 $WHITE $true | Out-Null
-T $s "A mobile web application for basketball court queues and maintenance reports" 48 240 470 80 24 $WHITE | Out-Null
+T $s "UNDERGRADUATE THESIS · NARESUAN UNIVERSITY" 48 80 480 18 13 $ORANGE $true | Out-Null
+T $s "Development of a Web Application for Sports Facility Queuing and Maintenance Reporting" 48 106 480 150 28 $WHITE $true | Out-Null
+T $s "MeQ: court queues and maintenance reports" 48 278 480 26 18 $ORANGE $true | Out-Null
 T $s "Nutthawut Wanma · 66311834`rAdvisor: Asst. Prof. Dr. Wansuree Massagram`r2026" 48 372 470 80 16 $SOFT | Out-Null
 Phone $s "home" 560 70 400 | Out-Null
 Phone $s "court-queue" 740 70 400 | Out-Null
-Notes $s "สวัสดีครับ ผม ... วันนี้จะนำเสนอโปรเจกต์ MeQ ระบบคิวสนามบาสและแจ้งซ่อมของมหาวิทยาลัยนเรศวร (20 วินาที)"
+Notes $s "สวัสดีครับ ผมณัฐวุฒิ วันมา วันนี้จะนำเสนอวิทยานิพนธ์เรื่อง การพัฒนาเว็บแอปพลิเคชันสำหรับการจัดคิวสิ่งอำนวยความสะดวกด้านกีฬาและการรายงานการบำรุงรักษา ระบบที่พัฒนาชื่อว่า MeQ (20 วินาที)"
 
 # 2. WHY: problem
 $s = NewSlide $pres
