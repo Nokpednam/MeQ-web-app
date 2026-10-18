@@ -85,7 +85,7 @@ $s = NewSlide $pres $true
 T $s "FINAL-YEAR PROJECT · COMPUTER SCIENCE · NARESUAN UNIVERSITY" 48 120 480 18 13 $ORANGE $true | Out-Null
 T $s "MeQ" 48 146 480 90 72 $WHITE $true | Out-Null
 T $s "A mobile web application for basketball court queues and maintenance reports" 48 240 470 80 24 $WHITE | Out-Null
-T $s "[Your name] · [Student ID]`rAdvisor: [Advisor name]`r2026" 48 372 470 80 16 $SOFT | Out-Null
+T $s "Nutthawut Wanma · 66311834`rAdvisor: Asst. Prof. Dr. Wansuree Massagram`r2026" 48 372 470 80 16 $SOFT | Out-Null
 Phone $s "home" 560 70 400 | Out-Null
 Phone $s "court-queue" 740 70 400 | Out-Null
 Notes $s "สวัสดีครับ ผม ... วันนี้จะนำเสนอโปรเจกต์ MeQ ระบบคิวสนามบาสและแจ้งซ่อมของมหาวิทยาลัยนเรศวร (20 วินาที)"
