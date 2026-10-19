@@ -379,12 +379,53 @@ $tr.Font.Name = $FONT; $tr.Font.Size = 19; $tr.Font.Bold = -1; $tr.Font.Color.RG
 $l.TextFrame.MarginLeft = 24
 Notes $s "สิ่งที่ได้เรียนรู้มากที่สุดคือ เทสอัตโนมัติผ่านหมดก็ยังไม่พอ ต้องให้คนจริงใช้จริง บั๊กที่ร้ายแรงที่สุดเจอจากการทดสอบที่สนาม รวมทั้งหมดเจอข้อบกพร่องในโค้ด 11 จุด แก้ครบและเพิ่มเทสทุกครั้ง และปัญหาการตั้งค่าพิกัด 1 จุดที่แก้ที่สนาม (1 นาที)"
 
+# 12b. PDPA self-assessment
+$s = NewSlide $pres
+Heading $s "DATA PROTECTION" "Personal data protection (PDPA B.E. 2562)"
+$chip = Box $s 712 54 200 34 $TINT
+$tr = $chip.TextFrame.TextRange
+$tr.Text = "3 met · 5 partial"; $tr.Font.Name = $FONT; $tr.Font.Size = 15; $tr.Font.Bold = -1; $tr.Font.Color.RGB = [int]($INK); $tr.ParagraphFormat.Alignment = 2
+$MET = C "006300"; $PART = C "8A4B00"
+$duties = @(
+  @("Duty", "Status", "What MeQ does, and what is missing"),
+  @("1  Notice and purpose", "Met", "A privacy page states what is collected, why, and who can see it"),
+  @("2  Lawful basis, consent", "Partial", "Data serve the service; LINE only after adding the account; no consent step at sign-in"),
+  @("3  Data minimization", "Met", "No e-mail, phone number, or coordinates; only the distance to the court is stored"),
+  @("4  Retention", "Partial", "Location checks expire in 30 minutes; old logs and photos are not deleted automatically"),
+  @("5  Security", "Met", "Row-level security, a private photo bucket, HTTPS and security headers (KPI-7)"),
+  @("6  Processors", "Partial", "Supabase, Vercel, and LINE are named; only their standard terms apply"),
+  @("7  Rights of the data subject", "Partial", "Access or deletion on request through LINE; no self-service deletion"),
+  @("8  Breach notification", "Partial", "Audit logs exist; no written procedure for reporting a breach")
+)
+$tb = $s.Shapes.AddTable(9, 3, 48, 108, 864, 380)
+$t = $tb.Table
+$t.Columns.Item(1).Width = 230; $t.Columns.Item(2).Width = 90; $t.Columns.Item(3).Width = 544
+for ($r = 1; $r -le 9; $r++) {
+  for ($c = 1; $c -le 3; $c++) {
+    $cell = $t.Cell($r, $c)
+    $cell.Shape.Fill.Solid()
+    $cell.Shape.Fill.ForeColor.RGB = [int]($(if ($r -eq 1) { $DARK } elseif ($r % 2 -eq 0) { $CARD } else { $WHITE }))
+    $tr = $cell.Shape.TextFrame.TextRange
+    $val = $duties[$r - 1][$c - 1]
+    if ($r -gt 1 -and $c -eq 2) { $val = $(if ($val -eq "Met") { [string][char]0x2713 + " Met" } else { [string][char]0x25D0 + " Partial" }) }
+    $tr.Text = $val
+    $tr.Font.Name = $FONT; $tr.Font.Size = 12
+    $tr.Font.Bold = $(if ($r -eq 1 -or $c -le 2) { -1 } else { 0 })
+    $color = $INK
+    if ($r -eq 1) { $color = $WHITE } elseif ($c -eq 2) { $color = $(if ($duties[$r - 1][1] -eq "Met") { $MET } else { $PART }) }
+    $tr.Font.Color.RGB = [int]($color)
+    $cell.Shape.TextFrame.MarginLeft = 8; $cell.Shape.TextFrame.MarginTop = 4; $cell.Shape.TextFrame.MarginBottom = 4
+  }
+}
+T $s "Self-assessment against the main duties of a data controller (thesis Table 3.7); not a legal review." 48 500 864 20 12 $MUTED | Out-Null
+Notes $s "ด้านการคุ้มครองข้อมูลส่วนบุคคล ผมประเมินระบบเทียบกับหน้าที่หลัก 8 ข้อของผู้ควบคุมข้อมูลตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 ระบบดำเนินการครบ 3 ข้อ และบางส่วนอีก 5 ข้อ จุดเด่นคือเก็บข้อมูลเท่าที่จำเป็น ไม่เก็บอีเมล เบอร์โทรศัพท์ และพิกัด เก็บเพียงระยะห่างจากสนาม ส่วนที่ยังขาดคือการลบข้อมูลเก่าอัตโนมัติ การลบบัญชีด้วยตนเอง และขั้นตอนการแจ้งเหตุข้อมูลรั่วไหล ซึ่งได้ระบุไว้ในข้อเสนอแนะก่อนนำไปใช้งานจริง ทั้งนี้เป็นการประเมินตนเอง ไม่ใช่การตรวจทางกฎหมาย (40 วินาที)"
+
 # 13. IMPACT
 $s = NewSlide $pres
 Heading $s "IMPACT" "Impact, limitations, and future work"
 $cols = @(
   @("Impact", @("A visible, fair queue: fewer arguments, no standing by the court", "Damage reaches the staff sooner; players follow the repair", "Free infrastructure that other facilities can reuse")),
-  @("Limitations", @("A faked GPS location cannot be detected", "Scores are entered by the teams themselves", "First use needs guidance (SUS 67.5)", "One facility and a small sample", "PDPA self-check: 3 of 8 duties fully met; data deletion and breach steps still missing")),
+  @("Limitations", @("A faked GPS location cannot be detected", "Scores are entered by the teams themselves", "First use needs guidance (SUS 67.5)", "One facility and a small sample")),
   @("Future work", @("Queues visible without sign-in; guided first use", "QR code check-in at the court", "Futsal and volleyball courts", "Measure disputes before and after deployment"))
 )
 for ($i = 0; $i -lt 3; $i++) {
