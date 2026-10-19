@@ -384,12 +384,12 @@ $s = NewSlide $pres
 Heading $s "IMPACT" "Impact, limitations, and future work"
 $cols = @(
   @("Impact", @("A visible, fair queue: fewer arguments, no standing by the court", "Damage reaches the staff sooner; players follow the repair", "Free infrastructure that other facilities can reuse")),
-  @("Limitations", @("A faked GPS location cannot be detected", "Scores are entered by the teams themselves", "First use needs guidance (SUS 67.5)", "One facility and a small sample")),
+  @("Limitations", @("A faked GPS location cannot be detected", "Scores are entered by the teams themselves", "First use needs guidance (SUS 67.5)", "One facility and a small sample", "PDPA self-check: 3 of 8 duties fully met; data deletion and breach steps still missing")),
   @("Future work", @("Queues visible without sign-in; guided first use", "QR code check-in at the court", "Futsal and volleyball courts", "Measure disputes before and after deployment"))
 )
 for ($i = 0; $i -lt 3; $i++) {
   $x = 48 + $i * 295
-  Box $s $x 118 274 300 $(if ($i -eq 0) { $TINT } else { $CARD }) | Out-Null
+  Box $s $x 118 274 350 $(if ($i -eq 0) { $TINT } else { $CARD }) | Out-Null
   T $s $cols[$i][0] ($x + 22) 140 230 28 20 $ORANGE $true | Out-Null
   Bullets $s $cols[$i][1] ($x + 22) 184 230 280 15 $INK | Out-Null
 }
